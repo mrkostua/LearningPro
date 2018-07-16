@@ -1,4 +1,4 @@
-package mr.kotlin.learningpro
+package mr.kostua.learningpro
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
