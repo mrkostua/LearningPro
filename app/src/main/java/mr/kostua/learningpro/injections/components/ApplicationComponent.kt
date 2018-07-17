@@ -6,9 +6,12 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
+import mr.kostua.learningpro.data.DBHelper
+import mr.kostua.learningpro.data.local.LocalDB
 import mr.kostua.learningpro.injections.LearningProApp
 import mr.kostua.learningpro.injections.modules.ActivityBindingModule
 import mr.kostua.learningpro.injections.modules.ApplicationModule
+import mr.kostua.learningpro.injections.modules.DataModule
 import javax.inject.Singleton
 
 /**

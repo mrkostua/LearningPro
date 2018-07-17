@@ -3,6 +3,8 @@ package mr.kostua.learningpro.mainPage
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +13,7 @@ import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.fragment_main.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.injections.scopes.FragmentScope
+import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
 import mr.kostua.learningpro.tools.ConstantValues
 import javax.inject.Inject
 
@@ -51,6 +54,7 @@ class MainPageFragment @Inject constructor() : DaggerFragment(), MainPageContrac
         if (resultCode == Activity.RESULT_OK) {
             if (data?.data != null) {
                 presenter.processData(data.data)
+                //TODO show some progress bar on left of the button create new (and block this button until the end of the execution)
             } else {
                 TODO("show some message")
             }
@@ -61,4 +65,15 @@ class MainPageFragment @Inject constructor() : DaggerFragment(), MainPageContrac
 
         super.onActivityResult(requestCode, resultCode, data)
     }
+
+    override fun startNewCourseCreationService(data: Uri) {
+        val intent = Intent(fragmentContext, NewCourseCreationService::class.java)
+                .putExtra(ConstantValues.NEW_COURSE_URI_KEY, data.toString())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            fragmentContext.startForegroundService(intent)
+        } else {
+            fragmentContext.startService(intent)
+        }
+    }
+
 }

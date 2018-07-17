@@ -29,7 +29,7 @@ dependencies {
 
     compile 'com.android.support:design:27.1.1'
 
-//dagger
+    //dagger
     kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
     compile "com.google.dagger:dagger:$rootProject.daggerVersion"
     compile "com.google.dagger:dagger-android:$rootProject.daggerVersion"
@@ -38,8 +38,19 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
 
-//testing
+    //testing
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    // RxJava
+    compile 'io.reactivex.rxjava2:rxjava:2.1.16'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    //Room
+    def room_version = "1.1.1"
+    compile "android.arch.persistence.room:runtime:$room_version"
+    annotationProcessor "android.arch.persistence.room:compiler:$room_version"
+    compile "android.arch.persistence.room:rxjava2:$room_version"
+    kapt "android.arch.persistence.room:compiler:$room_version"
+
 }

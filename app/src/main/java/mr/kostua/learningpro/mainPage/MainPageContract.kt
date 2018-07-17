@@ -9,7 +9,7 @@ import mr.kostua.learningpro.toolsMVP.BaseView
  */
 interface MainPageContract {
     interface View : BaseView {
-
+        fun startNewCourseCreationService(data: Uri)
     }
 
     interface Presenter : BasePresenter<View> {
