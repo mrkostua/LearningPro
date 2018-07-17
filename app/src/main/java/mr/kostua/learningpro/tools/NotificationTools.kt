@@ -16,7 +16,9 @@ import javax.inject.Inject
  * @author Kostiantyn Prysiazhnyi on 7/16/2018.
  */
 class NotificationTools @Inject constructor(private val context: Context) {
-    private lateinit var newCourseNotification: NotificationCompat.Builder
+    private lateinit var newCourseNotfBuilder: NotificationCompat.Builder
+    private val notfManager = (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -25,29 +27,50 @@ class NotificationTools @Inject constructor(private val context: Context) {
     }
 
     fun createNewCourseNotification(name: String): Notification {
-        newCourseNotification = NotificationCompat.Builder(context, ConstantValues.NOTIFICATION_CHANNEL_ID)
+        newCourseNotfBuilder = NotificationCompat.Builder(context, ConstantValues.NOTIFICATION_CHANNEL_ID)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_PROGRESS)
                 .setContentTitle("title")
                 .setContentText("second row")
-                .setProgress(3, 0, false)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setTicker("status bar")
                 .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher_round))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
-        return newCourseNotification.build()
+        return newCourseNotfBuilder.build()
     }
 
-    fun updateNewCourseNotifiationProgress(maxProgress: Int, progress: Int) {
-         if (TODO("check if notification exists")) {
-        newCourseNotification.setProgress(100, progress, false)
-         }
+    fun updateNewCourseNotificationProgress(maxProgress: Int, progress: Int) {
+        if (isNotificationVisible(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID)) {
+            newCourseNotfBuilder.setProgress(maxProgress, progress, false)
+            if (maxProgress == progress) {
+                newCourseNotfBuilder.setContentText("creation complete")
+                        .setProgress(0, 0, false)
+            }
+            notfManager.notify(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, newCourseNotfBuilder.build())
+        }
+
     }
+    // for files with 100000 lines it is bad for performance do to every time additional check
+    private fun isNotificationVisible(notfId: Int): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            notfManager.activeNotifications.forEach {
+                if (it.id == notfId) {
+                    return true
+                }
+            }
+        } else {
+            //for now true TODO think about it (if it was canceled or didn't started, it must be started with notify again
+            return true
+
+        }
+        return false
+    }
+
 
     fun cancelNotification(notificationID: Int) {
-        (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(notificationID)
+        notfManager.cancel(notificationID)
     }
 
     fun showToastMessage(messageText: String) {

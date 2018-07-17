@@ -1,6 +1,5 @@
 package mr.kostua.learningpro.mainPage.executionService
 
-import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import dagger.android.DaggerIntentService
@@ -9,9 +8,9 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
-import mr.kostua.learningpro.tools.ShowLogs
 import java.io.*
 import javax.inject.Inject
+
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/16/2018.
@@ -47,25 +46,20 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     }
 
     //TODO in future update method to be able handle big answer to questions bigger than 8000 characters (As SQL can save in one varchar type)
-    //TODO data must be processed in separate thread and after inserted into DB
     //TODO no network error during accessing file from GDrive, crash
-    //RXJava and Room
-    //during working in background for now show some progressBar
     private fun createNewCourse(data: Uri) {
         var question = ""
         val task = StringBuffer()
         val otherText = StringBuffer()
-        val contRes = this.contentResolver.openInputStream(data)
-        var i = 0
-        InputStreamReader(contRes, "UTF-8").buffered().useLines {
-            //val linesCount = it.count() TODO error sequence can be consumed only once
-            notificationTools.updateNewCourseNotifiationProgress(1000, 0)
+        val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
+
+        BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
+                "UTF-8")).useLines {
             it.forEachIndexed { index, line ->
-                //notificationTools.updateNewCourseNotifiationProgress(3, index) TODO how to update notification properly
+                notificationTools.updateNewCourseNotificationProgress(linesCount, index)
                 if (isLineQuestion(line)) {
                     if (question.isNotEmpty()) {
                         saveTaskInDB(question, task.toString())
-                        ++i
                         task.delete(0, task.length)
                     }
                     question = line
@@ -84,10 +78,15 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
             saveTaskInDB(question, task.toString())
         }
 
-        Thread.sleep(10000)
         saveTaskInDB("Create question for this text or delete?", otherText.toString())
-        ShowLogs.log(TAG, "\n\nAMOUNT of questions  is : $i")
+    }
 
+    private fun getLinesCount(inputStream: InputStream): Int {
+        val lineNumberReader = LineNumberReader(InputStreamReader(inputStream, "UTF-8"))
+        lineNumberReader.skip(Long.MAX_VALUE)
+        val linesCount = lineNumberReader.lineNumber
+        lineNumberReader.close()
+        return linesCount
     }
 
     private fun saveTaskInDB(question: String, task: String) {
@@ -105,6 +104,6 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
 
 
     private fun showFailedMessage() {
-
+        TODO("not implemented")
     }
 }
