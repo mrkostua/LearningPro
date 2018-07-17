@@ -1,4 +1,4 @@
-package mr.kotlin.learningpro
+package mr.kostua.learningpro
 
 import org.junit.Test
 
