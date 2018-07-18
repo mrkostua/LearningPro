@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">LearningPro</string>
     <string name="menu_settings_action">settings</string>
+    <string name="bManageRemindersText">Manage reminders</string>
+    <string name="bOpenCurrentCourseText">Open current</string>
+    <string name="bCreateNewCourseText">CREATE</string>
+    <string name="linkToDownloadedIcons">https://icons8.com/</string><!--TODO add to about app and also added this link to description in google play-->
 </resources>

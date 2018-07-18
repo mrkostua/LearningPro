@@ -20,8 +20,8 @@
 
         <android.support.design.widget.TabLayout
             app:tabBackground="@drawable/tab_selector"
-            app:tabTextColor="@color/white"
-            app:tabSelectedTextColor="@color/secondaryDarkColor"
+            app:tabTextColor="@color/tabTextColor"
+            app:tabSelectedTextColor="@color/tabTextSelectedColor"
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

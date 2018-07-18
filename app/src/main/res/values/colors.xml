@@ -14,7 +14,13 @@
     <color name="secondaryTextColor">#fafafa</color>
 
 
-
+    <color name="bStroke_color">#000000</color>
     <color name="white">#ffffff</color>
+
+    <color name="main_buttons_pressed_color">#77009688</color>
+
+    <color name="main_buttons_color">#77ef6c00</color>
+    <color name="tabTextColor">#ffffff</color>
+    <color name="tabTextSelectedColor">#a2000000</color>
 
 </resources>

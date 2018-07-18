@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/clBackgroundLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/books_background">
+
+    <Button
+        android:id="@+id/bCreateNewCourse"
+        style="@style/CustomButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/icon_new_96"
+        android:drawableRight="@drawable/icon_new_96"
+        android:text="@string/bCreateNewCourseText"
+        app:layout_constraintBottom_toTopOf="@+id/bOpenCurrentCourse"
+        app:layout_constraintEnd_toEndOf="@+id/barrierRight"
+        app:layout_constraintStart_toEndOf="@+id/barrierLeft"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread" />
+
+    <Button
+        android:id="@+id/bOpenCurrentCourse"
+        style="@style/CustomButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:text="@string/bOpenCurrentCourseText"
+        app:layout_constraintBottom_toTopOf="@+id/bManageReminders"
+        app:layout_constraintEnd_toEndOf="@+id/barrierRight"
+        app:layout_constraintStart_toEndOf="@+id/barrierLeft"
+        app:layout_constraintTop_toBottomOf="@+id/bCreateNewCourse" />
+
+    <Button
+        android:id="@+id/bManageReminders"
+        style="@style/CustomButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:padding="20dp"
+        android:text="@string/bManageRemindersText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bOpenCurrentCourse" />
+
+    <android.support.constraint.Barrier
+        android:id="@+id/barrierLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="left"
+        app:constraint_referenced_ids="bManageReminders,bCreateNewCourse,bCreateNewCourse" />
+
+    <android.support.constraint.Barrier
+        android:id="@+id/barrierRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="right"
+        app:constraint_referenced_ids="bManageReminders,bCreateNewCourse,bCreateNewCourse" />
+</android.support.constraint.ConstraintLayout>
