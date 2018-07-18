@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">LearningProNew</string>
+    <string name="app_name">LearningPro</string>
+    <string name="menu_settings_action">settings</string>
 </resources>
