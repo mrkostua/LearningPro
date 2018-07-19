@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources><color name="colorPrimary">#125688</color>
-    <color name="colorPrimaryDark">#125688</color>
-    <color name="textColorPrimary">#FFFFFF</color>
-    <color name="windowBackground">#FFFFFF</color>
-    <color name="navigationBarColor">#000000</color>
-    <color name="colorAccent">#c8e8ff</color>
+<resources>
+    <color name="primaryColor">#ef6c00</color> <!---->
+    <color name="primaryLightColor">#ff9d3f</color>
+    <color name="primaryDarkColor">#b53d00</color>
+    <color name="primaryDarkTabSelected">#50e65100</color>
+
+
+    <color name="secondaryColor">#009688</color>
+    <color name="secondaryLightColor">#52c7b8</color>
+    <color name="secondaryDarkColor">#00675b</color>
+
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#fafafa</color>
+
+
+    <color name="bStroke_color">#000000</color>
+    <color name="white">#ffffff</color>
+
+    <color name="main_buttons_pressed_color">#77009688</color>
+
+    <color name="main_buttons_color">#77ef6c00</color>
+    <color name="tabTextColor">#ffffff</color>
+    <color name="tabTextSelectedColor">#a2000000</color>
+
 </resources>

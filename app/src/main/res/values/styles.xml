@@ -5,9 +5,16 @@
     <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/secondaryColor</item>
+        <item name="android:textColor">@color/primaryTextColor</item>
     </style>
 
+    <style name="CustomButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:background">@drawable/button_selector</item>
+        <item name="android:textColor">@color/secondaryTextColor</item>
+        <item name="android:padding">15dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
 </resources>
