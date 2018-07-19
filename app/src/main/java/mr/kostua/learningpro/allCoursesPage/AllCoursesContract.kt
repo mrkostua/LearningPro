@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.allCoursesPage
 
+import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.toolsMVP.BasePresenter
 import mr.kostua.learningpro.toolsMVP.BaseView
@@ -9,12 +10,12 @@ import mr.kostua.learningpro.toolsMVP.BaseView
  */
 interface AllCoursesContract {
     interface View : BaseView {
-        fun initializeRecycleView(data : List<QuestionDo>)
-        fun setPBVisibility(visible : Boolean)
+        fun initializeRecycleView(data: List<CourseDo>)
+        fun setPBVisibility(visible: Boolean)
     }
 
-    interface Presenter : BasePresenter<View>{
-
+    interface Presenter : BasePresenter<View> {
+        fun populateCourses()
 
     }
 }
