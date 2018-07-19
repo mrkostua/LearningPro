@@ -21,11 +21,9 @@ import javax.inject.Inject
  * @author Kostiantyn Prysiazhnyi on 7/13/2018.
  */
 @FragmentScope
-class MainPageFragment @Inject constructor() : FragmentInitializer(), MainPageContract.View, View.OnClickListener {
+class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContract.Presenter>(),
+        MainPageContract.View, View.OnClickListener {
     private val TAG = this.javaClass.simpleName
-
-    @Inject
-    public lateinit var presenter: MainPageContract.Presenter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main_page, container, false)

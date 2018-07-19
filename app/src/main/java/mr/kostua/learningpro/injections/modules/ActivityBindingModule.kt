@@ -2,6 +2,8 @@ package mr.kostua.learningpro.injections.modules
 
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
+import mr.kostua.learningpro.allCoursesPage.AllCoursesFragment
+import mr.kostua.learningpro.allCoursesPage.AllCoursesModule
 import mr.kostua.learningpro.injections.scopes.FragmentScope
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.main.MainActivity
@@ -26,4 +28,7 @@ public abstract class ActivityBindingModule {
     @ServiceScope
     @ContributesAndroidInjector(modules = [(DataModule::class), (DisplayHelperModule::class)])
     public abstract fun getNewCourseCreationService(): NewCourseCreationService
+    @ServiceScope
+    @ContributesAndroidInjector(modules = [(DataModule::class), (AllCoursesModule::class)])
+    public abstract fun getAllCoursesFragment(): AllCoursesFragment
 }

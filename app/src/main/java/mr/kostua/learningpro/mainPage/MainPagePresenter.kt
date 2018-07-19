@@ -12,7 +12,7 @@ import javax.inject.Inject
  */
 class MainPagePresenter @Inject constructor(private val contentResolver: ContentResolver) : MainPageContract.Presenter {
     private val TAG = this.javaClass.simpleName
-    private lateinit var view: MainPageContract.View
+    override lateinit var view: MainPageContract.View
 
     override fun start() {
 

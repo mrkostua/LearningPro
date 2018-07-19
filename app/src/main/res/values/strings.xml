@@ -5,4 +5,9 @@
     <string name="bOpenCurrentCourseText">Open current</string>
     <string name="bCreateNewCourseText">CREATE</string>
     <string name="linkToDownloadedIcons">https://icons8.com/</string><!--TODO add to about app and also added this link to description in google play-->
+    <string name="defaultCourseDescription">This course is for learning about computer architecture related topics, like : how computer works, what is inside of it, more deep look into computer architecture</string>
+    <string name="defaultCourseTitle">ASK Exam</string>
+    <string name="defaultCourseQuestionsAmount">225</string>
+    <string name="questionIconContentDescription">\?</string>
+    <string name="defaultCourseDoneQuestionsAmount">60%</string>
 </resources>

@@ -1,0 +1,20 @@
+package mr.kostua.learningpro.allCoursesPage
+
+import mr.kostua.learningpro.data.local.QuestionDo
+import mr.kostua.learningpro.toolsMVP.BasePresenter
+import mr.kostua.learningpro.toolsMVP.BaseView
+
+/**
+ * @author Kostiantyn Prysiazhnyi on 7/19/2018.
+ */
+interface AllCoursesContract {
+    interface View : BaseView {
+        fun initializeRecycleView(data : List<QuestionDo>)
+        fun setPBVisibility(visible : Boolean)
+    }
+
+    interface Presenter : BasePresenter<View>{
+
+
+    }
+}
