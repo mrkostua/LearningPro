@@ -26,9 +26,10 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     override fun onHandleIntent(intent: Intent?) {
         if (intent != null) {
             val uriData = Uri.parse(intent.getStringExtra(ConstantValues.NEW_COURSE_URI_KEY))
-            if (uriData != null) {
+            val courseId = intent.getIntExtra(ConstantValues.NEW_COURSE_ID_KEY, ConstantValues.WRONG_TABLE_ID)
+            if (uriData != null && courseId != ConstantValues.WRONG_TABLE_ID) {
                 startForeground(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, notificationTools.createNewCourseNotification("creating course..."))
-                createNewCourse(uriData)
+                createNewCourse(uriData, courseId)
 
             } else {
                 showFailedMessage()
@@ -47,9 +48,9 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
 
     //TODO in future update method to be able handle big answer to questions bigger than 8000 characters (As SQL can save in one varchar type)
     //TODO no network error during accessing file from GDrive, crash
-    private fun createNewCourse(data: Uri) {
+    private fun createNewCourse(data: Uri, courseId: Int) {
         var question = ""
-        val task = StringBuffer()
+        val answer = StringBuffer()
         val otherText = StringBuffer()
         val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
 
@@ -59,8 +60,8 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
                 notificationTools.updateNewCourseNotificationProgress(linesCount, index)
                 if (isLineQuestion(line)) {
                     if (question.isNotEmpty()) {
-                        saveTaskInDB(question, task.toString())
-                        task.delete(0, task.length)
+                        saveTaskInDB(QuestionDo(question = question, answer = answer.toString(), courseId = courseId))
+                        answer.delete(0, answer.length)
                     }
                     question = line
 
@@ -68,17 +69,19 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
                     if (question.isEmpty()) {
                         otherText.appendln(line)
                     } else {
-                        task.appendln(line)
+                        answer.appendln(line)
                     }
 
                 }
             }
         }
         if (question.isNotEmpty()) {
-            saveTaskInDB(question, task.toString())
+            saveTaskInDB(QuestionDo(question = question, answer = answer.toString(), courseId = courseId))
+        }
+        if (otherText.isNotEmpty()) {
+            saveTaskInDB(QuestionDo(question = "", answer = otherText.toString(), courseId = courseId))
         }
 
-        saveTaskInDB("Create question for this text or delete?", otherText.toString())
     }
 
     private fun getLinesCount(inputStream: InputStream): Int {
@@ -89,8 +92,8 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         return linesCount
     }
 
-    private fun saveTaskInDB(question: String, task: String) {
-        dbHelper.addQuestionToLocalDB(QuestionDo(question = question, answer = task))
+    private fun saveTaskInDB(questionDo: QuestionDo) {
+        dbHelper.addQuestionToLocalDB(questionDo)
     }
 
     private fun isLineQuestion(line: String): Boolean {

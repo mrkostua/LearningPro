@@ -18,9 +18,13 @@
     <color name="white">#ffffff</color>
 
     <color name="main_buttons_pressed_color">#77009688</color>
+    <color name="main_buttons_pressed_ripple_color">#009688</color>
+
+    <color name="main_buttons_blocked_color">#77009688</color>
 
     <color name="main_buttons_color">#77ef6c00</color>
     <color name="tabTextColor">#ffffff</color>
     <color name="tabTextSelectedColor">#a2000000</color>
+    <color name="hint_text_color">#79ffffff</color>
 
 </resources>

@@ -16,6 +16,7 @@ interface AllCoursesContract {
 
     interface Presenter : BasePresenter<View> {
         fun populateCourses()
+        fun disposeAll()
 
     }
 }

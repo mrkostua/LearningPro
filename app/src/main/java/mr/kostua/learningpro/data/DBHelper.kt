@@ -1,5 +1,7 @@
 package mr.kostua.learningpro.data
 
+import io.reactivex.Single
+import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.data.local.LocalDB
 import mr.kostua.learningpro.data.local.QuestionDo
 import javax.inject.Inject
@@ -14,6 +16,11 @@ class DBHelper @Inject constructor(private val db: LocalDB) {
             throw ValueNotInsertedException("question : ${question.question} wasn't inserted")
         }
     }
+
+    fun addCourseToLocalDB(courseDo: CourseDo): Single<Long> =
+            Single.fromCallable { db.coursesDao().insertCourse(courseDo) }
+
+    fun getAllCourses() = db.coursesDao().getAllCourses()
 }
 
 private class ValueNotInsertedException(message: String) : Throwable(message)

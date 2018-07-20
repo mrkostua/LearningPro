@@ -8,7 +8,8 @@ import android.view.ViewGroup
 /**
  * @author Kostiantyn Prysiazhnyi on 7/19/2018.
  */
-class RecycleViewAdapter<D>(private val data: List<D>, private val layoutRes: Int, private val binder: ViewHolderBinder<D>) : RecyclerView.Adapter<RecycleViewAdapter<D>.ViewHolder>() {
+class RecycleViewAdapter<D>(private val data: List<D>, private val layoutRes: Int, private val binder: ViewHolderBinder<D>)
+    : RecyclerView.Adapter<RecycleViewAdapter<D>.ViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecycleViewAdapter<D>.ViewHolder {

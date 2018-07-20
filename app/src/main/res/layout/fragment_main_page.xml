@@ -20,6 +20,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="spread" />
 
+    <ProgressBar
+        android:id="@+id/pbCreateNewCourse"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/bCreateNewCourse"
+        app:layout_constraintStart_toEndOf="@+id/bCreateNewCourse"
+        app:layout_constraintTop_toTopOf="@+id/bCreateNewCourse" />
+
     <Button
         android:id="@+id/bOpenCurrentCourse"
         style="@style/CustomButtonStyle"

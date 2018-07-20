@@ -68,7 +68,8 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
 
                     tvCourseQuestionsAmount.text = questionsAmount.toString()
-                    tvDoneQuestionsAmount.text = "${(doneQuestionsAmount * 100) / questionsAmount} %"
+                    tvDoneQuestionsAmount.text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"
+                        else "${(doneQuestionsAmount * 100) / questionsAmount} %"
                     pbDoneQuestionsAmount.max = questionsAmount
                     pbDoneQuestionsAmount.progress = doneQuestionsAmount
                 }
@@ -83,5 +84,10 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
     override fun setPBVisibility(visible: Boolean) {
         pbLoadCourses.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.disposeAll()
     }
 }

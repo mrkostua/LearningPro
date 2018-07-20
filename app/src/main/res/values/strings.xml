@@ -10,4 +10,12 @@
     <string name="defaultCourseQuestionsAmount">225</string>
     <string name="questionIconContentDescription">\?</string>
     <string name="defaultCourseDoneQuestionsAmount">60%</string>
+    <string name="create_course_dialog_title">Create new course :</string>
+    <string name="create_course_dialog_hint_title">title :</string>
+    <string name="create_course_dialog_hint_description">description :</string>
+    <string name="create_course_dialog_default_file_name"><u>no file found</u></string>
+    <string name="create_course_dialog_file_name_title">File name :</string>
+    <string name="create_course_dialog_b_change_file">Change file</string>
+    <string name="b_back">Back</string>
+    <string name="b_create">Create</string>
 </resources>
