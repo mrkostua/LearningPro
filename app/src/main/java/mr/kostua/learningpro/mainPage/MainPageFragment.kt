@@ -5,10 +5,12 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import kotlinx.android.synthetic.main.custom_view_create_course_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main_page.*
 import mr.kostua.learningpro.R
@@ -72,6 +74,22 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         with(customDialogView) {
             tvNewCourseDialogFileName.setUnderlineText(FileTools.getFileNameFromUri(data,
                     fragmentContext.getString((R.string.create_course_dialog_default_file_name)), fragmentContext.contentResolver))
+          /*  tvNewCourseDialogFileName.setOnFocusChangeListener { v, hasFocus ->
+                (v as TextView).setTextColor(ResourcesCompat.getColor(resources,
+                        if (hasFocus) R.color.secondaryDarkColor else R.color.white,
+                        null))
+
+            }
+            tvNewCourseDialogFileName.setOnTouchListener { v, event ->
+                (v as TextView).setTextColor(ResourcesCompat.getColor(resources,
+                        R.color.secondaryDarkColor,
+                        null))
+                true
+            }*/
+
+            tvNewCourseDialogFileName.setOnClickListener {
+                //TODO go to file selection and dismiss so new dialog can be created but with previous data from SharedPreferences
+            }
 
             bNewCourseBack.setOnClickListener {
                 createCourseDialog.dismiss()

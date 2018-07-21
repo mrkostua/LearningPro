@@ -11,7 +11,7 @@
     android:clickable="true"
     android:focusable="true"
     android:paddingBottom="10dp">
-
+<!--TODO add toolTip to icons as question mark and done-->
 
     <TextView
         android:id="@+id/tvCourseTitle"
