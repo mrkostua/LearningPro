@@ -26,7 +26,7 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
     }
 
 
-    override fun processData(data: Uri, course : CourseDo) {
+    override fun processData(data: Uri, course: CourseDo) {
         disposables.add(db.addCourseToLocalDB(course)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -40,12 +40,14 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
                     }
 
                     override fun onError(e: Throwable) {
+                        view.setBlockCreateButton(false)
                         TODO("Show some message etc......") //To change body of created functions use File | Settings | File Templates.
                     }
 
                 }))
 
     }
+
 
     override fun disposeAll() {
         disposables.clear()

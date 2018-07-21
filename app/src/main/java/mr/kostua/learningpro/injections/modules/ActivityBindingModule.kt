@@ -18,7 +18,7 @@ import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
 @Module
 public abstract class ActivityBindingModule {
     @FragmentScope
-    @ContributesAndroidInjector(modules = [(MainPageModule::class), (DataModule::class)])
+    @ContributesAndroidInjector(modules = [(MainPageModule::class), (DataModule::class), (DisplayHelperModule::class)])
     public abstract fun getMainPageFragment(): MainPageFragment
 
     @FragmentScope

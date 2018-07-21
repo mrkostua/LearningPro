@@ -5,18 +5,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.res.ResourcesCompat
+import android.os.Handler
+import android.os.Message
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import kotlinx.android.synthetic.main.custom_view_create_course_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main_page.*
 import mr.kostua.learningpro.R
+import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.injections.scopes.FragmentScope
 import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
 import mr.kostua.learningpro.tools.*
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 
@@ -28,12 +30,16 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         MainPageContract.View, View.OnClickListener {
     private val TAG = this.javaClass.simpleName
 
+    @Inject
+    public lateinit var notificationTools: NotificationTools
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_main_page, container, false)
     }
 
     override fun initializeViews() {
         presenter.takeView(this)
+        val uiHandler = CustomHandler(this)
         bCreateNewCourse.setOnClickListener(this)
         bOpenCurrentCourse.setOnClickListener(this)
         bManageReminders.setOnClickListener(this)
@@ -74,19 +80,6 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         with(customDialogView) {
             tvNewCourseDialogFileName.setUnderlineText(FileTools.getFileNameFromUri(data,
                     fragmentContext.getString((R.string.create_course_dialog_default_file_name)), fragmentContext.contentResolver))
-          /*  tvNewCourseDialogFileName.setOnFocusChangeListener { v, hasFocus ->
-                (v as TextView).setTextColor(ResourcesCompat.getColor(resources,
-                        if (hasFocus) R.color.secondaryDarkColor else R.color.white,
-                        null))
-
-            }
-            tvNewCourseDialogFileName.setOnTouchListener { v, event ->
-                (v as TextView).setTextColor(ResourcesCompat.getColor(resources,
-                        R.color.secondaryDarkColor,
-                        null))
-                true
-            }*/
-
             tvNewCourseDialogFileName.setOnClickListener {
                 //TODO go to file selection and dismiss so new dialog can be created but with previous data from SharedPreferences
             }
@@ -95,7 +88,22 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 createCourseDialog.dismiss()
             }
             bNewCourseCreate.setOnClickListener {
-                // presenter.processData(data, CourseDo(title = "test", description = "test"))
+                when {
+                    etNewCourseDialogTitle.text.isEmpty() -> {
+                        notificationTools.showToastMessage("Please set the title to continue")
+                    }
+                    tvNewCourseDialogFileName.text == resources.getString(R.string.create_course_dialog_default_file_name) -> {
+                        notificationTools.showToastMessage("Please choose the file with questions before continuing")
+                    }
+                    else -> {
+                        presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                                description = etNewCourseDialogDescription.text.toString()))
+
+                        setBlockCreateButton(true)
+                        createCourseDialog.dismiss()
+                    }
+                }
+
             }
         }
 
@@ -103,19 +111,18 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         createCourseDialog.show()
     }
 
-    private fun setBlockCreateButton(isBlocked: Boolean) {
+    override fun setBlockCreateButton(isBlocked: Boolean) {
         with(bCreateNewCourse) {
-            isClickable = isBlocked
-            isFocusable = isBlocked
+            isClickable = !isBlocked
+            isFocusable = !isBlocked
         }
+        ShowLogs.log(TAG, "setBlock : $isBlocked")
         if (isBlocked) {
             pbCreateNewCourse.visibility = View.VISIBLE
             bCreateNewCourse.setBackgroundResource(R.drawable.blocked_button)
-
         } else {
             pbCreateNewCourse.visibility = View.GONE
             bCreateNewCourse.setBackgroundResource(R.drawable.button_selector)
-
         }
     }
 
@@ -145,6 +152,22 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     override fun onDestroy() {
         super.onDestroy()
         presenter.disposeAll()
+    }
+
+    private class CustomHandler(fragment: MainPageFragment) : Handler() {
+        private val weakReference: WeakReference<MainPageFragment> = WeakReference(fragment)
+        override fun handleMessage(msg: Message?) {
+            val fragment = weakReference.get()
+            if (fragment != null) {
+                when (msg?.what) {
+                    ConstantValues.UI_HANDLER_UNBLOCK_B_CREATE_MESSAGE -> {
+                        fragment.setBlockCreateButton(false)
+                        ShowLogs.log(this.javaClass.simpleName, " handleMessage ${msg.what}")
+                    }
+                }
+
+            }
+        }
     }
 
 }

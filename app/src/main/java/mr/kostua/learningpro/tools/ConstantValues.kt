@@ -15,4 +15,7 @@ object ConstantValues {
             "downloading/processing of new course"
     const val CREATE_NEW_COURSE_NOTIFICATION_ID = 25
 
+    const val UI_HANDLER_UNBLOCK_B_CREATE_MESSAGE = 11
+    const val UI_HANDLER_UPDATE_COURSES_LIST_MESSAGE = 11
+
 }

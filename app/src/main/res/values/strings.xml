@@ -18,4 +18,5 @@
     <string name="create_course_dialog_b_change_file">Change file</string>
     <string name="b_back">Back</string>
     <string name="b_create">Create</string>
+    <string name="courseRowItemDescriptionHint">description</string>
 </resources>

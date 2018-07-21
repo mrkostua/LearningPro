@@ -2,12 +2,16 @@ package mr.kostua.learningpro.mainPage.executionService
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import dagger.android.DaggerIntentService
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
+import mr.kostua.learningpro.tools.ShowLogs
 import java.io.*
 import javax.inject.Inject
 
@@ -15,6 +19,9 @@ import javax.inject.Inject
 /**
  * @author Kostiantyn Prysiazhnyi on 7/16/2018.
  */
+
+//TODO create handler to sent actions to Activity as (unblock create button) and update AllCoursesFragment List!!!!!
+
 @ServiceScope
 class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewCourseCreationServiceThread") {
     private val TAG = this.javaClass.simpleName
@@ -52,6 +59,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         var question = ""
         val answer = StringBuffer()
         val otherText = StringBuffer()
+        var questionsAmount = 0
         val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
 
         BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
@@ -62,6 +70,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
                     if (question.isNotEmpty()) {
                         saveTaskInDB(QuestionDo(question = question, answer = answer.toString(), courseId = courseId))
                         answer.delete(0, answer.length)
+                        ++questionsAmount
                     }
                     question = line
 
@@ -77,12 +86,30 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         }
         if (question.isNotEmpty()) {
             saveTaskInDB(QuestionDo(question = question, answer = answer.toString(), courseId = courseId))
+            ++questionsAmount
         }
         if (otherText.isNotEmpty()) {
             saveTaskInDB(QuestionDo(question = "", answer = otherText.toString(), courseId = courseId))
+            ++questionsAmount
         }
+        updateCourseQuestionsCount(courseId, questionsAmount)
+        updateUI()
+    }
+
+    private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
+        if (!dbHelper.updateCourse(courseId, questionsAmount)) {
+            //TODO handel case when course table wasn't updated ?
+        }
+    }
+
+    private fun updateUI() {
+        val uiHandler = Handler(Looper.getMainLooper())
+        Message.obtain(uiHandler, ConstantValues.UI_HANDLER_UNBLOCK_B_CREATE_MESSAGE).sendToTarget()
+        Message.obtain(uiHandler, ConstantValues.UI_HANDLER_UPDATE_COURSES_LIST_MESSAGE).sendToTarget()
+        ShowLogs.log(TAG,"updateUI message sent bla bla :) ")
 
     }
+
 
     private fun getLinesCount(inputStream: InputStream): Int {
         val lineNumberReader = LineNumberReader(InputStreamReader(inputStream, "UTF-8"))

@@ -11,6 +11,7 @@ import mr.kostua.learningpro.toolsMVP.BaseView
 interface MainPageContract {
     interface View : BaseView {
         fun startNewCourseCreationService(data: Uri, courseId: Int)
+        fun setBlockCreateButton(isBlocked: Boolean)
     }
 
     interface Presenter : BasePresenter<View> {
