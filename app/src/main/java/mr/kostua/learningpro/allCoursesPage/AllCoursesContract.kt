@@ -12,6 +12,8 @@ interface AllCoursesContract {
     interface View : BaseView {
         fun initializeRecycleView(data: List<CourseDo>)
         fun setPBVisibility(visible: Boolean)
+        fun updateCourseList(courses: List<CourseDo>)
+        fun isCourseListInitialized(): Boolean
     }
 
     interface Presenter : BasePresenter<View> {

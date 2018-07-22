@@ -16,7 +16,6 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
     private val TAG = this.javaClass.simpleName
     override lateinit var view: MainPageContract.View
     private val disposables = CompositeDisposable()
-
     override fun start() {
 
     }

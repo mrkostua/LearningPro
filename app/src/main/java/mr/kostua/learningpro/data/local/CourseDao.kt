@@ -1,6 +1,7 @@
 package mr.kostua.learningpro.data.local
 
 import android.arch.persistence.room.*
+import io.reactivex.Flowable
 import io.reactivex.Single
 
 /**
@@ -13,7 +14,7 @@ interface CourseDao {
 
     @Transaction
     @Query("SELECT * FROM courses")
-    fun getAllCourses(): Single<List<CourseDo>>
+    fun getAllCourses(): Flowable<List<CourseDo>>
 
     @Query("UPDATE courses SET questionsAmount = :questionsAmount WHERE id = :courseId")
     fun updateCourseQuestionsAmount(courseId : Int, questionsAmount : Int): Int

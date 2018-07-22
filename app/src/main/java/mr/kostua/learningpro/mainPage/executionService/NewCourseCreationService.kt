@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.support.v4.content.LocalBroadcastManager
 import dagger.android.DaggerIntentService
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
@@ -103,9 +104,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     }
 
     private fun updateUI() {
-        val uiHandler = Handler(Looper.getMainLooper())
-        Message.obtain(uiHandler, ConstantValues.UI_HANDLER_UNBLOCK_B_CREATE_MESSAGE).sendToTarget()
-        Message.obtain(uiHandler, ConstantValues.UI_HANDLER_UPDATE_COURSES_LIST_MESSAGE).sendToTarget()
+        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("bla"))
         ShowLogs.log(TAG,"updateUI message sent bla bla :) ")
 
     }

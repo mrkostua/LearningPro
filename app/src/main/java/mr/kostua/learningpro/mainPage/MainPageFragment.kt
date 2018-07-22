@@ -1,12 +1,16 @@
 package mr.kostua.learningpro.mainPage
 
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +33,14 @@ import javax.inject.Inject
 class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContract.Presenter>(),
         MainPageContract.View, View.OnClickListener {
     private val TAG = this.javaClass.simpleName
+    private val reciver  = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            ShowLogs.log(TAG, "onReceive()")
+            //TODO REFACTOR
+            setBlockCreateButton(false)
+
+        }
+    }
 
     @Inject
     public lateinit var notificationTools: NotificationTools
@@ -39,7 +51,8 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
 
     override fun initializeViews() {
         presenter.takeView(this)
-        val uiHandler = CustomHandler(this)
+        LocalBroadcastManager.getInstance(fragmentContext).registerReceiver(reciver, IntentFilter("bla"))
+
         bCreateNewCourse.setOnClickListener(this)
         bOpenCurrentCourse.setOnClickListener(this)
         bManageReminders.setOnClickListener(this)
@@ -152,22 +165,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     override fun onDestroy() {
         super.onDestroy()
         presenter.disposeAll()
-    }
-
-    private class CustomHandler(fragment: MainPageFragment) : Handler() {
-        private val weakReference: WeakReference<MainPageFragment> = WeakReference(fragment)
-        override fun handleMessage(msg: Message?) {
-            val fragment = weakReference.get()
-            if (fragment != null) {
-                when (msg?.what) {
-                    ConstantValues.UI_HANDLER_UNBLOCK_B_CREATE_MESSAGE -> {
-                        fragment.setBlockCreateButton(false)
-                        ShowLogs.log(this.javaClass.simpleName, " handleMessage ${msg.what}")
-                    }
-                }
-
-            }
-        }
+        LocalBroadcastManager.getInstance(fragmentContext).unregisterReceiver(reciver)
     }
 
 }

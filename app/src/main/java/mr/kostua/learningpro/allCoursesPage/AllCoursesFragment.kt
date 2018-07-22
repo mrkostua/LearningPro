@@ -2,8 +2,6 @@ package mr.kostua.learningpro.allCoursesPage
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -14,13 +12,9 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
-import mr.kostua.learningpro.tools.FragmentInitializer
-import mr.kostua.learningpro.tools.RecycleViewAdapter
-import mr.kostua.learningpro.tools.ViewHolderBinder
 import android.text.method.ScrollingMovementMethod
-import mr.kostua.learningpro.mainPage.MainPageFragment
-import mr.kostua.learningpro.tools.ConstantValues
-import java.lang.ref.WeakReference
+import mr.kostua.learningpro.tools.*
+import java.util.*
 
 
 /**
@@ -28,6 +22,7 @@ import java.lang.ref.WeakReference
  */
 class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), AllCoursesContract.View {
     private lateinit var coursesRecycleViewAdapter: RecycleViewAdapter<CourseDo>
+    private var coursesList = ArrayList<CourseDo>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_all_courses, container, false)
@@ -38,14 +33,15 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     override fun initializeViews() {
         presenter.takeView(this)
         presenter.populateCourses()
-        val uiHandler = CustomHandler(this)
 
     }
-
+    //TODO some problem with scrolling RecycleView as data is not populating correctly (try to move intil if views inside bind or try to move viewholder inside Adapter (check old apps)
     override fun initializeRecycleView(data: List<CourseDo>) {
+        coursesList.clear()
+        coursesList.addAll(data)
         setPBVisibility(false)
         rvAllCourses.visibility = View.VISIBLE
-        coursesRecycleViewAdapter = RecycleViewAdapter(data, R.layout.course_row_item, object : ViewHolderBinder<CourseDo> {
+        coursesRecycleViewAdapter = RecycleViewAdapter(coursesList, R.layout.course_row_item, object : ViewHolderBinder<CourseDo> {
             private lateinit var tvCourseTitle: TextView
             private lateinit var tvCourseDescription: TextView
             private lateinit var tvCourseQuestionsAmount: TextView
@@ -54,7 +50,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
             private val scrollingMovementMethod = ScrollingMovementMethod()
 
             //TODO think about scrolling textView inside of RecycleView maybe it's so obvious and useful
-            override fun initializeViews(view: View) = with(view) {
+            override fun initializeListViews(view: View) = with(view) {
                 tvCourseTitle = findViewById(R.id.tvCourseTitle)
                 tvCourseDescription = findViewById(R.id.tvCourseDescription)
                 tvCourseQuestionsAmount = findViewById(R.id.tvCourseQuestionsAmount)
@@ -84,10 +80,19 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
             }
         })
+
         rvAllCourses.layoutManager = LinearLayoutManager(fragmentContext)
         rvAllCourses.adapter = coursesRecycleViewAdapter
+    }
 
-
+    override fun isCourseListInitialized() = rvAllCourses.adapter != null
+//TODO find some elegant solution for notifyDataSetChanged
+    override fun updateCourseList(courses: List<CourseDo>) {
+        ShowLogs.log(this.javaClass.simpleName, "updateCourseList : ${coursesList.size}")
+        coursesList.clear()
+        coursesList.addAll(courses)
+        ShowLogs.log(this.javaClass.simpleName, "updateCourseList after : ${coursesList.size}")
+        rvAllCourses.adapter.notifyDataSetChanged()
     }
 
     override fun setPBVisibility(visible: Boolean) {
@@ -97,25 +102,5 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     override fun onDestroy() {
         super.onDestroy()
         presenter.disposeAll()
-    }
-
-    private fun updateRecycleView() {
-        if (pbLoadCourses.visibility == View.GONE) {
-            coursesRecycleViewAdapter.notifyDataSetChanged()
-
-        }
-    }
-
-    private class CustomHandler(fragment: AllCoursesFragment) : Handler() {
-        private val weakReference: WeakReference<AllCoursesFragment> = WeakReference(fragment)
-        override fun handleMessage(msg: Message?) {
-            val fragment = weakReference.get()
-            if (fragment != null) {
-                when (msg?.what) {
-                    ConstantValues.UI_HANDLER_UPDATE_COURSES_LIST_MESSAGE -> fragment.updateRecycleView()
-                }
-
-            }
-        }
     }
 }

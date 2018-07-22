@@ -1,17 +1,23 @@
 package mr.kostua.learningpro.allCoursesPage
 
+import io.reactivex.FlowableSubscriber
+import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subscribers.DisposableSubscriber
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.CourseDo
+import mr.kostua.learningpro.tools.ShowLogs
+import org.reactivestreams.Subscription
 import javax.inject.Inject
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/19/2018.
  */
 class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCoursesContract.Presenter {
+    private val TAG = this.javaClass.simpleName
     override lateinit var view: AllCoursesContract.View
     private val disposables = CompositeDisposable()
 
@@ -23,20 +29,35 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
     }
 
     override fun populateCourses() {
+        ShowLogs.log(TAG, "populateCourses")
         disposables.add(db.getAllCourses()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<CourseDo>>() {
-                    override fun onSuccess(coursesList: List<CourseDo>) {
-                        view.initializeRecycleView(coursesList)
+                .subscribeWith(object : DisposableSubscriber<List<CourseDo>>() {
+                    override fun onComplete() {
+                        ShowLogs.log(TAG,"populateCourses onComplete")
+                    }
+
+                    override fun onNext(coursesList: List<CourseDo>) {
+                        if (view.isCourseListInitialized()) {
+                            view.updateCourseList(coursesList)
+                            ShowLogs.log(TAG,"populateCourses onNext updateCourseList")
+
+                        } else {
+                            view.initializeRecycleView(coursesList)
+                            ShowLogs.log(TAG,"populateCourses onNext initializeRecycleView")
+
+
+                        }
 
                     }
 
-                    override fun onError(e: Throwable) {
-                        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    override fun onError(t: Throwable) {
+                        ShowLogs.log(TAG,"populateCourses onError ${t.message} ")
                     }
 
-                }))
+                }
+                ))
 
 
     }
