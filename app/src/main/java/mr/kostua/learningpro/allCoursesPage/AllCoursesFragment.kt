@@ -12,7 +12,6 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
-import android.text.method.ScrollingMovementMethod
 import mr.kostua.learningpro.tools.*
 import java.util.*
 
@@ -47,9 +46,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
             private lateinit var tvCourseQuestionsAmount: TextView
             private lateinit var tvDoneQuestionsAmount: TextView
             private lateinit var pbDoneQuestionsAmount: ProgressBar
-            private val scrollingMovementMethod = ScrollingMovementMethod()
 
-            //TODO think about scrolling textView inside of RecycleView maybe it's so obvious and useful
             override fun initializeListViews(view: View) = with(view) {
                 tvCourseTitle = findViewById(R.id.tvCourseTitle)
                 tvCourseDescription = findViewById(R.id.tvCourseDescription)
@@ -68,8 +65,6 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 with(item) {
                     tvCourseTitle.text = title
                     tvCourseDescription.text = description
-                    tvCourseDescription.movementMethod = scrollingMovementMethod
-
 
                     tvCourseQuestionsAmount.text = questionsAmount.toString()
                     tvDoneQuestionsAmount.text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"

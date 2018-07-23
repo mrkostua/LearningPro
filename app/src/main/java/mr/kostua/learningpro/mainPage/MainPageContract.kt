@@ -12,6 +12,8 @@ interface MainPageContract {
     interface View : BaseView {
         fun startNewCourseCreationService(data: Uri, courseId: Int)
         fun setBlockCreateButton(isBlocked: Boolean)
+        fun showMessageCourseCreatedSuccessfully(courseName : String)
+        fun showMessageCourseCreationFailed(courseName : String)
     }
 
     interface Presenter : BasePresenter<View> {

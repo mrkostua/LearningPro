@@ -15,7 +15,7 @@ import mr.kostua.learningpro.R
 import mr.kostua.learningpro.allCoursesPage.AllCoursesFragment
 import mr.kostua.learningpro.mainPage.MainPageFragment
 
-class MainActivity : DaggerAppCompatActivity(), TabLayout.OnTabSelectedListener {
+class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -26,26 +26,7 @@ class MainActivity : DaggerAppCompatActivity(), TabLayout.OnTabSelectedListener 
         initializeViewPager(viewPager)
 
         tabLayout.setupWithViewPager(viewPager)
-        tabLayout.addOnTabSelectedListener(this)
     }
-
-    override fun onPause() {
-        super.onPause()
-        tabLayout.removeOnTabSelectedListener(this)
-    }
-
-    override fun onTabReselected(tab: TabLayout.Tab?) {
-       // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onTabUnselected(tab: TabLayout.Tab?) {
-       // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onTabSelected(tab: TabLayout.Tab?) {
-     //   TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 
     private fun initializeViewPager(pager: ViewPager) {
         CustomViewPagerAdapter(supportFragmentManager).apply {
@@ -62,7 +43,7 @@ class MainActivity : DaggerAppCompatActivity(), TabLayout.OnTabSelectedListener 
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_settings -> {
-            //TODO open preference activity
+            //TODO open preference activity (also create ONE, and there about section(with icon8 info string.xml more info )
             true
         }
         R.id.home -> { //in case this app provide some intent filters for other apps (check navigate up with new back stack)

@@ -8,7 +8,6 @@ import android.content.Context
 /**
  * @author Kostiantyn Prysiazhnyi on 7/17/2018.
  */
-//TODO add migration and change version
 @Database(entities = [(QuestionDo::class), (CourseDo::class)], version = 2)
 abstract class LocalDB : RoomDatabase() {
     abstract fun questionsDao(): QuestionsDao

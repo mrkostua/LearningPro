@@ -11,7 +11,6 @@
     android:clickable="true"
     android:focusable="true"
     android:paddingBottom="10dp">
-<!--TODO add toolTip to icons as question mark and done-->
 
     <TextView
         android:id="@+id/tvCourseTitle"
@@ -53,15 +52,17 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
         android:layout_marginRight="12dp"
+        android:clickable="true"
         android:contentDescription="@string/questionIconContentDescription"
+        android:focusable="true"
         android:scaleX="2"
         android:scaleY="2"
+        android:tooltipText="@string/questionIcon_tooltip"
         app:layout_constraintEnd_toStartOf="@+id/tvCourseQuestionsAmount"
         app:layout_constraintTop_toTopOf="@+id/tvCourseQuestionsAmount"
         app:srcCompat="@drawable/icon_question" />
 
     <TextView
-        android:hint="@string/courseRowItemDescriptionHint"
         android:id="@+id/tvCourseDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -72,9 +73,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/shape_round_corners"
+        android:hint="@string/courseRowItemDescriptionHint"
         android:lines="5"
-        android:maxLines="5"
-        android:scrollbars="vertical"
+        android:maxLines="8"
         android:text="@string/defaultCourseDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.027"
@@ -95,6 +96,7 @@
         android:gravity="center"
         android:text="@string/defaultCourseDoneQuestionsAmount"
         android:textColor="@color/white"
+        android:tooltipText="@string/DoneQuestionsIcon_tooltip"
         app:layout_constraintEnd_toEndOf="@+id/pbDoneQuestionsAmount"
         app:layout_constraintStart_toStartOf="@+id/pbDoneQuestionsAmount"
         app:layout_constraintTop_toBottomOf="@+id/tvCourseDescription" />

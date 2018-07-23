@@ -13,6 +13,7 @@ import javax.inject.Inject
  */
 class DBHelper @Inject constructor(private val db: LocalDB) {
     private val TAG = this.javaClass.simpleName
+
     //TODO update this method to return Boolean and handel false result
     fun addQuestionToLocalDB(question: QuestionDo) {
         if (-1L == db.questionsDao().addQuestion(question)) {

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">LearningPro</string>
     <string name="menu_settings_action">settings</string>
     <string name="bManageRemindersText">Manage reminders</string>
@@ -19,4 +19,10 @@
     <string name="b_back">Back</string>
     <string name="b_create">Create</string>
     <string name="courseRowItemDescriptionHint">description</string>
+    <string name="failedToChooseFileMessage">some problems acquired, please try again</string>
+    <string name="questionIcon_tooltip">questions amount</string>
+    <string name="DoneQuestionsIcon_tooltip">amount of answered questions</string>
+    <string name="newCourseNotificationTicker">New course creation started</string>
+    <string name="newCourseNotificationContentTitle">New course creation started\"<xliff:g id="courseTitle">%s</xliff:g>\"</string>
+    <string name="newCourseNotificationContentTitleComplete">Creation complete</string>
 </resources>

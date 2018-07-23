@@ -16,14 +16,10 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
     private val TAG = this.javaClass.simpleName
     override lateinit var view: MainPageContract.View
     private val disposables = CompositeDisposable()
-    override fun start() {
-
-    }
 
     override fun takeView(view: MainPageContract.View) {
         this.view = view
     }
-
 
     override fun processData(data: Uri, course: CourseDo) {
         disposables.add(db.addCourseToLocalDB(course)
@@ -31,22 +27,21 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<Long>() {
                     override fun onSuccess(courseId: Long) {
-                        if (courseId == -1L) {
-                            TODO("show some message insertion failed")
-                        } else {
+                        if (courseId != -1L) {
+                            view.showMessageCourseCreatedSuccessfully(course.title)
                             view.startNewCourseCreationService(data, courseId.toInt())
+                        } else {
+                            view.showMessageCourseCreationFailed(course.title)
                         }
                     }
 
                     override fun onError(e: Throwable) {
                         view.setBlockCreateButton(false)
-                        TODO("Show some message etc......") //To change body of created functions use File | Settings | File Templates.
+                        view.showMessageCourseCreationFailed(course.title)
                     }
-
                 }))
 
     }
-
 
     override fun disposeAll() {
         disposables.clear()

@@ -2,9 +2,7 @@ package mr.kostua.learningpro.mainPage.executionService
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
+import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import dagger.android.DaggerIntentService
 import mr.kostua.learningpro.data.DBHelper
@@ -12,7 +10,6 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
-import mr.kostua.learningpro.tools.ShowLogs
 import java.io.*
 import javax.inject.Inject
 
@@ -21,11 +18,11 @@ import javax.inject.Inject
  * @author Kostiantyn Prysiazhnyi on 7/16/2018.
  */
 
-//TODO create handler to sent actions to Activity as (unblock create button) and update AllCoursesFragment List!!!!!
-
 @ServiceScope
 class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewCourseCreationServiceThread") {
     private val TAG = this.javaClass.simpleName
+    private lateinit var createCourseNotification: NotificationCompat.Builder
+
     @Inject
     public lateinit var dbHelper: DBHelper
     @Inject
@@ -35,16 +32,19 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         if (intent != null) {
             val uriData = Uri.parse(intent.getStringExtra(ConstantValues.NEW_COURSE_URI_KEY))
             val courseId = intent.getIntExtra(ConstantValues.NEW_COURSE_ID_KEY, ConstantValues.WRONG_TABLE_ID)
+            val courseTitle = intent.getStringExtra(ConstantValues.NEW_COURSE_TITLE_KEY) ?: "Course"
             if (uriData != null && courseId != ConstantValues.WRONG_TABLE_ID) {
-                startForeground(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, notificationTools.createNewCourseNotification("creating course..."))
+                createCourseNotification = notificationTools.createNewCourseNotification(courseTitle)
+                startForeground(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, createCourseNotification.build())
                 createNewCourse(uriData, courseId)
 
             } else {
-                showFailedMessage()
+                updateTaskFailedUI()
 
             }
         } else {
-            showFailedMessage()
+            //if the service was restarted intent can be null
+            updateTaskFailedUI()
 
         }
     }
@@ -66,7 +66,9 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
                 "UTF-8")).useLines {
             it.forEachIndexed { index, line ->
-                notificationTools.updateNewCourseNotificationProgress(linesCount, index)
+                if (linesCount % 10 == 0 || linesCount == index) {
+                    notificationTools.updateNewCourseNotificationProgress(createCourseNotification, linesCount, index)
+                }
                 if (isLineQuestion(line)) {
                     if (question.isNotEmpty()) {
                         saveTaskInDB(QuestionDo(question = question, answer = answer.toString(), courseId = courseId))
@@ -94,7 +96,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
             ++questionsAmount
         }
         updateCourseQuestionsCount(courseId, questionsAmount)
-        updateUI()
+        updateTaskCompleteUI()
     }
 
     private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
@@ -103,12 +105,17 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         }
     }
 
-    private fun updateUI() {
-        LocalBroadcastManager.getInstance(this).sendBroadcast(Intent("bla"))
-        ShowLogs.log(TAG,"updateUI message sent bla bla :) ")
-
+    private fun updateTaskCompleteUI() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                Intent(ConstantValues.INTENT_FILTER_NEW_COURSE_CREATION_SERVICE)
+                        .putExtra(ConstantValues.INTENT_KEY_IS_B_CREATE_BLOCKED, true))
     }
 
+    private fun updateTaskFailedUI() {
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                Intent(ConstantValues.INTENT_FILTER_NEW_COURSE_CREATION_SERVICE)
+                        .putExtra(ConstantValues.INTENT_KEY_COURSE_CREATION_FAILED, true))
+    }
 
     private fun getLinesCount(inputStream: InputStream): Int {
         val lineNumberReader = LineNumberReader(InputStreamReader(inputStream, "UTF-8"))
@@ -131,8 +138,4 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         return false
     }
 
-
-    private fun showFailedMessage() {
-        TODO("not implemented")
-    }
 }
