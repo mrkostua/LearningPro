@@ -46,4 +46,20 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
     override fun disposeAll() {
         disposables.clear()
     }
+
+    override fun saveNotCreatedCourseData(courseDo: CourseDo, fileUri: Uri) {
+        with(db) {
+            saveCreatingCourseDescription(courseDo.description)
+            saveCreatingCourseTitle(courseDo.title)
+            saveCreatingCourseUri(fileUri.toString())
+        }
+    }
+
+    override fun isNotCreatedCourseDataExists() = db.isCreatingCourseDataExists()
+
+    override fun getNotCreatedCourseData(): Pair<CourseDo, Uri?> {
+        val fileStringUri = db.getCreatingCourseStringUri()
+        val fileUri = if (fileStringUri.isNotEmpty()) Uri.parse(fileStringUri) else null
+        return Pair(CourseDo(title = db.getCreatingCourseTitle(), description = db.getCreatingCourseDescription()), fileUri)
+    }
 }

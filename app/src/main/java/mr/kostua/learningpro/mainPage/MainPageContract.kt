@@ -12,13 +12,17 @@ interface MainPageContract {
     interface View : BaseView {
         fun startNewCourseCreationService(data: Uri, courseId: Int)
         fun setBlockCreateButton(isBlocked: Boolean)
-        fun showMessageCourseCreatedSuccessfully(courseName : String)
-        fun showMessageCourseCreationFailed(courseName : String)
+        fun showMessageCourseCreatedSuccessfully(courseName: String)
+        fun showMessageCourseCreationFailed(courseName: String)
     }
 
     interface Presenter : BasePresenter<View> {
-        fun processData(data: Uri,course : CourseDo)
+        fun processData(data: Uri, course: CourseDo)
         fun disposeAll()
+        fun saveNotCreatedCourseData(courseDo: CourseDo, fileUri : Uri)
+        fun isNotCreatedCourseDataExists() : Boolean
+        fun getNotCreatedCourseData(): Pair<CourseDo, Uri?>
+
     }
 
 }

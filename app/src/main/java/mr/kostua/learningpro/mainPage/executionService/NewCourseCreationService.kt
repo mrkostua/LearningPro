@@ -126,7 +126,10 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     }
 
     private fun saveTaskInDB(questionDo: QuestionDo) {
-        dbHelper.addQuestionToLocalDB(questionDo)
+        if (!dbHelper.addQuestionToLocalDB(questionDo)) {
+            dbHelper.addQuestionToLocalDB(questionDo) //todo read how to handle insert to db errors
+        }
+
     }
 
     private fun isLineQuestion(line: String): Boolean {

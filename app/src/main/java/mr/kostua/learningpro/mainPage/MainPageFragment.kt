@@ -1,10 +1,7 @@
 package mr.kostua.learningpro.mainPage
 
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +10,7 @@ import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.android.synthetic.main.custom_view_create_course_dialog.*
 import kotlinx.android.synthetic.main.custom_view_create_course_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main_page.*
 import mr.kostua.learningpro.R
@@ -137,12 +135,14 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     //TODO think how to make background fo dialog with round corners, also how to make it more perfect
     private fun showCreateCourseDialog(data: Uri) {
         val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_create_course_dialog, clBackgroundLayout, false)
-
-        //TODO maybe also if user decide to go back save title,etc in SharedPreferences so after by opening this dialog again previously typed data will be put into et views
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
-
+        val notCreatedCourseData = presenter.getNotCreatedCourseData()
         with(customDialogView) {
+            if (notCreatedCourseData.second != null && notCreatedCourseData.second == data) {
+                etNewCourseDialogTitle.setText(notCreatedCourseData.first.title)
+                etNewCourseDialogDescription.setText(notCreatedCourseData.first.description)
+            }
             tvNewCourseDialogFileName.setUnderlineText(FileTools.getFileNameFromUri(data,
                     fragmentContext.getString((R.string.create_course_dialog_default_file_name)), fragmentContext.contentResolver))
             tvNewCourseDialogFileName.setOnClickListener {
@@ -151,6 +151,10 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
             }
             bNewCourseBack.setOnClickListener {
                 createCourseDialog.dismiss()
+                if (isCreatingCourseDataEmpty(this) && !isCreatingCourseServiceStarted()) {
+                    presenter.saveNotCreatedCourseData(CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                            description = etNewCourseDialogDescription.text.toString()), data)
+                }
             }
             bNewCourseCreate.setOnClickListener {
                 when {
@@ -168,13 +172,23 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                         createCourseDialog.dismiss()
                     }
                 }
-
+            }
+            createCourseDialog.setOnDismissListener {
+                //also called when clicked outside of AD
+                if (isCreatingCourseDataEmpty(this) && !isCreatingCourseServiceStarted()) {
+                    presenter.saveNotCreatedCourseData(CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                            description = etNewCourseDialogDescription.text.toString()), data)
+                }
             }
         }
 
-
         createCourseDialog.show()
     }
+
+    private fun isCreatingCourseDataEmpty(customDialogView: View) =
+            customDialogView.etNewCourseDialogTitle.text.isNotEmpty() && customDialogView.etNewCourseDialogDescription.text.isNotEmpty()
+
+    private fun isCreatingCourseServiceStarted() = pbCreateNewCourse.visibility == View.VISIBLE
 
     override fun onDestroy() {
         super.onDestroy()
