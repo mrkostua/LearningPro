@@ -21,6 +21,14 @@
         <service
             android:name=".mainPage.executionService.NewCourseCreationService"
             android:exported="false" />
+
+        <activity
+            android:name=".appSettings.SettingPreferencesActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:icon="@drawable/settings_vector_icon"
+            android:label="@string/settingsPreferencesLabel"
+            android:screenOrientation="portrait"
+            android:theme="@style/customSettingsPreferencesStyle" />
     </application>
 
 </manifest>

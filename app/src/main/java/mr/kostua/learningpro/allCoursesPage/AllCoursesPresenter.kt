@@ -7,6 +7,7 @@ import io.reactivex.subscribers.DisposableSubscriber
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.tools.ShowLogs
+import java.util.ArrayList
 import javax.inject.Inject
 
 /**
@@ -16,6 +17,8 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
     private val TAG = this.javaClass.simpleName
     override lateinit var view: AllCoursesContract.View
     private val disposables = CompositeDisposable()
+    private var mainCoursesList = ArrayList<CourseDo>()
+
 
     override fun takeView(view: AllCoursesContract.View) {
         this.view = view
@@ -32,11 +35,11 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
 
                     override fun onNext(coursesList: List<CourseDo>) {
                         if (view.isCourseListInitialized()) {
-                            view.updateCourseList(coursesList)
+                            view.updateCourseList(addNewListToMainCourses(coursesList))
                             ShowLogs.log(TAG, "populateCourses onNext updateCourseList")
 
                         } else {
-                            view.initializeRecycleView(coursesList)
+                            view.initializeRecycleView(addNewListToMainCourses(coursesList))
                             ShowLogs.log(TAG, "populateCourses onNext initializeRecycleView")
 
                         }
@@ -54,4 +57,17 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
     override fun disposeAll() {
         disposables.clear()
     }
+
+    private fun addNewListToMainCourses(courses: List<CourseDo>) =
+            with(mainCoursesList) {
+                if (isEmpty()) {
+                    addAll(courses)
+                } else {
+                    clear()
+                    addAll(courses)
+                }
+                mainCoursesList
+            }
+
+
 }

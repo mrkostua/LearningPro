@@ -54,8 +54,6 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         notificationTools.cancelNotification(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID)
     }
 
-    //TODO in future update method to be able handle big answer to questions bigger than 8000 characters (As SQL can save in one varchar type)
-    //TODO no network error during accessing file from GDrive, crash
     private fun createNewCourse(data: Uri, courseId: Int) {
         var question = ""
         val answer = StringBuffer()
@@ -100,9 +98,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     }
 
     private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
-        if (!dbHelper.updateCourse(courseId, questionsAmount)) {
-            //TODO handel case when course table wasn't updated ?
-        }
+        dbHelper.updateCourse(courseId, questionsAmount)
     }
 
     private fun updateTaskCompleteUI() {
@@ -127,7 +123,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
 
     private fun saveTaskInDB(questionDo: QuestionDo) {
         if (!dbHelper.addQuestionToLocalDB(questionDo)) {
-            dbHelper.addQuestionToLocalDB(questionDo) //todo read how to handle insert to db errors
+            dbHelper.addQuestionToLocalDB(questionDo)
         }
 
     }

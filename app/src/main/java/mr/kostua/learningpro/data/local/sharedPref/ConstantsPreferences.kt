@@ -24,6 +24,5 @@ enum class ConstantsPreferences {
     abstract fun getKeyValue(): String
     abstract fun getDefaultStringValue(): String
 
-
     val emptyCreatingCourseData = ""
 }

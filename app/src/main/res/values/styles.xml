@@ -19,9 +19,26 @@
     </style>
 
     <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-
+        <item name="android:background">@color/primaryDarkColor</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/secondaryColor</item>
+        <item name="android:windowTitleStyle">@style/alertDialogTitleStyle</item>
+        <item name="colorAccent">@color/white</item>
 
     </style>
+
+    <style name="alertDialogTitleStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="customSettingsPreferencesStyle">
+        <item name="android:selectable">true</item>
+    </style>
+
+
+
 
 
 </resources>

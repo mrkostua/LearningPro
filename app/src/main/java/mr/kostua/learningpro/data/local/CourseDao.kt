@@ -13,9 +13,9 @@ interface CourseDao {
     fun insertCourse(course: CourseDo): Long
 
     @Transaction
-    @Query("SELECT * FROM courses")
+    @Query("SELECT * FROM courses ORDER BY id DESC")
     fun getAllCourses(): Flowable<List<CourseDo>>
 
     @Query("UPDATE courses SET questionsAmount = :questionsAmount WHERE id = :courseId")
-    fun updateCourseQuestionsAmount(courseId : Int, questionsAmount : Int): Int
+    fun updateCourseQuestionsAmount(courseId: Int, questionsAmount: Int): Int
 }

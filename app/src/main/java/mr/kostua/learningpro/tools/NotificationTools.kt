@@ -28,7 +28,7 @@ class NotificationTools @Inject constructor(private val context: Context) {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setContentTitle(context.getString(R.string.newCourseNotificationContentTitle, courseTitle))
-            .setSmallIcon(R.mipmap.ic_launcher_round) //TODO design new icon
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setTicker(context.getString(R.string.newCourseNotificationTicker))
             .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher_round))
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)

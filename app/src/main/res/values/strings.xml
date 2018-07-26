@@ -4,7 +4,7 @@
     <string name="bManageRemindersText">Manage reminders</string>
     <string name="bOpenCurrentCourseText">Open current</string>
     <string name="bCreateNewCourseText">CREATE</string>
-    <string name="linkToDownloadedIcons">https://icons8.com/</string><!--TODO add to about app and also added this link to description in google play-->
+    <string name="linkToDownloadedIcons">https://icons8.com/</string>
     <string name="defaultCourseDescription">This course is for learning about computer architecture related topics, like : how computer works, what is inside of it, more deep look into computer architecture</string>
     <string name="defaultCourseTitle">ASK Exam</string>
     <string name="defaultCourseQuestionsAmount">225</string>
@@ -25,4 +25,11 @@
     <string name="newCourseNotificationTicker">New course creation started</string>
     <string name="newCourseNotificationContentTitle">New course creation started\"<xliff:g id="courseTitle">%s</xliff:g>\"</string>
     <string name="newCourseNotificationContentTitleComplete">Creation complete</string>
+    <string name="settingsPreferencesLabel">Settings</string>
+    <string name="SettingsAboutIconsTitle">Icons downloaded from</string>
+    <string name="SettingsAboutAuthorTitle">Author</string>
+    <string name="SettingAboutTitle">About</string>
+    <string name="SettingAboutAuthorSummary">Me</string>
+    <string name="tabMainName">Main</string>
+    <string name="tabAllCoursesName">All Courses</string>
 </resources>

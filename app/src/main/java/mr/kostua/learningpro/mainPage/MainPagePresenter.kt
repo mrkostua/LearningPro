@@ -31,13 +31,14 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
                             view.showMessageCourseCreatedSuccessfully(course.title)
                             view.startNewCourseCreationService(data, courseId.toInt())
                         } else {
-                            view.showMessageCourseCreationFailed(course.title)
+                            view.setBlockCreateButton(false)
+                            view.showMessageCourseCreationFailed(course.title, data)
                         }
                     }
 
                     override fun onError(e: Throwable) {
                         view.setBlockCreateButton(false)
-                        view.showMessageCourseCreationFailed(course.title)
+                        view.showMessageCourseCreationFailed(course.title, data)
                     }
                 }))
 

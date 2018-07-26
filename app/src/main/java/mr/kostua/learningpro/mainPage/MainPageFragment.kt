@@ -125,14 +125,18 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
 
     }
 
-    override fun showMessageCourseCreationFailed(courseName: String) {
-        //TODO better to show some dialog, DO IT after creating SP helper (with b. try once more, back, open create course dialog once more)
-        notificationTools.showToastMessage("course \"$courseName\" wasn't created")
-
+    override fun showMessageCourseCreationFailed(courseName: String, fileUri: Uri) {
+        AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
+                .setTitle("Course \"$courseName\" creation failed")
+                .setMessage("Do you want to try again with same data?")
+                .setNegativeButton("Back") { dialog, pos ->
+                    dialog.dismiss()
+                }.setPositiveButton("Create") { dialog, pos ->
+                    showCreateCourseDialog(fileUri)
+                    dialog.dismiss()
+                }.create().show()
     }
 
-
-    //TODO think how to make background fo dialog with round corners, also how to make it more perfect
     private fun showCreateCourseDialog(data: Uri) {
         val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_create_course_dialog, clBackgroundLayout, false)
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
