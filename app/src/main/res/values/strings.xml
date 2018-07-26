@@ -32,4 +32,6 @@
     <string name="SettingAboutAuthorSummary">Me</string>
     <string name="tabMainName">Main</string>
     <string name="tabAllCoursesName">All Courses</string>
+    <string name="notificationsChanelDescription">Important notifications for showing and executing downloading/processing of new course</string>
+    <string name="course">Course</string>
 </resources>

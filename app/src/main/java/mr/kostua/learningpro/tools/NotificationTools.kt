@@ -60,7 +60,7 @@ class NotificationTools @Inject constructor(private val context: Context) {
                 ConstantValues.NOTIFICATION_CHANEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
         with(mChannel) {
-            description = ConstantValues.NOTIFICATION_CHANEL_DESCRIPTION
+            description = context.getString(R.string.notificationsChanelDescription)
             setShowBadge(false)
             lockscreenVisibility = Notification.VISIBILITY_PUBLIC
 

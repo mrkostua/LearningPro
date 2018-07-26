@@ -12,8 +12,6 @@ object ConstantValues {
 
     const val NOTIFICATION_CHANNEL_ID = "LearningPro"
     const val NOTIFICATION_CHANEL_NAME = "LearningPro downloading/processing of new course"
-    const val NOTIFICATION_CHANEL_DESCRIPTION = "Important notifications for showing and executing " +
-            "downloading/processing of new course"
     const val CREATE_NEW_COURSE_NOTIFICATION_ID = 25
 
     const val INTENT_FILTER_NEW_COURSE_CREATION_SERVICE = "INTENT_FILTER_NEW_COURSE_CREATION_SERVICE"

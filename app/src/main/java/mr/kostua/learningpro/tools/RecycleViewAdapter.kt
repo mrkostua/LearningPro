@@ -1,6 +1,5 @@
 package mr.kostua.learningpro.tools
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -19,14 +18,13 @@ class RecycleViewAdapter<D>(private val data: List<D>, private val layoutRes: In
 
     override fun getItemCount() = data.size
 
-
     override fun onBindViewHolder(holder: RecycleViewAdapter<D>.ViewHolder, position: Int) {
         holder.bind(data[position])
     }
 
     inner class ViewHolder(private val view: View, private val binder: ViewHolderBinder<D>) : RecyclerView.ViewHolder(view) {
         fun bind(item: D) {
-            binder.initializeListViews(this.view)
+            binder.initializeListViews(view)
             binder.bind(item)
         }
     }

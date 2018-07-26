@@ -5,6 +5,7 @@ import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import dagger.android.DaggerIntentService
+import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ServiceScope
@@ -22,7 +23,6 @@ import javax.inject.Inject
 class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewCourseCreationServiceThread") {
     private val TAG = this.javaClass.simpleName
     private lateinit var createCourseNotification: NotificationCompat.Builder
-
     @Inject
     public lateinit var dbHelper: DBHelper
     @Inject
@@ -32,7 +32,8 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         if (intent != null) {
             val uriData = Uri.parse(intent.getStringExtra(ConstantValues.NEW_COURSE_URI_KEY))
             val courseId = intent.getIntExtra(ConstantValues.NEW_COURSE_ID_KEY, ConstantValues.WRONG_TABLE_ID)
-            val courseTitle = intent.getStringExtra(ConstantValues.NEW_COURSE_TITLE_KEY) ?: "Course"
+            val courseTitle = intent.getStringExtra(ConstantValues.NEW_COURSE_TITLE_KEY)
+                    ?: getString(R.string.course)
             if (uriData != null && courseId != ConstantValues.WRONG_TABLE_ID) {
                 createCourseNotification = notificationTools.createNewCourseNotification(courseTitle)
                 startForeground(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, createCourseNotification.build())
@@ -40,12 +41,9 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
 
             } else {
                 updateTaskFailedUI()
-
             }
         } else {
-            //if the service was restarted intent can be null
             updateTaskFailedUI()
-
         }
     }
 
@@ -97,6 +95,15 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         updateTaskCompleteUI()
     }
 
+    private fun isLineQuestion(line: String): Boolean {
+        if (line.isNotEmpty() && line[0].isUpperCase()) {
+            if (line.endsWith("?")) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
         dbHelper.updateCourse(courseId, questionsAmount)
     }
@@ -126,15 +133,6 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
             dbHelper.addQuestionToLocalDB(questionDo)
         }
 
-    }
-
-    private fun isLineQuestion(line: String): Boolean {
-        if (line.isNotEmpty() && line[0].isUpperCase()) {
-            if (line.endsWith("?")) {
-                return true
-            }
-        }
-        return false
     }
 
 }

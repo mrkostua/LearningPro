@@ -10,7 +10,6 @@ import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.custom_view_create_course_dialog.*
 import kotlinx.android.synthetic.main.custom_view_create_course_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_main_page.*
 import mr.kostua.learningpro.R
@@ -57,27 +56,11 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         bManageReminders.setOnClickListener(this)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            if (data?.data != null) {
-                showCreateCourseDialog(data.data)
-            } else {
-                showFailedToChooseFileMessage()
-            }
-        } else {
-            showFailedToChooseFileMessage()
-
-        }
-
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun setBlockCreateButton(isBlocked: Boolean) {
         with(bCreateNewCourse) {
             isClickable = !isBlocked
             isFocusable = !isBlocked
         }
-        ShowLogs.log(TAG, "setBlock : $isBlocked")
         if (isBlocked) {
             pbCreateNewCourse.visibility = View.VISIBLE
             bCreateNewCourse.setBackgroundResource(R.drawable.blocked_button)
@@ -116,6 +99,20 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 ConstantValues.PICK_FILE_REQUEST_CODE)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (data?.data != null) {
+                showCreateCourseDialog(data.data)
+            } else {
+                showFailedToChooseFileMessage()
+            }
+        } else {
+            showFailedToChooseFileMessage()
+
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
     private fun showFailedToChooseFileMessage() {
         notificationTools.showToastMessage(getString(R.string.failedToChooseFileMessage))
     }
@@ -125,7 +122,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
 
     }
 
-    override fun showMessageCourseCreationFailed(courseName: String, fileUri: Uri) {
+    override fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri) {
         AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setTitle("Course \"$courseName\" creation failed")
                 .setMessage("Do you want to try again with same data?")
@@ -138,15 +135,13 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     }
 
     private fun showCreateCourseDialog(data: Uri) {
-        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_create_course_dialog, clBackgroundLayout, false)
+        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_create_course_dialog,
+                clBackgroundLayout, false)
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
-        val notCreatedCourseData = presenter.getNotCreatedCourseData()
         with(customDialogView) {
-            if (notCreatedCourseData.second != null && notCreatedCourseData.second == data) {
-                etNewCourseDialogTitle.setText(notCreatedCourseData.first.title)
-                etNewCourseDialogDescription.setText(notCreatedCourseData.first.description)
-            }
+            initializeCourseDataFromSP(this, data)
+
             tvNewCourseDialogFileName.setUnderlineText(FileTools.getFileNameFromUri(data,
                     fragmentContext.getString((R.string.create_course_dialog_default_file_name)), fragmentContext.contentResolver))
             tvNewCourseDialogFileName.setOnClickListener {
@@ -155,19 +150,14 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
             }
             bNewCourseBack.setOnClickListener {
                 createCourseDialog.dismiss()
-                if (isCreatingCourseDataEmpty(this) && !isCreatingCourseServiceStarted()) {
-                    presenter.saveNotCreatedCourseData(CourseDo(title = etNewCourseDialogTitle.text.toString(),
-                            description = etNewCourseDialogDescription.text.toString()), data)
-                }
+                saveCourseInSP(this, data)
             }
             bNewCourseCreate.setOnClickListener {
                 when {
-                    etNewCourseDialogTitle.text.isEmpty() -> {
+                    etNewCourseDialogTitle.text.isEmpty() ->
                         notificationTools.showToastMessage("Please set the title to continue")
-                    }
-                    tvNewCourseDialogFileName.text == resources.getString(R.string.create_course_dialog_default_file_name) -> {
+                    tvNewCourseDialogFileName.text == resources.getString(R.string.create_course_dialog_default_file_name) ->
                         notificationTools.showToastMessage("Please choose the file with questions before continuing")
-                    }
                     else -> {
                         presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
                                 description = etNewCourseDialogDescription.text.toString()))
@@ -178,15 +168,27 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 }
             }
             createCourseDialog.setOnDismissListener {
-                //also called when clicked outside of AD
-                if (isCreatingCourseDataEmpty(this) && !isCreatingCourseServiceStarted()) {
-                    presenter.saveNotCreatedCourseData(CourseDo(title = etNewCourseDialogTitle.text.toString(),
-                            description = etNewCourseDialogDescription.text.toString()), data)
-                }
+                saveCourseInSP(this, data)
             }
         }
-
         createCourseDialog.show()
+    }
+
+    private fun initializeCourseDataFromSP(dialogView: View, chosenFileUri: Uri) {
+        val savedCourse = presenter.getSavedCourse()
+        if (presenter.isCourseDataSavedForThisFile(chosenFileUri)) {
+            dialogView.etNewCourseDialogTitle.setText(savedCourse.title)
+            dialogView.etNewCourseDialogDescription.setText(savedCourse.title)
+        }
+    }
+
+    private fun saveCourseInSP(dialogView: View, fileUri: Uri) {
+        with(dialogView) {
+            if (isCreatingCourseDataEmpty(this) && !isCreatingCourseServiceStarted()) {
+                presenter.saveCourseInSP(CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                        description = etNewCourseDialogDescription.text.toString()), fileUri)
+            }
+        }
     }
 
     private fun isCreatingCourseDataEmpty(customDialogView: View) =

@@ -10,7 +10,7 @@ object ShowLogs {
 
     fun log(TAG: String, logMessage: String) {
         if (isDebugging)
-            Log.i("KOKO " + TAG, " " + logMessage)
+            Log.i("KOKO $TAG", " $logMessage")
     }
 
 }
