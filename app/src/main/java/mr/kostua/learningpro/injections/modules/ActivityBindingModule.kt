@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import mr.kostua.learningpro.allCoursesPage.AllCoursesFragment
 import mr.kostua.learningpro.allCoursesPage.AllCoursesModule
+import mr.kostua.learningpro.injections.scopes.ActivityScope
 import mr.kostua.learningpro.injections.scopes.FragmentScope
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.main.MainActivity
@@ -11,25 +12,31 @@ import mr.kostua.learningpro.main.MainActivityModule
 import mr.kostua.learningpro.mainPage.MainPageFragment
 import mr.kostua.learningpro.mainPage.MainPageModule
 import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
+import mr.kostua.learningpro.questionsCardPreview.QuestionCardsPreviewActivityModule
+import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/13/2018.
  */
 @Module
-public abstract class ActivityBindingModule {
+abstract class ActivityBindingModule {
     @FragmentScope
     @ContributesAndroidInjector(modules = [(MainPageModule::class), (DataModule::class), (DisplayHelperModule::class)])
-    public abstract fun getMainPageFragment(): MainPageFragment
+    abstract fun getMainPageFragment(): MainPageFragment
 
-    @FragmentScope
+    @ActivityScope
     @ContributesAndroidInjector(modules = [(MainActivityModule::class)])
-    public abstract fun getMainActivity(): MainActivity
+    abstract fun getMainActivity(): MainActivity
 
     @ServiceScope
     @ContributesAndroidInjector(modules = [(DataModule::class), (DisplayHelperModule::class)])
-    public abstract fun getNewCourseCreationService(): NewCourseCreationService
+    abstract fun getNewCourseCreationService(): NewCourseCreationService
 
-    @ServiceScope
-    @ContributesAndroidInjector(modules = [(DataModule::class), (AllCoursesModule::class)])
-    public abstract fun getAllCoursesFragment(): AllCoursesFragment
+    @FragmentScope
+    @ContributesAndroidInjector(modules = [(DataModule::class), (AllCoursesModule::class), (DisplayHelperModule::class)])
+    abstract fun getAllCoursesFragment(): AllCoursesFragment
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [(QuestionCardsPreviewActivityModule::class), (DisplayHelperModule::class)])
+    abstract fun getQuestionCardPreviewActivity(): QuestionsCardsPreviewActivity
 }

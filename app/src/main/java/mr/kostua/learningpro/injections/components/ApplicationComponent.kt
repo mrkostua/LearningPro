@@ -21,9 +21,9 @@ import javax.inject.Singleton
 @Component(modules = [(ApplicationModule::class),
     (AndroidSupportInjectionModule::class),
     (ActivityBindingModule::class)])
-public interface ApplicationComponent : AndroidInjector<LearningProApp> {
+interface ApplicationComponent : AndroidInjector<LearningProApp> {
     @Component.Builder
-    public interface Builder {
+    interface Builder {
         @BindsInstance
         fun application(app: Application): ApplicationComponent.Builder
 

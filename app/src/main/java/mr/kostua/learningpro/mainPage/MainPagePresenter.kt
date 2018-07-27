@@ -59,7 +59,7 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
     override fun isNotCreatedCourseDataExists() = db.isCreatingCourseDataExists()
 
     override fun getSavedCourse() =
-             CourseDo(title = db.getCreatingCourseTitle(), description = db.getCreatingCourseDescription())
+            CourseDo(title = db.getCreatingCourseTitle(), description = db.getCreatingCourseDescription())
 
 
     override fun isCourseDataSavedForThisFile(fileUri: Uri): Boolean {
@@ -67,6 +67,4 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
         val savedUri = if (fileStringUri.isNotEmpty()) Uri.parse(fileStringUri) else null
         return savedUri != null && savedUri == fileUri
     }
-
-
 }

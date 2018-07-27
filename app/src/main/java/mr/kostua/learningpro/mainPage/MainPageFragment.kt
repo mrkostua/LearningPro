@@ -28,7 +28,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         MainPageContract.View, View.OnClickListener {
     private val TAG = this.javaClass.simpleName
     @Inject
-    public lateinit var notificationTools: NotificationTools
+    lateinit var notificationTools: NotificationTools
 
     private val localBR = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -123,15 +123,20 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     }
 
     override fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri) {
-        AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
-                .setTitle("Course \"$courseName\" creation failed")
-                .setMessage("Do you want to try again with same data?")
-                .setNegativeButton("Back") { dialog, pos ->
-                    dialog.dismiss()
-                }.setPositiveButton("Create") { dialog, pos ->
-                    showCreateCourseDialog(fileUri)
-                    dialog.dismiss()
-                }.create().show()
+        notificationTools.showCustomAlertDialog(parentActivity,
+                "Course \"$courseName\" creation failed",
+                "Do you want to try again with same data?",
+                DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        DialogInterface.BUTTON_POSITIVE -> {
+                            showCreateCourseDialog(fileUri)
+                            dialog.dismiss()
+                        }
+                        DialogInterface.BUTTON_NEGATIVE -> {
+                            dialog.dismiss()
+                        }
+                    }
+                })
     }
 
     private fun showCreateCourseDialog(data: Uri) {

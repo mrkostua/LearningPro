@@ -10,7 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/MyMaterialTheme">
-        <activity android:name="mr.kostua.learningpro.main.MainActivity">
+        <activity android:name=".main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,6 +29,18 @@
             android:label="@string/settingsPreferencesLabel"
             android:screenOrientation="portrait"
             android:theme="@style/customSettingsPreferencesStyle" />
+
+        <receiver
+            android:name=".main.MainReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="CONTINUE_COURSE_CREATION" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".questionsCardPreview.QuestionsCardsPreviewActivity"
+            android:parentActivityName=".main.MainActivity"/>
     </application>
 
 </manifest>

@@ -6,7 +6,6 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.DisposableSubscriber
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.CourseDo
-import mr.kostua.learningpro.tools.ShowLogs
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -19,7 +18,6 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
     private val disposables = CompositeDisposable()
     private var mainCoursesList = ArrayList<CourseDo>()
 
-
     override fun takeView(view: AllCoursesContract.View) {
         this.view = view
     }
@@ -29,29 +27,23 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSubscriber<List<CourseDo>>() {
-                    override fun onComplete() {
-                        ShowLogs.log(TAG, "populateCourses onComplete")
-                    }
+                    override fun onComplete() {}
 
                     override fun onNext(coursesList: List<CourseDo>) {
+                        view.setPBVisibility(false)
                         if (view.isCourseListInitialized()) {
                             view.updateCourseList(addNewListToMainCourses(coursesList))
-                            ShowLogs.log(TAG, "populateCourses onNext updateCourseList")
-
                         } else {
                             view.initializeRecycleView(addNewListToMainCourses(coursesList))
-                            ShowLogs.log(TAG, "populateCourses onNext initializeRecycleView")
-
                         }
-
                     }
 
                     override fun onError(t: Throwable) {
-                        ShowLogs.log(TAG, "populateCourses onError ${t.message} ")
+                        view.setPBVisibility(true)
+                        view.showFailedPopulationDialog()
                     }
 
-                }
-                ))
+                }))
     }
 
     override fun disposeAll() {
@@ -68,6 +60,5 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
                 }
                 mainCoursesList
             }
-
 
 }

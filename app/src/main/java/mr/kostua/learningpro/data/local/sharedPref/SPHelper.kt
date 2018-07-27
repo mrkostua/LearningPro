@@ -27,7 +27,8 @@ open class SPHelper(private val sharedPreferences: SharedPreferences) {
     fun getCreatingCourseDescription() = sharedPreferences[ConstantsPreferences.CREATING_COURSE_DESCRIPTION.getKeyValue(),
             ConstantsPreferences.CREATING_COURSE_DESCRIPTION.getDefaultStringValue()]
 
-    fun getCreatingCourseStringUri() = sharedPreferences[ConstantsPreferences.CREATING_COURSE_URI.getKeyValue(), ConstantsPreferences.CREATING_COURSE_URI.getDefaultStringValue()]
+    fun getCreatingCourseStringUri() = sharedPreferences[ConstantsPreferences.CREATING_COURSE_URI.getKeyValue(),
+            ConstantsPreferences.CREATING_COURSE_URI.getDefaultStringValue()]
 
 
 }

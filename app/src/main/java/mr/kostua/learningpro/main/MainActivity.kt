@@ -10,20 +10,20 @@ import android.support.v4.app.NavUtils
 import android.support.v4.view.ViewPager
 import android.view.Menu
 import android.view.MenuItem
-import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.allCoursesPage.AllCoursesFragment
 import mr.kostua.learningpro.appSettings.SettingPreferencesActivity
+import mr.kostua.learningpro.injections.scopes.ActivityScope
 import mr.kostua.learningpro.mainPage.MainPageFragment
 
-class MainActivity : DaggerAppCompatActivity() {
+@ActivityScope
+class MainActivity : BaseDaggerActivity() {
     private val TAG = this.javaClass.simpleName
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        super.onCreate(savedInstanceState, R.layout.activity_main)
+        enableHomeButton(false)
 
         initializeViewPager(viewPager)
         tabLayout.setupWithViewPager(viewPager)
@@ -58,10 +58,6 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_settings -> {
             startActivity(Intent(this, SettingPreferencesActivity::class.java))
-            true
-        }
-        R.id.home -> { //in case this app provide some intent filters for other apps (check navigate up with new back stack)
-            NavUtils.navigateUpFromSameTask(this)
             true
         }
         else -> super.onOptionsItemSelected(item)

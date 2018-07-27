@@ -6,7 +6,7 @@ import android.content.SharedPreferences
  * @author Kostiantyn Prysiazhnyi on 3/5/2018.
  */
 
- inline fun SharedPreferences.edit(action: (SharedPreferences.Editor) -> Unit) {
+inline fun SharedPreferences.edit(action: (SharedPreferences.Editor) -> Unit) {
     val editor = this.edit()
     action(editor)
     editor.apply()
@@ -15,14 +15,14 @@ import android.content.SharedPreferences
 /**
  * to use extension in different package this fun need to be imported like .get or .*
  */
- operator fun SharedPreferences.set(key: String, value: Any?) {
+operator fun SharedPreferences.set(key: String, value: Any?) {
     when (value) {
         is String? ->
-            edit({ it.putString(key, value) })
+            edit { it.putString(key, value) }
         is Int ->
-            edit({ it.putInt(key, value) })
+            edit { it.putInt(key, value) }
         is Boolean ->
-            edit({ it.putBoolean(key, value) })
+            edit { it.putBoolean(key, value) }
         else ->
             throw UnsupportedOperationException("Not implemented")
     }
@@ -31,7 +31,7 @@ import android.content.SharedPreferences
 /**
  * to use extension in different package this fun need to be imported like .get or .*
  */
- inline operator fun <reified T : Any> SharedPreferences.get(key: String, defaultValue: T): T {
+inline operator fun <reified T : Any> SharedPreferences.get(key: String, defaultValue: T): T {
     return when (T::class) {
         String::class ->
             getString(key, defaultValue as String) as T

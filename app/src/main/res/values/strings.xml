@@ -15,7 +15,6 @@
     <string name="create_course_dialog_hint_description">description :</string>
     <string name="create_course_dialog_default_file_name"><u>no file found</u></string>
     <string name="create_course_dialog_file_name_title">File name :</string>
-    <string name="create_course_dialog_b_change_file">Change file</string>
     <string name="b_back">Back</string>
     <string name="b_create">Create</string>
     <string name="courseRowItemDescriptionHint">description</string>
@@ -23,8 +22,12 @@
     <string name="questionIcon_tooltip">questions amount</string>
     <string name="DoneQuestionsIcon_tooltip">amount of answered questions</string>
     <string name="newCourseNotificationTicker">New course creation started</string>
-    <string name="newCourseNotificationContentTitle">New course creation started\"<xliff:g id="courseTitle">%s</xliff:g>\"</string>
-    <string name="newCourseNotificationContentTitleComplete">Creation complete</string>
+    <string name="newCourseNotificationContentTitle">New course creation started "<xliff:g id="courseTitle">%s</xliff:g>"</string>
+
+    <string name="courseSavedNotificationContentTitle">Course "<xliff:g id="courseTitle">%s</xliff:g>" was successfully created</string>
+    <string name="courseSavedNotificationContentTicker">successfully saved</string>
+    <string name="courseSavedNotificationActionContinue">continue creation</string>
+    <string name="newCourseNotificationContentTitleComplete">Continue creation</string>
     <string name="settingsPreferencesLabel">Settings</string>
     <string name="SettingsAboutIconsTitle">Icons downloaded from</string>
     <string name="SettingsAboutAuthorTitle">Author</string>
@@ -34,4 +37,7 @@
     <string name="tabAllCoursesName">All Courses</string>
     <string name="notificationsChanelDescription">Important notifications for showing and executing downloading/processing of new course</string>
     <string name="course">Course</string>
+    <string name="customDialogPositiveButtonText">Do</string>
+    <string name="customDialogNegativeButtonText">Back</string>
+    <string name="title_activity_test">TEST</string>
 </resources>

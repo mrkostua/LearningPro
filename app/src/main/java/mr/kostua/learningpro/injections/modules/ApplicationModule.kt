@@ -10,7 +10,7 @@ import dagger.Module
  */
 
 @Module
-public abstract class ApplicationModule {
+abstract class ApplicationModule {
     @Binds
     abstract fun provideAppContext(app: Application): Context
 

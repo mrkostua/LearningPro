@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="CustomAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:background">@color/primaryDarkColor</item>
-        <item name="android:textColorPrimary">@color/bStroke_color</item>
+        <item name="android:textColorPrimary">@color/secondaryTextColor</item>
         <item name="android:windowTitleStyle">@style/alertDialogTitleStyle</item>
-        <item name="android:colorAccent">@color/white</item>
+        <item name="android:colorAccent">@color/primaryTextColor</item>
 
     </style>
 </resources>

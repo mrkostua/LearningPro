@@ -15,8 +15,7 @@ import javax.inject.Inject
 /**
  * @author Kostiantyn Prysiazhnyi on 7/17/2018.
  */
-class DBHelper @Inject constructor(private val db: LocalDB,
-                                   sp: SharedPreferences) : SPHelper(sp) {
+class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreferences) : SPHelper(sp) {
     private val TAG = this.javaClass.simpleName
 
     fun addQuestionToLocalDB(question: QuestionDo) = -1L != db.questionsDao().addQuestion(question)

@@ -15,7 +15,7 @@ abstract class FragmentInitializer<T : Any> : DaggerFragment() {
     lateinit var fragmentContext: Context
     lateinit var parentActivity: Activity
     @Inject
-    public lateinit var presenter: T
+    lateinit var presenter: T
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
