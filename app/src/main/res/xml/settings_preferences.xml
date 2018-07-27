@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceScreen
+        android:persistent="false"
+        android:title="@string/SettingAboutTitle">
+        <Preference
+            android:persistent="false"
+            android:summary="@string/linkToDownloadedIcons"
+            android:title="@string/SettingsAboutIconsTitle" />
+        <Preference
+            android:persistent="false"
+            android:summary="@string/SettingAboutAuthorSummary"
+            android:title="@string/SettingsAboutAuthorTitle" />
+    </PreferenceScreen>
+</PreferenceScreen>

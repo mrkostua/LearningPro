@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -13,44 +14,39 @@ import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.allCoursesPage.AllCoursesFragment
+import mr.kostua.learningpro.appSettings.SettingPreferencesActivity
 import mr.kostua.learningpro.mainPage.MainPageFragment
 
-class MainActivity : DaggerAppCompatActivity(), TabLayout.OnTabSelectedListener {
+class MainActivity : DaggerAppCompatActivity() {
+    private val TAG = this.javaClass.simpleName
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         initializeViewPager(viewPager)
 
         tabLayout.setupWithViewPager(viewPager)
-        tabLayout.addOnTabSelectedListener(this)
-    }
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+            }
 
-    override fun onPause() {
-        super.onPause()
-        tabLayout.removeOnTabSelectedListener(this)
-    }
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+            }
 
-    override fun onTabReselected(tab: TabLayout.Tab?) {
-       // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                if (tab.text == getString(R.string.tabMainName)) {
+                    appBar.setExpanded(true, true)
+                }
+            }
+        })
     }
-
-    override fun onTabUnselected(tab: TabLayout.Tab?) {
-       // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onTabSelected(tab: TabLayout.Tab?) {
-     //   TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
 
     private fun initializeViewPager(pager: ViewPager) {
         CustomViewPagerAdapter(supportFragmentManager).apply {
-            addFragment(MainPageFragment(), "Main")
-            addFragment(AllCoursesFragment(), "All Courses")
+            addFragment(MainPageFragment(), getString(R.string.tabMainName))
+            addFragment(AllCoursesFragment(), getString(R.string.tabAllCoursesName))
             pager.adapter = this
         }
     }
@@ -62,7 +58,7 @@ class MainActivity : DaggerAppCompatActivity(), TabLayout.OnTabSelectedListener 
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_settings -> {
-            //TODO open preference activity
+            startActivity(Intent(this, SettingPreferencesActivity::class.java))
             true
         }
         R.id.home -> { //in case this app provide some intent filters for other apps (check navigate up with new back stack)

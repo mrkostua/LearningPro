@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/create_course_dialog_background"
+    android:paddingBottom="8dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:id="@+id/tvNewCourseDialogMainTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/create_course_dialog_title"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/etNewCourseDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/shape_round_corners"
+        android:hint="@string/create_course_dialog_hint_title"
+        android:inputType="textMultiLine"
+        android:maxLines="2"
+        android:textColor="@color/white"
+        android:textColorHint="@color/hint_text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvNewCourseDialogMainTitle" />
+
+    <EditText
+        android:id="@+id/etNewCourseDialogDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/shape_round_corners"
+        android:gravity="start"
+        android:hint="@string/create_course_dialog_hint_description"
+        android:inputType="textMultiLine"
+        android:lines="4"
+        android:maxLines="8"
+        android:textColor="@color/white"
+        android:textColorHint="@color/hint_text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etNewCourseDialogTitle" />
+
+    <TextView
+        android:id="@+id/tvNewCourseDialogFileNameTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/create_course_dialog_file_name_title"
+        android:textColor="@color/hint_text_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etNewCourseDialogDescription" />
+
+    <TextView
+        android:id="@+id/tvNewCourseDialogFileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/text_selector"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="start"
+        android:maxLines="1"
+        android:text="@string/create_course_dialog_default_file_name"
+        android:textColor="@color/white"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/tvNewCourseDialogFileNameTitle"
+        app:layout_constraintTop_toTopOf="@+id/tvNewCourseDialogFileNameTitle" />
+
+    <View
+        android:id="@+id/vNewCourseHorizontalLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/bStroke_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvNewCourseDialogFileName" />
+
+    <Button
+        android:id="@+id/bNewCourseCreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button_selector"
+        android:minHeight="40dp"
+        android:text="@string/b_create"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vNewCourseHorizontalLine" />
+
+    <Button
+        android:id="@+id/bNewCourseBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/button_selector"
+        android:minHeight="40dp"
+        android:text="@string/b_back"
+        app:layout_constraintEnd_toStartOf="@+id/bNewCourseCreate"
+        app:layout_constraintTop_toTopOf="@+id/bNewCourseCreate" />
+</android.support.constraint.ConstraintLayout>
