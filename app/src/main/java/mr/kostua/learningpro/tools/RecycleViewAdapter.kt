@@ -24,8 +24,7 @@ class RecycleViewAdapter<D>(private val data: List<D>, private val layoutRes: In
 
     inner class ViewHolder(private val view: View, private val binder: ViewHolderBinder<D>) : RecyclerView.ViewHolder(view) {
         fun bind(item: D) {
-            binder.initializeListViews(view)
-            binder.bind(item)
+            binder.bind(view, item)
         }
     }
 }

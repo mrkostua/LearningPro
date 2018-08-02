@@ -37,6 +37,6 @@ abstract class ActivityBindingModule {
     abstract fun getAllCoursesFragment(): AllCoursesFragment
 
     @ActivityScope
-    @ContributesAndroidInjector(modules = [(QuestionCardsPreviewActivityModule::class), (DisplayHelperModule::class)])
+    @ContributesAndroidInjector(modules = [(QuestionCardsPreviewActivityModule::class), (DisplayHelperModule::class), (DataModule::class)])
     abstract fun getQuestionCardPreviewActivity(): QuestionsCardsPreviewActivity
 }

@@ -17,7 +17,7 @@
     <string name="create_course_dialog_file_name_title">File name :</string>
     <string name="b_back">Back</string>
     <string name="b_create">Create</string>
-    <string name="courseRowItemDescriptionHint">description</string>
+    <string name="courseRowItemDescriptionHint">(description)</string>
     <string name="failedToChooseFileMessage">some problems acquired, please try again</string>
     <string name="questionIcon_tooltip">questions amount</string>
     <string name="DoneQuestionsIcon_tooltip">amount of answered questions</string>
@@ -40,4 +40,10 @@
     <string name="customDialogPositiveButtonText">Do</string>
     <string name="customDialogNegativeButtonText">Back</string>
     <string name="title_activity_test">TEST</string>
+    <string name="courseRowNotReviewedContentDescription">not reviewed questions</string>
+    <string name="notReviewedTooltip">course cards not reviewed</string>
+    <string name="questionPreviewAcceptButton">Accept</string>
+    <string name="questionPreviewSaveButton">Save</string>
+    <string name="questionPreviewEditButton">Edit</string>
+    <string name="questionPreviewDeleteButton">Delete</string>
 </resources>

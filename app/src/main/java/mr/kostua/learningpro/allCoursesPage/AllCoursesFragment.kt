@@ -1,6 +1,5 @@
 package mr.kostua.learningpro.allCoursesPage
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -8,9 +7,11 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
@@ -38,48 +39,60 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     }
 
     override fun initializeRecycleView(data: List<CourseDo>) {
-        rvAllCourses.visibility = View.VISIBLE
+        val animation = AlphaAnimation(0.0f, 1.0f).apply {
+            duration = 700
+            startOffset = 20
+            repeatMode = Animation.REVERSE
+            repeatCount = Animation.INFINITE
+        }
         coursesRecycleViewAdapter = RecycleViewAdapter(data, R.layout.course_row_item, object : ViewHolderBinder<CourseDo> {
-            private lateinit var tvCourseTitle: TextView
-            private lateinit var tvCourseDescription: TextView
-            private lateinit var tvCourseQuestionsAmount: TextView
-            private lateinit var tvDoneQuestionsAmount: TextView
-            private lateinit var pbDoneQuestionsAmount: ProgressBar
-
-            override fun initializeListViews(view: View) = with(view) {
-                tvCourseTitle = findViewById(R.id.tvCourseTitle)
-                tvCourseDescription = findViewById(R.id.tvCourseDescription)
-                tvCourseQuestionsAmount = findViewById(R.id.tvCourseQuestionsAmount)
-                tvDoneQuestionsAmount = findViewById(R.id.tvDoneQuestionsAmount)
-                pbDoneQuestionsAmount = findViewById(R.id.pbDoneQuestionsAmount)
-
-                view.setOnClickListener {
-                    val courseId = data[rvAllCourses.getChildLayoutPosition(it)].id
-                    if (courseId != null) {
-                        startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
-                                .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId))
-                        //TODO also put extra reviewed (after CourseDo update)
+            override fun bind(view: View, item: CourseDo) {
+                with(item) {
+                    with(view) {
+                        setOnClickListener {
+                            val courseId = item.id
+                            if (courseId != null) {
+                                if (!item.reviewed) {
+                                    startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                                            .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId))
+                                }
+                            }
+                        }
+                        findViewById<ImageView>(R.id.ivNotReviewedAlert).run {
+                            if (item.reviewed) {
+                                visibility = View.GONE
+                                clearAnimation()
+                            } else {
+                                visibility = View.VISIBLE
+                                startAnimation(animation)
+                            }
+                        }
+                        findViewById<TextView>(R.id.tvCourseTitle).run {
+                            text = title
+                        }
+                        findViewById<TextView>(R.id.tvCourseDescription).run {
+                            text = description
+                        }
+                        findViewById<TextView>(R.id.tvCourseQuestionsAmount).run {
+                            text = questionsAmount.toString()
+                        }
+                        findViewById<TextView>(R.id.tvDoneQuestionsAmount).run {
+                            text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"
+                            else "${(doneQuestionsAmount * 100) / questionsAmount} %"
+                        }
+                        findViewById<ProgressBar>(R.id.pbDoneQuestionsAmount).run {
+                            max = questionsAmount
+                            progress = doneQuestionsAmount
+                        }
                     }
                 }
             }
-
-            @SuppressLint("SetTextI18n")
-            override fun bind(item: CourseDo) {
-                with(item) {
-                    tvCourseTitle.text = title
-                    tvCourseDescription.text = description
-
-                    tvCourseQuestionsAmount.text = questionsAmount.toString()
-                    tvDoneQuestionsAmount.text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"
-                    else "${(doneQuestionsAmount * 100) / questionsAmount} %"
-
-                    pbDoneQuestionsAmount.max = questionsAmount
-                    pbDoneQuestionsAmount.progress = doneQuestionsAmount
-                }
-            }
         })
-        rvAllCourses.layoutManager = LinearLayoutManager(fragmentContext)
-        rvAllCourses.adapter = coursesRecycleViewAdapter
+        rvAllCourses.run {
+            visibility = View.VISIBLE
+            layoutManager = LinearLayoutManager(fragmentContext)
+            adapter = coursesRecycleViewAdapter
+        }
     }
 
     override fun isCourseListInitialized() = rvAllCourses.adapter != null

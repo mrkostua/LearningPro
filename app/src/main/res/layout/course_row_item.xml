@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="5dp"
@@ -91,8 +92,10 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:clickable="true"
         android:drawableLeft="@drawable/icon_done_question"
         android:drawableStart="@drawable/icon_done_question"
+        android:focusable="true"
         android:gravity="center"
         android:text="@string/defaultCourseDoneQuestionsAmount"
         android:textColor="@color/primaryTextColor"
@@ -116,4 +119,21 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDoneQuestionsAmount" />
+
+    <ImageView
+        android:id="@+id/ivNotReviewedAlert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:clickable="true"
+        android:contentDescription="@string/courseRowNotReviewedContentDescription"
+        android:focusable="true"
+        android:scaleX="1.7"
+        android:scaleY="1.7"
+        android:tooltipText="@string/notReviewedTooltip"
+        app:layout_constraintBottom_toBottomOf="@+id/tvCourseTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvCourseTitle"
+        app:srcCompat="@drawable/alert_circle" />
 </android.support.constraint.ConstraintLayout>

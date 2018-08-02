@@ -8,4 +8,5 @@ import android.arch.persistence.room.PrimaryKey
  */
 @Entity(tableName = "courses")
 data class CourseDo(@PrimaryKey(autoGenerate = true) var id: Int? = null, var title: String,
-                    var description: String, var questionsAmount: Int = 0, var doneQuestionsAmount: Int = 0)
+                    var description: String, var questionsAmount: Int = 0,
+                    var doneQuestionsAmount: Int = 0, var reviewed: Boolean = false)
