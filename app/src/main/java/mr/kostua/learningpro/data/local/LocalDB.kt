@@ -14,6 +14,7 @@ import android.content.Context
 abstract class LocalDB : RoomDatabase() {
     abstract fun questionsDao(): QuestionsDao
     abstract fun coursesDao(): CourseDao
+    abstract fun courseWithQuestionsDao(): CourseWithQuestionsDao
 
     companion object {
         private val migrationFrom2To3 = object : Migration(2, 3) {

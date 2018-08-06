@@ -41,7 +41,6 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
                         view.showDialogCourseCreationFailed(course.title, data)
                     }
                 }))
-
     }
 
     override fun disposeAll() {

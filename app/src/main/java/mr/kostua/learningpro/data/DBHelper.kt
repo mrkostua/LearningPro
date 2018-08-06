@@ -27,4 +27,10 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun updateCourse(courseId: Int, questionsAmount: Int) = db.coursesDao().updateCourseQuestionsAmount(courseId, questionsAmount) == 1
 
+    fun getCourseWithQuestions(courseId: Int) = db.courseWithQuestionsDao().getCourseWithQuestions(courseId)
+
+    fun updateQuestion(question: QuestionDo) = Single.fromCallable { db.questionsDao().updateQuestion(question) }
+
+    fun deleteQuestion(question: QuestionDo) = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
+
 }

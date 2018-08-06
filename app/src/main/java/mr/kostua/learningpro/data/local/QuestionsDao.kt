@@ -9,4 +9,11 @@ import android.arch.persistence.room.*
 interface QuestionsDao {
     @Insert(onConflict = OnConflictStrategy.ROLLBACK)
     fun addQuestion(questionDo: QuestionDo): Long
+
+    @Update
+    fun updateQuestion(questionDo: QuestionDo) : Int
+
+    @Delete
+    fun deleteQuestion(questionDo: QuestionDo) : Int
+
 }

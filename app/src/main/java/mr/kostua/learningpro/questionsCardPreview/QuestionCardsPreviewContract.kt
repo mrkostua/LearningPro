@@ -10,14 +10,15 @@ import mr.kostua.learningpro.toolsMVP.BaseView
 interface QuestionCardsPreviewContract {
     interface View : BaseView {
         fun initializeRecycleView(data: ArrayList<QuestionDo>)
-
+        fun showToast(text: String)
     }
 
     interface Presenter : BasePresenter<View> {
         fun populateCourses(courseId: Int)
-        fun acceptQuestion(questionId: Int)
-        fun updateQuestionDo(questionId: Int, questionDo: QuestionDo)
-        fun deleteQuestion(questionId: Int)
+        fun acceptQuestion(questionDo: QuestionDo)
+        fun updateQuestion(questionDo: QuestionDo)
+        fun deleteQuestion(questionDo: QuestionDo)
+        fun disposeAll()
     }
 
 }
