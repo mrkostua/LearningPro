@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.questionsCardPreview
 
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
@@ -24,18 +25,17 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
 
     private val disposables = CompositeDisposable()
 
-
-    override fun populateCourses(courseId: Int) {
-        disposables.add(db.getCourseWithQuestions(courseId)
+    override fun populateNotAcceptedQuestions(courseId: Int) {
+        disposables.add(db.getCourseWithNotAcceptedQuestions(courseId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<CourseWithQuestions>() {
-                    override fun onSuccess(t: CourseWithQuestions) {
-                        view.initializeRecycleView(t.questionsList as ArrayList)
+                .subscribeWith(object : DisposableSingleObserver<List<QuestionDo>>() {
+                    override fun onSuccess(list: List<QuestionDo>) {
+                        view.initializeRecycleView(list as ArrayList)
                     }
 
                     override fun onError(e: Throwable) {
-                        ShowLogs.log(TAG, "populateCourses onError : ${e.message}")
+                        ShowLogs.log(TAG, "populateNotAcceptedQuestions onError : ${e.message}")
                     }
 
                 }))
@@ -78,15 +78,14 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
         })
     }
 
-    override fun deleteQuestion(questionDo: QuestionDo) {
+    override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
         disposables.add(db.deleteQuestion(questionDo)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableSingleObserver<Int>() {
                     override fun onSuccess(updatedItems: Int) {
                         if (updatedItems == 1) {
-                            view.showToast("deleted successfully")
-                            ShowLogs.log(TAG, "deleteQuestion item deleted successfully ")
+                            updateQuestionsAmount(courseId)
                         } else {
                             ShowLogs.log(TAG, "deleteQuestion no item deleted ")
 
@@ -102,6 +101,37 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
 
     override fun disposeAll() {
         disposables.clear()
+    }
+
+    private fun updateQuestionsAmount(courseId: Int) {
+        disposables.add(db.countQuestionsAmountInCourse(courseId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<Int>() {
+                    override fun onSuccess(questionsAmount: Int) {
+                        disposables.add(Single.fromCallable { db.updateCourseQuestionsAmount(courseId, questionsAmount) }
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(object : DisposableSingleObserver<Boolean>() {
+                                    override fun onSuccess(isDeleted: Boolean) {
+                                        if (isDeleted) {
+                                            view.showToast("deleted successfully")
+                                            ShowLogs.log(TAG, "deleteQuestion item deleted successfully ")
+                                        }
+                                    }
+
+                                    override fun onError(e: Throwable) {
+                                        ShowLogs.log(TAG, "deleteQuestion2 error ${e.message} ")
+                                    }
+
+                                }))
+                    }
+
+                    override fun onError(e: Throwable) {
+                        ShowLogs.log(TAG, "deleteQuestion2 error ${e.message} ")
+                    }
+
+                }))
     }
 
     private fun updateQuestionDo(questionDo: QuestionDo, observer: DisposableSingleObserver<Int>) {

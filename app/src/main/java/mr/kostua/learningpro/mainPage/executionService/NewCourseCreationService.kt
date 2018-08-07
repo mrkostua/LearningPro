@@ -109,7 +109,7 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
     }
 
     private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
-        dbHelper.updateCourse(courseId, questionsAmount)
+        dbHelper.updateCourseQuestionsAmount(courseId, questionsAmount)
     }
 
     private fun updateTaskCompleteUI(courseId: Int) {

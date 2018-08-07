@@ -14,6 +14,4 @@ interface CourseWithQuestionsDao {
 
     @Query("SELECT * from courses WHERE id = :courseId")
     fun getCourseWithQuestions(courseId: Int): Single<CourseWithQuestions>
-
-
 }

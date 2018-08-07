@@ -14,10 +14,10 @@ interface QuestionCardsPreviewContract {
     }
 
     interface Presenter : BasePresenter<View> {
-        fun populateCourses(courseId: Int)
+        fun populateNotAcceptedQuestions(courseId: Int)
         fun acceptQuestion(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
-        fun deleteQuestion(questionDo: QuestionDo)
+        fun deleteQuestion(questionDo: QuestionDo, courseId: Int)
         fun disposeAll()
     }
 

@@ -15,20 +15,20 @@
         android:id="@+id/rvQuestionsPreview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginTop="24dp"
         android:scrollbars="horizontal"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/bAcceptOrSave"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseToolbar"
-        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintVertical_bias="0.477"
         tools:listitem="@layout/question_preview_row_item" />
 
-    <Button
+  <!--  <Button
         android:id="@+id/bAcceptOrSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -71,7 +71,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />-->
 
     <ProgressBar
         android:id="@+id/pbQuestionsPreview"

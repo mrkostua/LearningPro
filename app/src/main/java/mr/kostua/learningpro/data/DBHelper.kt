@@ -6,10 +6,7 @@ import io.reactivex.Single
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.data.local.LocalDB
 import mr.kostua.learningpro.data.local.QuestionDo
-import mr.kostua.learningpro.data.local.sharedPref.ConstantsPreferences
 import mr.kostua.learningpro.data.local.sharedPref.SPHelper
-import mr.kostua.learningpro.data.local.sharedPref.get
-import mr.kostua.learningpro.data.local.sharedPref.set
 import javax.inject.Inject
 
 /**
@@ -25,12 +22,17 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun getAllCourses(): Flowable<List<CourseDo>> = db.coursesDao().getAllCourses().distinctUntilChanged()
 
-    fun updateCourse(courseId: Int, questionsAmount: Int) = db.coursesDao().updateCourseQuestionsAmount(courseId, questionsAmount) == 1
+    fun updateCourseQuestionsAmount(courseId: Int, questionsAmount: Int) = db.coursesDao().updateCourseQuestionsAmount(courseId, questionsAmount) == 1
+
+
+    fun countQuestionsAmountInCourse(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().countQuestionsAmountInCourse(courseId) }
 
     fun getCourseWithQuestions(courseId: Int) = db.courseWithQuestionsDao().getCourseWithQuestions(courseId)
 
-    fun updateQuestion(question: QuestionDo) = Single.fromCallable { db.questionsDao().updateQuestion(question) }
+    fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
 
-    fun deleteQuestion(question: QuestionDo) = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
+    fun updateQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().updateQuestion(question) }
+
+    fun deleteQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
 
 }
