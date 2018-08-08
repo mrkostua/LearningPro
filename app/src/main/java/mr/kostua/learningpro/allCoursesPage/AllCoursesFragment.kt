@@ -46,6 +46,8 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
             repeatCount = Animation.INFINITE
         }
         coursesRecycleViewAdapter = RecycleViewAdapter(data, R.layout.course_row_item, object : ViewHolderBinder<CourseDo> {
+            override fun bind(view: View, item: CourseDo, payload: MutableList<Any>) {}
+
             override fun bind(view: View, item: CourseDo) {
                 with(item) {
                     with(view) {

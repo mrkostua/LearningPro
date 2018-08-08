@@ -18,13 +18,26 @@ class RecycleViewAdapter<D>(private val data: List<D>, private val layoutRes: In
 
     override fun getItemCount() = data.size
 
-    override fun onBindViewHolder(holder: RecycleViewAdapter<D>.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(data[position])
     }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+        } else {
+            holder.bind(data[position], payloads)
+        }
+    }
+
 
     inner class ViewHolder(private val view: View, private val binder: ViewHolderBinder<D>) : RecyclerView.ViewHolder(view) {
         fun bind(item: D) {
             binder.bind(view, item)
+        }
+
+        fun bind(item: D, payloads: MutableList<Any>) {
+            binder.bind(view, item, payloads)
         }
     }
 }

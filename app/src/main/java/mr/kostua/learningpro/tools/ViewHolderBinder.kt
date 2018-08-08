@@ -7,4 +7,5 @@ import android.view.View
  */
 interface ViewHolderBinder<D> {
     fun bind(view: View, item: D)
+    fun bind(view: View, item: D, payload : MutableList<Any>)
 }

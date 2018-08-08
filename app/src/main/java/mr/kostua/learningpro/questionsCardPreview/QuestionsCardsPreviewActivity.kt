@@ -45,13 +45,10 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         presenter.takeView(this)
         presenter.populateNotAcceptedQuestions(courseId)
     }
-/**
- * Fix for scrolling to-do  (don't make constraints to bottom of layout) so when keyboard will appear they will be hidden not moved up
- * Fix for changes applied to next item to-do (is to on every bind (or check if current id is the same as editableCard id and in that case do changes ) inside bind()
- *      or to just use some argument of QuestionDo (as Accepted) to true if editable and if else inside bind()
- */
+
+    //TODO hide keyboard (appears on activity start and RV initialization)
     @SuppressLint("SetTextI18n")
-    override fun initializeRecycleView(data: ArrayList<QuestionDo>) { //TODO result of Onclick Edit (make changes to next item in recycleView)??
+    override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         questionsRecycleViewAdapter = RecycleViewAdapter(data, R.layout.question_preview_row_item,
                 object : ViewHolderBinder<QuestionDo> {
                     private var currentItemPosition = -1
@@ -60,8 +57,9 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
                     private lateinit var tvCurrentQuestionNumber: TextView
                     private lateinit var bAcceptOrSave: Button
                     private lateinit var bEditOrDelete: Button
-                    private var isCardEditable = false
-                    private var editableItemPosition = -1
+
+                    override fun bind(view: View, item: QuestionDo, payload: MutableList<Any>) {
+                    }
 
                     override fun bind(view: View, item: QuestionDo) {
                         tvCurrentQuestionNumber = view.findViewById(R.id.tvCurrentQuestionNumber)
@@ -72,53 +70,60 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
                             tvCurrentQuestionNumber.text = "${currentItemPosition + 1} / ${data.size}"
 
                             etQuestionPreview = view.findViewById<EditText>(R.id.etQuestionPreview).apply {
-                                makeEditTextToBeText(this)
+                                if (isAccepted) {
+                                    makeEditTextToBeEditText(this)
+                                } else {
+                                    makeEditTextToBeText(this)
+                                }
                                 setText(question)
                             }
                             etAnswerPreview = view.findViewById<EditText>(R.id.etAnswerPreview).apply {
-                                makeEditTextToBeText(this)
+                                if (isAccepted) {
+                                    makeEditTextToBeEditText(this)
+                                } else {
+                                    makeEditTextToBeText(this)
+                                }
                                 setText(answer)
                             }
-                            if (isCardEditable && editableItemPosition == currentItemPosition) {
-                                ShowLogs.log(TAG, "bind isCardEdible true")
-                            }
+
                             bAcceptOrSave.apply {
+                                if (isAccepted && text == getString(R.string.questionPreviewAcceptButton)) {
+                                    animateFromAcceptToSave(this, bEditOrDelete)
+                                } else {
+                                    animateFromSaveToAccept(this, bEditOrDelete)
+                                }
                                 setOnClickListener {
                                     when ((it as Button).text) {
                                         getString(R.string.questionPreviewAcceptButton) -> {
                                             acceptQuestion(this@with, currentItemPosition)
                                         }
                                         getString(R.string.questionPreviewSaveButton) -> {
-                                            saveQuestion(this@with, currentItemPosition)
                                             question = etQuestionPreview.text.toString()
                                             answer = etAnswerPreview.text.toString()
+                                            saveQuestion(this@with, currentItemPosition)
                                             animateFromSaveToAccept(bAcceptOrSave, bEditOrDelete)
-                                            makeEditTextToBeText(etAnswerPreview)
-                                            makeEditTextToBeText(etQuestionPreview)
+                                            setItemToNotEditable()
                                         }
                                     }
                                     tvCurrentQuestionNumber.text = "${currentItemPosition + 1} / ${data.size}"
-                                    isCardEditable = false
-                                    editableItemPosition = -1
                                 }
                             }
                             bEditOrDelete.apply {
+                                if (isAccepted && text == getString(R.string.questionPreviewDeleteButton)) {
+                                    animateFromAcceptToSave(bAcceptOrSave, this)
+                                } else {
+                                    animateFromSaveToAccept(this, bEditOrDelete)
+                                }
                                 setOnClickListener {
                                     when ((it as Button).text) {
                                         getString(R.string.questionPreviewEditButton) -> {
-                                            editableItemPosition = currentItemPosition
-                                            isCardEditable = true
-                                            makeEditTextToBeEditText(etQuestionPreview)
-                                            makeEditTextToBeEditText(etAnswerPreview)
                                             animateFromAcceptToSave(bAcceptOrSave, bEditOrDelete)
+                                            setItemToEditable(item.id!!)
                                         }
                                         getString(R.string.questionPreviewDeleteButton) -> {
-                                            editableItemPosition = -1
-                                            isCardEditable = false
                                             deleteQuestion(this@with, currentItemPosition)
                                             animateFromSaveToAccept(bAcceptOrSave, bEditOrDelete)
-                                            makeEditTextToBeText(etQuestionPreview)
-                                            makeEditTextToBeText(etAnswerPreview)
+                                            setItemToNotEditable()
                                             tvCurrentQuestionNumber.text = "${currentItemPosition + 1} / ${data.size}"
                                         }
                                     }
@@ -127,23 +132,37 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
                         }
                     }
 
+                    private fun setItemToEditable(itemId: Int) {
+                        data.forEach {
+                            if (it.id == itemId && !it.isAccepted) {
+                                it.isAccepted = true
+                                questionsRecycleViewAdapter.notifyItemChanged(data.indexOf(it))
+                            } else if (it.isAccepted == true) {
+                                it.isAccepted = false
+                                questionsRecycleViewAdapter.notifyItemChanged(data.indexOf(it))
+                            }
+                        }
+                    }
+
+                    private fun setItemToNotEditable() {
+                        data.forEach {
+                            if (it.isAccepted == true) {
+                                it.isAccepted = false
+                                questionsRecycleViewAdapter.notifyItemChanged(data.indexOf(it))
+                            }
+                        }
+                    }
+
                     private fun acceptQuestion(currentItem: QuestionDo, currentItemPosition: Int) {
-                        rvQuestionsPreview.scrollToPosition(currentItemPosition + 1)
-                        acceptQuestionCard(currentItem, currentItemPosition)
                         data.remove(currentItem)
+                        acceptQuestionCard(currentItem, currentItemPosition)
                     }
 
                     private fun saveQuestion(currentItem: QuestionDo, currentItemPosition: Int) {
-                        data[currentItemPosition].run {
-                            this.question = currentItem.question
-                            this.answer = currentItem.answer
-
-                        }
                         updateQuestionCard(currentItemPosition, currentItem)
                     }
 
                     private fun deleteQuestion(currentItem: QuestionDo, currentItemPosition: Int) {
-                        rvQuestionsPreview.scrollToPosition(currentItemPosition + 1)
                         data.remove(currentItem)
                         deleteQuestionDo(currentItemPosition, currentItem)
                     }
@@ -188,6 +207,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun acceptQuestionCard(questionDo: QuestionDo, itemPosition: Int) {
         questionsRecycleViewAdapter.notifyItemRemoved(itemPosition)
+        questionsRecycleViewAdapter.notifyDataSetChanged()
         presenter.acceptQuestion(questionDo)
     }
 
@@ -198,6 +218,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun deleteQuestionDo(itemPosition: Int, questionDo: QuestionDo) {
         questionsRecycleViewAdapter.notifyItemRemoved(itemPosition)
+        questionsRecycleViewAdapter.notifyDataSetChanged()
         presenter.deleteQuestion(questionDo, courseId)
     }
 
