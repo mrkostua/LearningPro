@@ -1,8 +1,12 @@
 package mr.kostua.learningpro.tools
 
 import android.os.Build
+import android.support.annotation.RequiresApi
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
+import android.view.View
+import android.view.ViewAnimationUtils
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 

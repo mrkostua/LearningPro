@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
@@ -25,9 +27,11 @@ import javax.inject.Inject
  */
 @FragmentScope
 class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), AllCoursesContract.View {
-    private lateinit var coursesRecycleViewAdapter: RecycleViewAdapter<CourseDo>
+    private lateinit var coursesRecycleViewAdapter: AllCoursesRecycleViewAdapter
     @Inject
     lateinit var notificationTools: NotificationTools
+
+    private lateinit var courseItemClickListenerDisposable: Disposable
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_all_courses, container, false)
@@ -39,57 +43,15 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     }
 
     override fun initializeRecycleView(data: List<CourseDo>) {
-        val animation = AlphaAnimation(0.0f, 1.0f).apply {
-            duration = 700
-            startOffset = 20
-            repeatMode = Animation.REVERSE
-            repeatCount = Animation.INFINITE
-        }
-        coursesRecycleViewAdapter = RecycleViewAdapter(data, R.layout.course_row_item, object : ViewHolderBinder<CourseDo> {
-            override fun bind(view: View, item: CourseDo, payload: MutableList<Any>) {}
-
-            override fun bind(view: View, item: CourseDo) {
-                with(item) {
-                    with(view) {
-                        setOnClickListener {
-                            val courseId = item.id
-                            if (courseId != null) {
-                                if (!item.reviewed) {
-                                    startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
-                                            .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId))
-                                }
-                            }
-                        }
-                        findViewById<ImageView>(R.id.ivNotReviewedAlert).run {
-                            if (item.reviewed) {
-                                visibility = View.GONE
-                                clearAnimation()
-                            } else {
-                                visibility = View.VISIBLE
-                                startAnimation(animation)
-                            }
-                        }
-                        findViewById<TextView>(R.id.tvCourseTitle).run {
-                            text = title
-                        }
-                        findViewById<TextView>(R.id.tvCourseDescription).run {
-                            text = description
-                        }
-                        findViewById<TextView>(R.id.tvCourseQuestionsAmount).run {
-                            text = questionsAmount.toString()
-                        }
-                        findViewById<TextView>(R.id.tvDoneQuestionsAmount).run {
-                            text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"
-                            else "${(doneQuestionsAmount * 100) / questionsAmount} %"
-                        }
-                        findViewById<ProgressBar>(R.id.pbDoneQuestionsAmount).run {
-                            max = questionsAmount
-                            progress = doneQuestionsAmount
-                        }
-                    }
+        coursesRecycleViewAdapter = AllCoursesRecycleViewAdapter(data)
+        courseItemClickListenerDisposable = coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
+            with(it) {
+                if (!this.reviewed) {
+                    startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                            .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, this.id!!))
                 }
             }
-        })
+        }
         rvAllCourses.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(fragmentContext)
@@ -126,6 +88,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
     override fun onDestroy() {
         super.onDestroy()
+        courseItemClickListenerDisposable.dispose()
         presenter.disposeAll()
     }
 }
