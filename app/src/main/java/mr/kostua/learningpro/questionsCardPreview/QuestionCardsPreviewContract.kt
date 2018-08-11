@@ -18,6 +18,7 @@ interface QuestionCardsPreviewContract {
         fun acceptQuestion(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
         fun deleteQuestion(questionDo: QuestionDo, courseId: Int)
+        fun setCourseReviewedTrue(courseId: Int)
         fun disposeAll()
     }
 

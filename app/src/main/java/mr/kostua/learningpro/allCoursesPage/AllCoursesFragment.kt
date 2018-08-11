@@ -4,16 +4,11 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
 import io.reactivex.disposables.Disposable
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
@@ -49,13 +44,15 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 if (!this.reviewed) {
                     startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
                             .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, this.id!!))
+                } else {
+                    //TODO open course for learning
                 }
             }
         }
         rvAllCourses.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(fragmentContext)
-            adapter = coursesRecycleViewAdapter
+            adapter = AlphaInAnimationAdapter(coursesRecycleViewAdapter)
         }
     }
 

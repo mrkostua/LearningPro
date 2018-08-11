@@ -20,6 +20,8 @@
     <color name="main_buttons_blocked_color">#77009688</color>
 
     <color name="main_buttons_color">#77ef6c00</color>
+    <color name="question_card_preview_accept_animation_color">#9652b143</color>
+    <color name="question_card_preview_delete_animation_color">#96a74029</color>
     <color name="tabTextColor">#ffffff</color>
     <color name="tabTextSelectedColor">#a2000000</color>
     <color name="hint_text_color">#79ffffff</color>

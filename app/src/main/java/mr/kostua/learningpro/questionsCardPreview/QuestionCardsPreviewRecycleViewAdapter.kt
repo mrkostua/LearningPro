@@ -16,7 +16,6 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
-import mr.kostua.learningpro.tools.ShowLogs
 import mr.kostua.learningpro.tools.showSoftInputOnFocusAllAPI
 
 /**
@@ -45,7 +44,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
     }
 
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val etQuestionPreview: EditText = view.findViewById(R.id.etQuestionPreview)
         private val etAnswerPreview: EditText = view.findViewById(R.id.etAnswerPreview)
         private val tvCurrentQuestionNumber: TextView = view.findViewById(R.id.tvCurrentQuestionNumber)
@@ -57,6 +56,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 if (bAcceptOrSave.text == context.getString(R.string.questionPreviewAcceptButton)) {
                     bAcceptPublishSubject.onNext(data[adapterPosition])
                     bAccept()
+                    //TODO onError not implemented exception (possible solution is to add onError and after use subscribeWith to catch this error
                 } else {
                     bSavePublishSubject.onNext(data[adapterPosition])
                     bSave()
@@ -75,6 +75,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
 
         @SuppressLint("SetTextI18n")
         fun bind(item: QuestionDo) {
+            view.setBackgroundResource(R.drawable.button_selector)
             with(item) {
                 tvCurrentQuestionNumber.text = "${data.indexOf(this) + 1} / ${data.size}"
                 etQuestionPreview.apply {
@@ -97,11 +98,11 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 bAcceptOrSave.run {
                     if (isAccepted) {
                         if (text == context.getString(R.string.questionPreviewAcceptButton)) {
-                            animateFromAcceptToSave(bAcceptOrSave, bEditOrDelete)
+                            animateFromAcceptToSave()
                         }
                     } else {
                         if (text == context.getString(R.string.questionPreviewSaveButton)) {
-                            animateFromSaveToAccept(bAcceptOrSave, bEditOrDelete)
+                            animateFromSaveToAccept()
                         }
                     }
                 }
@@ -109,11 +110,11 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 bEditOrDelete.apply {
                     if (isAccepted) {
                         if (text == context.getString(R.string.questionPreviewEditButton)) {
-                            animateFromAcceptToSave(bAcceptOrSave, bEditOrDelete)
+                            animateFromAcceptToSave()
                         }
                     } else {
                         if (text == context.getString(R.string.questionPreviewDeleteButton)) {
-                            animateFromSaveToAccept(bAcceptOrSave, bEditOrDelete)
+                            animateFromSaveToAccept()
                         }
                     }
                 }
@@ -121,25 +122,24 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         }
 
         private fun bSave() {
-            performCircularRevealAnimation(true)
             with(data[adapterPosition]) {
                 isAccepted = false
                 question = etQuestionPreview.text.toString()
                 answer = etAnswerPreview.text.toString()
+                performCircularRevealAnimation(true)
                 notifyItemChanged(adapterPosition)
             }
         }
 
         private fun bAccept() {
             data.removeAt(adapterPosition)
+            view.setBackgroundResource(R.color.question_card_preview_accept_animation_color)
             notifyItemRemoved(adapterPosition)
-            notifyDataSetChanged()
-
+            notifyItemRangeChanged(0, data.size)
         }
 
         private fun bEdit() {
             with(data[adapterPosition]) {
-                ShowLogs.log(TAG, "bEdit id ${this.id!!}")
                 performCircularRevealAnimation(false)
                 setItemToEditable(id!!)
             }
@@ -147,32 +147,33 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
 
         private fun bDelete() {
             data.removeAt(adapterPosition)
+            view.setBackgroundResource(R.color.question_card_preview_delete_animation_color)
             notifyItemRemoved(adapterPosition)
-            notifyDataSetChanged()
+            notifyItemRangeChanged(0, data.size)
         }
 
-        private fun performCircularRevealAnimation(isToAccept: Boolean) { //TODO change color (and don't do clickable color
+        private fun performCircularRevealAnimation(isToAccept: Boolean) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 val animationBAccept = getButtonAnimator(bAcceptOrSave,
                         Math.hypot((bAcceptOrSave.width / 2).toDouble(), (bAcceptOrSave.height / 2).toDouble()).toFloat())
+                animationBAccept.duration = 450
                 val animationBEdit = getButtonAnimator(bEditOrDelete,
                         Math.hypot((bEditOrDelete.width / 2).toDouble(), (bEditOrDelete.height / 2).toDouble()).toFloat())
+                animationBEdit.duration = 450
                 if (isToAccept) {
-                    bAcceptOrSave.setText(R.string.questionPreviewAcceptButton)
-                    bAcceptOrSave.background = context.getDrawable(R.drawable.button_selector)
-                    bEditOrDelete.setText(R.string.questionPreviewEditButton)
-                    bEditOrDelete.background = context.getDrawable(R.drawable.button_selector)
+                    animateFromSaveToAccept()
                 } else {
-                    bAcceptOrSave.setText(R.string.questionPreviewSaveButton)
-                    bAcceptOrSave.background = context.getDrawable(R.drawable.button_selector_hint_colot)
-                    bEditOrDelete.setText(R.string.questionPreviewDeleteButton)
-                    bEditOrDelete.background = context.getDrawable(R.drawable.button_selector_hint_colot)
+                    animateFromAcceptToSave()
 
                 }
                 animationBAccept.start()
                 animationBEdit.start()
             } else {
-                //TODO not implemented
+                if (isToAccept) {
+                    animateFromSaveToAccept()
+                } else {
+                    animateFromAcceptToSave()
+                }
             }
         }
 
@@ -208,17 +209,18 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
             }
         }
 
-        private fun animateFromAcceptToSave(bAcceptOrSave: Button, bEditOrDelete: Button) {
+        private fun animateFromAcceptToSave() {
             bEditOrDelete.setText(R.string.questionPreviewDeleteButton)
+            bEditOrDelete.setBackgroundResource(R.drawable.button_selector_hint_colot)
             bAcceptOrSave.setText(R.string.questionPreviewSaveButton)
             bAcceptOrSave.setBackgroundResource(R.drawable.button_selector_hint_colot)
-            bEditOrDelete.setBackgroundResource(R.drawable.button_selector_hint_colot)
+
         }
 
-        private fun animateFromSaveToAccept(bAcceptOrSave: Button, bEditOrDelete: Button) {
+        private fun animateFromSaveToAccept() {
             bAcceptOrSave.setText(R.string.questionPreviewAcceptButton)
-            bEditOrDelete.setText(R.string.questionPreviewEditButton)
             bAcceptOrSave.setBackgroundResource(R.drawable.button_selector)
+            bEditOrDelete.setText(R.string.questionPreviewEditButton)
             bEditOrDelete.setBackgroundResource(R.drawable.button_selector)
         }
     }

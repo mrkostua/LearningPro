@@ -50,7 +50,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         }
 
         init {
-            RxView.clicks(view).subscribe { coursePublishSubject.onNext(data[adapterPosition]) }//TODO check if it works!
+            RxView.clicks(view).subscribe { coursePublishSubject.onNext(data[adapterPosition]) }
 
         }
 

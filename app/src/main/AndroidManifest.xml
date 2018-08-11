@@ -40,7 +40,7 @@
         </receiver>
 
         <activity android:name=".questionsCardPreview.QuestionsCardsPreviewActivity"
-            android:parentActivityName=".main.MainActivity"/>
+            android:windowSoftInputMode="stateAlwaysHidden"/>
     </application>
 
 </manifest>

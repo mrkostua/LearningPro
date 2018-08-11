@@ -88,7 +88,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                             updateQuestionsAmount(courseId)
                         } else {
                             ShowLogs.log(TAG, "deleteQuestion no item deleted ")
-
+                            //TODO after show toast that action was complete
                         }
                     }
 
@@ -97,7 +97,23 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                     }
                 }))
     }
-    //TODO after show toast that action was complete
+
+    override fun setCourseReviewedTrue(courseId: Int) {
+        disposables.add(Single.fromCallable { db.updateCourseIsReviewedState(courseId) }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableSingleObserver<Boolean>() {
+                    override fun onSuccess(isDeleted: Boolean) {
+                        if (isDeleted) {
+                            ShowLogs.log(TAG, "deleteQuestion item deleted successfully ")
+                        }
+                    }
+
+                    override fun onError(e: Throwable) {
+                        ShowLogs.log(TAG, "deleteQuestion2 error ${e.message} ")
+                    }
+                }))
+    }
 
     override fun disposeAll() {
         disposables.clear()

@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
+import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_questions_card_preview.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
@@ -17,7 +18,6 @@ import javax.inject.Inject
 
 @ActivityScope
 class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreviewContract.View {
-    private val TAG = this.javaClass.simpleName
     @Inject
     public lateinit var notificationTools: NotificationTools
     @Inject
@@ -46,30 +46,43 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         presenter.populateNotAcceptedQuestions(courseId)
     }
 
-    //TODO hide keyboard (appears on activity start and RV initialization)
-    //TODO add item accepted Animation and item deleted animation
-    //TODO buttons flip animation ERROR
     @SuppressLint("SetTextI18n")
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
         questionCardsCompositeDisposables.addAll(
                 questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe {
                     presenter.acceptQuestion(it)
+                    if (data.size == 1) { //TODO test it or find more elegant solution
+                        questionsPreviewFinished()
+                    }
                 },
                 questionsRecycleViewAdapter.getButtonSaveObservable().subscribe {
                     presenter.updateQuestion(it)
                 },
                 questionsRecycleViewAdapter.getButtonDeleteObservable().subscribe {
                     presenter.deleteQuestion(it, courseId)
+                    if (data.size == 1) {
+                        questionsPreviewFinished()
+                    }
                 })
         pbQuestionsPreview.visibility = View.GONE
         rvQuestionsPreview.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(this@QuestionsCardsPreviewActivity,
                     LinearLayoutManager.HORIZONTAL, false)
+            itemAnimator = FadeInDownAnimator().apply {
+                removeDuration = 600
+                changeDuration = 250
+                moveDuration = 300
+            }
             adapter = questionsRecycleViewAdapter
-            PagerSnapHelper().attachToRecyclerView(this)//pager or linear ??
+            PagerSnapHelper().attachToRecyclerView(this)
         }
+    }
+
+    private fun questionsPreviewFinished() {
+        presenter.setCourseReviewedTrue(courseId)
+        //TODO start course learning activity
     }
 
 
