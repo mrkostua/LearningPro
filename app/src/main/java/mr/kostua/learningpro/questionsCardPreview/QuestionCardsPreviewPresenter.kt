@@ -88,7 +88,8 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                             updateQuestionsAmount(courseId)
                         } else {
                             ShowLogs.log(TAG, "deleteQuestion no item deleted ")
-                            //TODO after show toast that action was complete
+                            view.showToast("please try again to delete this question")
+                            //TODO make some dialog in the future like send a report about bug
                         }
                     }
 

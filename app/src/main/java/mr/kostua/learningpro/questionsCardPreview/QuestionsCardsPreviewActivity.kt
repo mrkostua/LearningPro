@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.Consumer
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_questions_card_preview.*
 import mr.kostua.learningpro.R
@@ -50,21 +51,30 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
         questionCardsCompositeDisposables.addAll(
-                questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe {
+                questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe({
                     presenter.acceptQuestion(it)
-                    if (data.size == 1) { //TODO test it or find more elegant solution
+                    if (isLastQuestionCard(data.size)) {
                         questionsPreviewFinished()
                     }
-                },
-                questionsRecycleViewAdapter.getButtonSaveObservable().subscribe {
+                }, {
+                    showToast("please try to accept this question card again")
+                    //TODO make some dialog in the future like send a report about bug
+                }),
+                questionsRecycleViewAdapter.getButtonSaveObservable().subscribe({
                     presenter.updateQuestion(it)
-                },
-                questionsRecycleViewAdapter.getButtonDeleteObservable().subscribe {
+                }, {
+                    showToast("please try to save this question card again")
+                    //TODO make some dialog in the future like send a report about bug
+                }),
+                questionsRecycleViewAdapter.getButtonDeleteObservable().subscribe({
                     presenter.deleteQuestion(it, courseId)
-                    if (data.size == 1) {
+                    if (isLastQuestionCard(data.size)) {
                         questionsPreviewFinished()
                     }
-                })
+                }, {
+                    showToast("please try to save this question card again")
+                    //TODO make some dialog in the future like send a report about bug
+                }))
         pbQuestionsPreview.visibility = View.GONE
         rvQuestionsPreview.run {
             visibility = View.VISIBLE
@@ -79,6 +89,8 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
             PagerSnapHelper().attachToRecyclerView(this)
         }
     }
+
+    private fun isLastQuestionCard(dataSize: Int) = dataSize == 1 //TODO find more elegant solution??
 
     private fun questionsPreviewFinished() {
         presenter.setCourseReviewedTrue(courseId)

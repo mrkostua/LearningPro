@@ -56,7 +56,6 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 if (bAcceptOrSave.text == context.getString(R.string.questionPreviewAcceptButton)) {
                     bAcceptPublishSubject.onNext(data[adapterPosition])
                     bAccept()
-                    //TODO onError not implemented exception (possible solution is to add onError and after use subscribeWith to catch this error
                 } else {
                     bSavePublishSubject.onNext(data[adapterPosition])
                     bSave()
