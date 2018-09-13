@@ -5,11 +5,13 @@ import android.net.Uri
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.LocalBroadcastManager
 import dagger.android.DaggerIntentService
+import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ServiceScope
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
+import mr.kostua.learningpro.tools.ShowLogs
 import java.io.*
 import javax.inject.Inject
 
@@ -22,17 +24,18 @@ import javax.inject.Inject
 class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewCourseCreationServiceThread") {
     private val TAG = this.javaClass.simpleName
     private lateinit var createCourseNotification: NotificationCompat.Builder
-
     @Inject
-    public lateinit var dbHelper: DBHelper
+    lateinit var dbHelper: DBHelper
     @Inject
-    public lateinit var notificationTools: NotificationTools
+    lateinit var notificationTools: NotificationTools
 
+    private lateinit var courseTitle: String
     override fun onHandleIntent(intent: Intent?) {
         if (intent != null) {
             val uriData = Uri.parse(intent.getStringExtra(ConstantValues.NEW_COURSE_URI_KEY))
             val courseId = intent.getIntExtra(ConstantValues.NEW_COURSE_ID_KEY, ConstantValues.WRONG_TABLE_ID)
-            val courseTitle = intent.getStringExtra(ConstantValues.NEW_COURSE_TITLE_KEY) ?: "Course"
+            courseTitle = intent.getStringExtra(ConstantValues.NEW_COURSE_TITLE_KEY)
+                    ?: getString(R.string.course)
             if (uriData != null && courseId != ConstantValues.WRONG_TABLE_ID) {
                 createCourseNotification = notificationTools.createNewCourseNotification(courseTitle)
                 startForeground(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID, createCourseNotification.build())
@@ -40,12 +43,9 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
 
             } else {
                 updateTaskFailedUI()
-
             }
         } else {
-            //if the service was restarted intent can be null
             updateTaskFailedUI()
-
         }
     }
 
@@ -60,11 +60,13 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         val otherText = StringBuffer()
         var questionsAmount = 0
         val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
-
+        ShowLogs.log(TAG,"lineCounts is $linesCount")
         BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
                 "UTF-8")).useLines {
             it.forEachIndexed { index, line ->
-                if (linesCount % 10 == 0 || linesCount == index) {
+                if (index % 10 == 0 || linesCount == index) {
+                    ShowLogs.log(TAG,"update notification : $index")
+
                     notificationTools.updateNewCourseNotificationProgress(createCourseNotification, linesCount, index)
                 }
                 if (isLineQuestion(line)) {
@@ -94,17 +96,30 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
             ++questionsAmount
         }
         updateCourseQuestionsCount(courseId, questionsAmount)
-        updateTaskCompleteUI()
+        updateTaskCompleteUI(courseId)
+    }
+
+    private fun isLineQuestion(line: String): Boolean {
+        if (line.isNotEmpty() && line[0].isUpperCase()) {
+            if (line.endsWith("?")) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun updateCourseQuestionsCount(courseId: Int, questionsAmount: Int) {
-        dbHelper.updateCourse(courseId, questionsAmount)
+        dbHelper.updateCourseQuestionsAmount(courseId, questionsAmount)
     }
 
-    private fun updateTaskCompleteUI() {
+    private fun updateTaskCompleteUI(courseId: Int) {
+        notificationTools.cancelNotification(ConstantValues.CREATE_NEW_COURSE_NOTIFICATION_ID)
+        notificationTools.displaySavedCourseNotification(courseTitle, courseId)
+
         LocalBroadcastManager.getInstance(this).sendBroadcast(
                 Intent(ConstantValues.INTENT_FILTER_NEW_COURSE_CREATION_SERVICE)
                         .putExtra(ConstantValues.INTENT_KEY_IS_B_CREATE_BLOCKED, true))
+
     }
 
     private fun updateTaskFailedUI() {
@@ -126,15 +141,6 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
             dbHelper.addQuestionToLocalDB(questionDo)
         }
 
-    }
-
-    private fun isLineQuestion(line: String): Boolean {
-        if (line.isNotEmpty() && line[0].isUpperCase()) {
-            if (line.endsWith("?")) {
-                return true
-            }
-        }
-        return false
     }
 
 }

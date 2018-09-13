@@ -32,23 +32,22 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
                             view.startNewCourseCreationService(data, courseId.toInt())
                         } else {
                             view.setBlockCreateButton(false)
-                            view.showMessageCourseCreationFailed(course.title, data)
+                            view.showDialogCourseCreationFailed(course.title, data)
                         }
                     }
 
                     override fun onError(e: Throwable) {
                         view.setBlockCreateButton(false)
-                        view.showMessageCourseCreationFailed(course.title, data)
+                        view.showDialogCourseCreationFailed(course.title, data)
                     }
                 }))
-
     }
 
     override fun disposeAll() {
         disposables.clear()
     }
 
-    override fun saveNotCreatedCourseData(courseDo: CourseDo, fileUri: Uri) {
+    override fun saveCourseInSP(courseDo: CourseDo, fileUri: Uri) {
         with(db) {
             saveCreatingCourseDescription(courseDo.description)
             saveCreatingCourseTitle(courseDo.title)
@@ -58,9 +57,13 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
 
     override fun isNotCreatedCourseDataExists() = db.isCreatingCourseDataExists()
 
-    override fun getNotCreatedCourseData(): Pair<CourseDo, Uri?> {
+    override fun getSavedCourse() =
+            CourseDo(title = db.getCreatingCourseTitle(), description = db.getCreatingCourseDescription())
+
+
+    override fun isCourseDataSavedForThisFile(fileUri: Uri): Boolean {
         val fileStringUri = db.getCreatingCourseStringUri()
-        val fileUri = if (fileStringUri.isNotEmpty()) Uri.parse(fileStringUri) else null
-        return Pair(CourseDo(title = db.getCreatingCourseTitle(), description = db.getCreatingCourseDescription()), fileUri)
+        val savedUri = if (fileStringUri.isNotEmpty()) Uri.parse(fileStringUri) else null
+        return savedUri != null && savedUri == fileUri
     }
 }

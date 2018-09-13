@@ -6,17 +6,13 @@ import io.reactivex.Single
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.data.local.LocalDB
 import mr.kostua.learningpro.data.local.QuestionDo
-import mr.kostua.learningpro.data.local.sharedPref.ConstantsPreferences
 import mr.kostua.learningpro.data.local.sharedPref.SPHelper
-import mr.kostua.learningpro.data.local.sharedPref.get
-import mr.kostua.learningpro.data.local.sharedPref.set
 import javax.inject.Inject
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/17/2018.
  */
-class DBHelper @Inject constructor(private val db: LocalDB,
-                                   sp: SharedPreferences) : SPHelper(sp) {
+class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreferences) : SPHelper(sp) {
     private val TAG = this.javaClass.simpleName
 
     fun addQuestionToLocalDB(question: QuestionDo) = -1L != db.questionsDao().addQuestion(question)
@@ -26,6 +22,19 @@ class DBHelper @Inject constructor(private val db: LocalDB,
 
     fun getAllCourses(): Flowable<List<CourseDo>> = db.coursesDao().getAllCourses().distinctUntilChanged()
 
-    fun updateCourse(courseId: Int, questionsAmount: Int) = db.coursesDao().updateCourseQuestionsAmount(courseId, questionsAmount) == 1
+    fun updateCourseQuestionsAmount(courseId: Int, questionsAmount: Int) = db.coursesDao().updateCourseQuestionsAmount(courseId, questionsAmount) == 1
+
+    fun updateCourseIsReviewedState(courseId: Int) = db.coursesDao().updateCourseIsReviewedState(courseId) == 1
+
+
+    fun countQuestionsAmountInCourse(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().countQuestionsAmountInCourse(courseId) }
+
+    fun getCourseWithQuestions(courseId: Int) = db.courseWithQuestionsDao().getCourseWithQuestions(courseId)
+
+    fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
+
+    fun updateQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().updateQuestion(question) }
+
+    fun deleteQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
 
 }

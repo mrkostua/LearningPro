@@ -13,15 +13,16 @@ interface MainPageContract {
         fun startNewCourseCreationService(data: Uri, courseId: Int)
         fun setBlockCreateButton(isBlocked: Boolean)
         fun showMessageCourseCreatedSuccessfully(courseName: String)
-        fun showMessageCourseCreationFailed(courseName: String, fileUri: Uri)
+        fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri)
     }
 
     interface Presenter : BasePresenter<View> {
         fun processData(data: Uri, course: CourseDo)
         fun disposeAll()
-        fun saveNotCreatedCourseData(courseDo: CourseDo, fileUri: Uri)
+        fun saveCourseInSP(courseDo: CourseDo, fileUri: Uri)
         fun isNotCreatedCourseDataExists(): Boolean
-        fun getNotCreatedCourseData(): Pair<CourseDo, Uri?>
+        fun getSavedCourse(): CourseDo
+        fun isCourseDataSavedForThisFile(fileUri: Uri): Boolean
 
     }
 

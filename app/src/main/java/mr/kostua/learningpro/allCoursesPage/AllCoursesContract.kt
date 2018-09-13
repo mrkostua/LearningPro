@@ -14,6 +14,7 @@ interface AllCoursesContract {
         fun setPBVisibility(visible: Boolean)
         fun updateCourseList(courses: List<CourseDo>)
         fun isCourseListInitialized(): Boolean
+        fun showFailedPopulationDialog()
     }
 
     interface Presenter : BasePresenter<View> {
