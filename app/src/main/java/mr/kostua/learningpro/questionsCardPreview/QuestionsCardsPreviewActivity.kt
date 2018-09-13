@@ -1,18 +1,19 @@
 package mr.kostua.learningpro.questionsCardPreview
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_questions_card_preview.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ActivityScope
 import mr.kostua.learningpro.main.BaseDaggerActivity
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivity
 import mr.kostua.learningpro.tools.*
 import javax.inject.Inject
 
@@ -39,6 +40,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     override fun onDestroy() {
         super.onDestroy()
         presenter.disposeAll()
+        questionCardsCompositeDisposables.clear()
     }
 
     private fun initializeViews() {
@@ -94,7 +96,9 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun questionsPreviewFinished() {
         presenter.setCourseReviewedTrue(courseId)
-        //TODO start course learning activity
+        startActivity(Intent(this, PracticeCardsActivity::class.java)
+                .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, courseId))
+
     }
 
 

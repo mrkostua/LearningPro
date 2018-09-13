@@ -39,8 +39,13 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".questionsCardPreview.QuestionsCardsPreviewActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
+        <activity
+            android:name=".questionsCardPreview.QuestionsCardsPreviewActivity"
+            android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name=".practiceCards.PracticeCardsActivity"
+            />
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.injections.scopes.FragmentScope
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivity
 import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 import mr.kostua.learningpro.tools.*
 import javax.inject.Inject
@@ -45,7 +46,8 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                     startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
                             .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, this.id!!))
                 } else {
-                    //TODO open course for learning
+                    startActivity(Intent(fragmentContext,PracticeCardsActivity::class.java)
+                            .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY,this.id!!))
                 }
             }
         }

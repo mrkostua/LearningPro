@@ -12,6 +12,8 @@ import mr.kostua.learningpro.main.MainActivityModule
 import mr.kostua.learningpro.mainPage.MainPageFragment
 import mr.kostua.learningpro.mainPage.MainPageModule
 import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivity
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivityModule
 import mr.kostua.learningpro.questionsCardPreview.QuestionCardsPreviewActivityModule
 import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 
@@ -39,4 +41,8 @@ abstract class ActivityBindingModule {
     @ActivityScope
     @ContributesAndroidInjector(modules = [(QuestionCardsPreviewActivityModule::class), (DisplayHelperModule::class), (DataModule::class)])
     abstract fun getQuestionCardPreviewActivity(): QuestionsCardsPreviewActivity
+
+    @ActivityScope
+    @ContributesAndroidInjector(modules = [(PracticeCardsActivityModule::class), (DisplayHelperModule::class), (DataModule::class)])
+    abstract fun getPracticeCardsActivity(): PracticeCardsActivity
 }

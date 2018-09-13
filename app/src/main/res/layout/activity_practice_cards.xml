@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/books_background"
-    tools:context="mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity">
+    tools:context="mr.kostua.learningpro.practiceCards.PracticeCardsActivity">
 
     <include
         android:id="@+id/baseToolbar"
         layout="@layout/base_toolbar" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvQuestionsPreview"
+        android:id="@+id/rvPracticeCards"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -25,10 +25,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseToolbar"
-        tools:listitem="@layout/question_preview_row_item" />
+        tools:listitem="@layout/practice_card_row_item" />
 
     <ProgressBar
-        android:id="@+id/pbQuestionsPreview"
+        android:id="@+id/pbPracticeCards"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

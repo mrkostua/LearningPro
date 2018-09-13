@@ -6,9 +6,9 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import mr.kostua.learningpro.data.DBHelper
-import mr.kostua.learningpro.data.local.CourseWithQuestions
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ActivityScope
+import mr.kostua.learningpro.tools.CourseDBUsingHelper
 import mr.kostua.learningpro.tools.ShowLogs
 import javax.inject.Inject
 
@@ -26,19 +26,16 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     private val disposables = CompositeDisposable()
 
     override fun populateNotAcceptedQuestions(courseId: Int) {
-        disposables.add(db.getCourseWithNotAcceptedQuestions(courseId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<QuestionDo>>() {
-                    override fun onSuccess(list: List<QuestionDo>) {
-                        view.initializeRecycleView(list as ArrayList)
-                    }
+        disposables.add(CourseDBUsingHelper.populateQuestion(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+            override fun onSuccess(list: List<QuestionDo>) {
+                view.initializeRecycleView(list as ArrayList)
+            }
 
-                    override fun onError(e: Throwable) {
-                        ShowLogs.log(TAG, "populateNotAcceptedQuestions onError : ${e.message}")
-                    }
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "populateNotAcceptedQuestions onError : ${e.message}")
+            }
 
-                }))
+        }, courseId))
     }
 
     override fun acceptQuestion(questionDo: QuestionDo) {
@@ -79,24 +76,21 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     }
 
     override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
-        disposables.add(db.deleteQuestion(questionDo)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<Int>() {
-                    override fun onSuccess(updatedItems: Int) {
-                        if (updatedItems == 1) {
-                            updateQuestionsAmount(courseId)
-                        } else {
-                            ShowLogs.log(TAG, "deleteQuestion no item deleted ")
-                            view.showToast("please try again to delete this question")
-                            //TODO make some dialog in the future like send a report about bug
-                        }
-                    }
+        disposables.add(CourseDBUsingHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItems: Int) {
+                if (updatedItems == 1) {
+                    updateQuestionsAmount(courseId)
+                } else {
+                    ShowLogs.log(TAG, "deleteQuestion no item deleted ")
+                    view.showToast("please try again to delete this question")
+                    //TODO make some dialog in the future like send a report about bug
+                }
+            }
 
-                    override fun onError(e: Throwable) {
-                        ShowLogs.log(TAG, "deleteQuestion error ${e.message} ")
-                    }
-                }))
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "deleteQuestion error ${e.message} ")
+            }
+        }, questionDo))
     }
 
     override fun setCourseReviewedTrue(courseId: Int) {
@@ -152,10 +146,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     }
 
     private fun updateQuestionDo(questionDo: QuestionDo, observer: DisposableSingleObserver<Int>) {
-        disposables.add(db.updateQuestion(questionDo)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(observer))
+        disposables.add(CourseDBUsingHelper.updateQuestion(db, observer, questionDo))
     }
 
 }
