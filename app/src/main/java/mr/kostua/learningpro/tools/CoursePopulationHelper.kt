@@ -16,6 +16,20 @@ object CourseDBUsingHelper {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
+    fun populateNotLearnedQuestion(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
+                         courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
+            db.getCourseWithNotAcceptedQuestions(courseId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+    fun populateNotAcceptedQuestion(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
+                         courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
+            db.getCourseWithNotAcceptedQuestions(courseId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+
+
 
     fun updateQuestion(db: DBHelper, observer: DisposableSingleObserver<Int>,
                        questionDo: QuestionDo): DisposableSingleObserver<Int> =

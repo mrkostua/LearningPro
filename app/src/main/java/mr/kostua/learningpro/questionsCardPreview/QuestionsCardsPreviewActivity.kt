@@ -54,6 +54,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
         questionCardsCompositeDisposables.addAll(
                 questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe({
+                    ShowLogs.log(this.javaClass.simpleName, "how accepted QUESTION : ${it.id} and : ${it.question}")
                     presenter.acceptQuestion(it)
                     if (isLastQuestionCard(data.size)) {
                         questionsPreviewFinished()

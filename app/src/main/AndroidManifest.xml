@@ -45,7 +45,7 @@
 
         <activity
             android:name=".practiceCards.PracticeCardsActivity"
-            />
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 import kotlinx.android.synthetic.main.fragment_all_courses.*
@@ -27,7 +28,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     @Inject
     lateinit var notificationTools: NotificationTools
 
-    private lateinit var courseItemClickListenerDisposable: Disposable
+    private val courseItemClickListenerCDisposable = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_all_courses, container, false)
@@ -40,17 +41,17 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
     override fun initializeRecycleView(data: List<CourseDo>) {
         coursesRecycleViewAdapter = AllCoursesRecycleViewAdapter(data)
-        courseItemClickListenerDisposable = coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
+        courseItemClickListenerCDisposable.add(coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
             with(it) {
                 if (!this.reviewed) {
                     startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
                             .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, this.id!!))
                 } else {
-                    startActivity(Intent(fragmentContext,PracticeCardsActivity::class.java)
-                            .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY,this.id!!))
+                    startActivity(Intent(fragmentContext, PracticeCardsActivity::class.java)
+                            .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, this.id!!))
                 }
             }
-        }
+        })
         rvAllCourses.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(fragmentContext)
@@ -87,7 +88,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
     override fun onDestroy() {
         super.onDestroy()
-        courseItemClickListenerDisposable.dispose()
+        courseItemClickListenerCDisposable.clear()
         presenter.disposeAll()
     }
 }

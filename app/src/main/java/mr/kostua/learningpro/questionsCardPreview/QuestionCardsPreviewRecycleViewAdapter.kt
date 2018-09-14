@@ -50,13 +50,20 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         private val tvCurrentQuestionNumber: TextView = view.findViewById(R.id.tvCurrentQuestionNumber)
         private val bAcceptOrSave: Button = view.findViewById(R.id.bAcceptOrSave)
         private val bEditOrDelete: Button = view.findViewById(R.id.bEditOrDelete)
+        private var editableItemId = -1
 
         init {
             RxView.clicks(bAcceptOrSave).subscribe {
                 if (bAcceptOrSave.text == context.getString(R.string.questionPreviewAcceptButton)) {
+                    data[adapterPosition].isAccepted = true
                     bAcceptPublishSubject.onNext(data[adapterPosition])
                     bAccept()
                 } else {
+                    with(data[adapterPosition]) {
+                        isAccepted = false
+                        question = etQuestionPreview.text.toString()
+                        answer = etAnswerPreview.text.toString()
+                    }
                     bSavePublishSubject.onNext(data[adapterPosition])
                     bSave()
                 }
@@ -78,7 +85,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
             with(item) {
                 tvCurrentQuestionNumber.text = "${data.indexOf(this) + 1} / ${data.size}"
                 etQuestionPreview.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) { //TODO change the isAccepted to some locale variable (don't use db row in wrong place)
                         makeEditTextToBeEditText(this)
                     } else {
                         makeEditTextToBeText(this)
@@ -86,7 +93,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                     setText(question)
                 }
                 etAnswerPreview.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         makeEditTextToBeEditText(this)
                     } else {
                         makeEditTextToBeText(this)
@@ -95,7 +102,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 }
 
                 bAcceptOrSave.run {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         if (text == context.getString(R.string.questionPreviewAcceptButton)) {
                             animateFromAcceptToSave()
                         }
@@ -107,7 +114,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                 }
 
                 bEditOrDelete.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         if (text == context.getString(R.string.questionPreviewEditButton)) {
                             animateFromAcceptToSave()
                         }
@@ -121,13 +128,8 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         }
 
         private fun bSave() {
-            with(data[adapterPosition]) {
-                isAccepted = false
-                question = etQuestionPreview.text.toString()
-                answer = etAnswerPreview.text.toString()
-                performCircularRevealAnimation(true)
-                notifyItemChanged(adapterPosition)
-            }
+            performCircularRevealAnimation(true)
+            notifyItemChanged(adapterPosition)
         }
 
         private fun bAccept() {
@@ -182,15 +184,17 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
 
 
         private fun setItemToEditable(itemId: Int) {
+            var itemToEdit: QuestionDo = data[0]
             data.forEach {
-                if (it.id == itemId && !it.isAccepted) {
-                    it.isAccepted = true
-                    notifyItemChanged(data.indexOf(it))
-                } else if (it.isAccepted) {
-                    it.isAccepted = false
+                if (it.id == itemId) {
+                    itemToEdit = it
+                } else if (it.id == editableItemId) {
+                    editableItemId = -1
                     notifyItemChanged(data.indexOf(it))
                 }
             }
+            editableItemId = itemToEdit.id!!
+            notifyItemChanged(data.indexOf(itemToEdit))
         }
 
         private fun makeEditTextToBeText(view: EditText) {

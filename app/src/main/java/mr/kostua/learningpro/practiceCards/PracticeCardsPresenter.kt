@@ -7,12 +7,13 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ActivityScope
 import mr.kostua.learningpro.tools.CourseDBUsingHelper
 import mr.kostua.learningpro.tools.ShowLogs
+import javax.inject.Inject
 
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
 @ActivityScope
-class PracticeCardsPresenter(private val db: DBHelper) : PracticeCardsContract.Presenter {
+class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : PracticeCardsContract.Presenter {
     private val TAG = this.javaClass.simpleName
     override lateinit var view: PracticeCardsContract.View
     override fun takeView(view: PracticeCardsContract.View) {

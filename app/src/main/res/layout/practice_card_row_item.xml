@@ -5,47 +5,52 @@
     android:layout_height="match_parent"
     android:background="@drawable/practice_card_question_bg"
     android:clickable="false"
-    android:paddingBottom="16dp"
+    android:paddingBottom="8dp"
     android:paddingLeft="4dp"
     android:paddingRight="4dp"
-    android:paddingTop="16dp">
+    android:paddingTop="12dp">
 
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/ivQuestionCardSign"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:contentDescription="question sign"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/icon_pc_question" />
+        app:srcCompat="@drawable/icon_pc_question_sign" />
 
     <TextView
         android:id="@+id/tvCardQuestionOrAnswer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/shape_round_corners"
-        android:maxLines="22"
-        android:minLines="6"
+        android:gravity="center"
+        android:maxLines="12"
+        android:minLines="4"
         android:scrollbars="vertical"
         android:text=""
         android:textSize="22sp"
+        app:layout_constraintVertical_bias="0.35"
         android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/ibMarkCardAsDone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/ivQuestionCardSign" />
 
     <Button
         android:id="@+id/bFlipCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:background="@drawable/practice_card_question_b_flip"
         android:text="Flip"
         android:textColor="@color/white"
@@ -56,53 +61,72 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/ivAnswerReadCountIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="@+id/textView2"
-        app:layout_constraintStart_toStartOf="@+id/textView2"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="read times"
+        android:tooltipText="read times"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/tvCardQuestionOrAnswer"
+        app:layout_constraintTop_toBottomOf="@+id/tvCardQuestionOrAnswer"
         app:srcCompat="@drawable/book_open_page_variant" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/tvAnswerReadCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
         android:text="6"
+        android:textColor="@color/white"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/bFlipCard"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/bFlipCard"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/icon_edit_practice_card" />
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/ivAnswerReadCountIcon"
+        app:layout_constraintStart_toStartOf="@+id/ivAnswerReadCountIcon"
+        app:layout_constraintTop_toBottomOf="@+id/ivAnswerReadCountIcon" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/ibEditCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/bFlipCard"
+        android:background="@drawable/button_selector"
+        android:contentDescription="edit card"
+        android:paddingBottom="4dp"
+        android:paddingEnd="8dp"
+        android:paddingStart="8dp"
+        android:paddingTop="5dp"
+        android:tooltipText="edit card"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/ibMarkCardAsDone"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bFlipCard"
+        app:srcCompat="@drawable/icon_edit_practice_card" />
+
+    <ImageButton
+        android:id="@+id/ibMarkCardAsDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/button_selector"
+        android:contentDescription="mark as done"
+        android:paddingBottom="6dp"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingTop="6dp"
+        android:tooltipText="mark card as done"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bFlipCard"
+        app:layout_constraintEnd_toStartOf="@+id/bFlipCard"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/icon_brain" />
 </android.support.constraint.ConstraintLayout>

@@ -43,9 +43,8 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         presenter.populateAllCards(courseId)
     }
 
-
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
-        cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data)
+        cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data, this)
         //TODO add click listeners...
 
         pbPracticeCards.visibility = View.GONE
