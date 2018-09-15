@@ -45,8 +45,19 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
 
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data, this)
-        //TODO add click listeners...
+        cardsCompositeDisposables.addAll(
+                /*cardsRecycleViewAdapter.getIBEditCardObservable().subscribe({
+                    // in edit button we didn't send anything only after save -> so change it after designing editing way
+                }, {
 
+                }),*/
+                cardsRecycleViewAdapter.getIBMarkAsDoneObservable().subscribe({
+                    //presenter.updateQuestion(it)
+                }, {
+                    showToast("please try to \"mark as done\" this card again")
+                    //TODO make some dialog in the future like send a report about bug
+
+                }))
         pbPracticeCards.visibility = View.GONE
         rvPracticeCards.run {
             visibility = View.VISIBLE

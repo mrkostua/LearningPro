@@ -12,16 +12,18 @@ import mr.kostua.learningpro.data.local.QuestionDo
 object CourseDBUsingHelper {
     fun populateQuestion(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
                          courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
-            db.getCourseWithNotAcceptedQuestions(courseId)
+            db.getCourseQuestions(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
+
     fun populateNotLearnedQuestion(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
                          courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
-            db.getCourseWithNotAcceptedQuestions(courseId)
+            db.getCourseWithNotLearnedQuestions(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
+
     fun populateNotAcceptedQuestion(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
                          courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
             db.getCourseWithNotAcceptedQuestions(courseId)

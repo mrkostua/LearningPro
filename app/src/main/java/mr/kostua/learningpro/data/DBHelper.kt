@@ -31,7 +31,11 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun getCourseWithQuestions(courseId: Int) = db.courseWithQuestionsDao().getCourseWithQuestions(courseId)
 
+    fun getCourseQuestions(courseId: Int) = db.questionsDao().getAllQuestionsFromCourse(courseId)
+
     fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
+
+    fun getCourseWithNotLearnedQuestions(courseId: Int) = db.questionsDao().getAllNotLearnedQuestionsFromCourse(courseId)
 
     fun updateQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().updateQuestion(question) }
 

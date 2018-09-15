@@ -23,7 +23,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     private val disposables = CompositeDisposable()
 
     override fun populateAllCards(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.populateQuestion(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(CourseDBUsingHelper.populateNotLearnedQuestion(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
                 view.initializeRecycleView(questions as ArrayList)
             }
