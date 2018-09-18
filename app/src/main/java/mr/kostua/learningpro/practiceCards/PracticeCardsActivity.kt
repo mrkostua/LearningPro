@@ -24,6 +24,8 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private lateinit var cardsRecycleViewAdapter: PracticeCardsRecycleViewAdapter
     private val cardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
+    private var editedCourseItemId = -1
+    private fun isStartedAfterEditing() = editedCourseItemId != -1
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,23 +41,24 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
 
     private fun initializeViews() {
         courseId = intent.getIntExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, -1)
+        editedCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1)
         presenter.takeView(this)
         presenter.populateAllCards(courseId)
     }
 
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
-        cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data, this)
+        cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data, courseId)
         cardsCompositeDisposables.addAll(
-                /*cardsRecycleViewAdapter.getIBEditCardObservable().subscribe({
-                    // in edit button we didn't send anything only after save -> so change it after designing editing way
-                }, {
-
-                }),*/
                 cardsRecycleViewAdapter.getIBMarkAsDoneObservable().subscribe({
-                    //presenter.updateQuestion(it)
+                    presenter.updateQuestion(it)
                 }, {
                     showToast("please try to \"mark as done\" this card again")
                     //TODO make some dialog in the future like send a report about bug
+
+                }),
+                cardsRecycleViewAdapter.getViewsCountPublishSubject().subscribe({
+                    presenter.updateViewCountOfCard(it)
+                }, {
 
                 }))
         pbPracticeCards.visibility = View.GONE
@@ -69,6 +72,14 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
             }
             adapter = cardsRecycleViewAdapter
             PagerSnapHelper().attachToRecyclerView(this)
+            if (isStartedAfterEditing()) {
+                data.forEachIndexed { index, questionDo ->
+                    if (questionDo.id == editedCourseItemId) {
+                        rvPracticeCards.layoutManager.scrollToPosition(index)
+                    }
+                }
+            }
+
         }
     }
 

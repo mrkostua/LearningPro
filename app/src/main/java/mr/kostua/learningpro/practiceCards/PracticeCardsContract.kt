@@ -15,9 +15,8 @@ interface PracticeCardsContract {
 
     interface Presenter : BasePresenter<View> {
         fun populateAllCards(courseId : Int)
-
+        fun updateViewCountOfCard(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
-        fun deleteQuestion(questionDo: QuestionDo, courseId: Int)
         fun disposeAll()
     }
 

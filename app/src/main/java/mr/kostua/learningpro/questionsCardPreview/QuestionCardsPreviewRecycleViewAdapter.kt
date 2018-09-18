@@ -132,7 +132,6 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
 
         private fun bSave() {
             with(data[adapterPosition]) {
-                isAccepted = false
                 question = etQuestionPreview.text.toString()
                 answer = etAnswerPreview.text.toString()
             }

@@ -1,8 +1,8 @@
 package mr.kostua.learningpro.practiceCards
 
-import android.animation.ObjectAnimator
-import android.content.Context
-import android.support.v4.content.ContextCompat
+import android.content.Intent
+import android.support.constraint.ConstraintLayout
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
@@ -10,25 +10,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import com.jakewharton.rxbinding2.view.RxView
+import com.wajahatkarim3.easyflipview.EasyFlipView
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
-import mr.kostua.learningpro.tools.ShowLogs
+import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
+import mr.kostua.learningpro.tools.ConstantValues
 
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, private val context: Context) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
+class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
     private val TAG = this.javaClass.simpleName
     private val ibMarkAsDonePublishSubject = PublishSubject.create<QuestionDo>()
     fun getIBMarkAsDoneObservable(): Observable<QuestionDo> = ibMarkAsDonePublishSubject.hide()
-
-/*    private val ibEditCardPublishSubject = PublishSubject.create<QuestionDo>()
-    fun getIBEditCardObservable(): Observable<QuestionDo> = ibEditCardPublishSubject.hide()*/
+    private val viewsCountPublishSubject = PublishSubject.create<QuestionDo>()
+    fun getViewsCountPublishSubject(): Observable<QuestionDo> = viewsCountPublishSubject.hide()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.practice_card_row_item, parent, false))
@@ -40,143 +40,69 @@ class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, p
     }
 
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
-        /**
-         * TODO today tasks :
-         * Edit button -> after save how to handle it maybe open another activity as QuestionsPreview
-         * 2 bFlip animation for item
-         * 3 design of answer side (also change flip bg)
-         * 4 use this library for perfect flipping
-         * https://github.com/wajahatkarim3/EasyFlipView
-         *
-         */
-        private val tvCardQuestionOrAnswer: TextView = view.findViewById(R.id.tvCardQuestionOrAnswer)
-        private val ibMarkCardAsDone: ImageButton = view.findViewById(R.id.ibMarkCardAsDone)
-        private val ibEditCard: ImageButton = view.findViewById(R.id.ibEditCard)
-        private val tvAnswerReadCount: TextView = view.findViewById(R.id.tvAnswerReadCount)
-        private val ivAnswerReadCountIcon: ImageView = view.findViewById(R.id.ivAnswerReadCountIcon)
-        private val ivQuestionCardSign: ImageView = view.findViewById(R.id.ivQuestionCardSign)
+        private val clQuestionItem: ConstraintLayout = view.findViewById(R.id.iQuestionSideCard)
+        private val tvCardQuestion: TextView = clQuestionItem.findViewById(R.id.tvCardQuestion)
+        private val bFlipCardQuestionSide: Button = clQuestionItem.findViewById(R.id.bFlipCardQuestionSide)
 
-        private val bFlipCard: Button = view.findViewById(R.id.bFlipCard)
-        private var flippedItemId = -1
+
+        private val clAnswerItem: ConstraintLayout = view.findViewById(R.id.iAnswerSideCard)
+        private val tvCardAnswer: TextView = clAnswerItem.findViewById(R.id.tvCardAnswer)
+        private val ibMarkCardAsDone: ImageButton = clAnswerItem.findViewById(R.id.ibMarkCardAsDone)
+        private val ibEditCard: ImageButton = clAnswerItem.findViewById(R.id.ibEditCard)
+        private val tvAnswerReadCount: TextView = clAnswerItem.findViewById(R.id.tvAnswerReadCount)
+        private val bFlipCardAnswerSide: Button = clAnswerItem.findViewById(R.id.bFlipCardAnswerSide)
+
+        private val flipViewPracticeCard: EasyFlipView = view.findViewById(R.id.flipViewPracticeCard)
 
         init {
-            tvCardQuestionOrAnswer.movementMethod = ScrollingMovementMethod()
-            RxView.clicks(bFlipCard).subscribe {
-                bFlipClickListener()
+            tvCardQuestion.movementMethod = ScrollingMovementMethod()
+            RxView.clicks(bFlipCardQuestionSide).subscribe {
+                ++data[adapterPosition].viewsCount
+                notifyItemChanged(adapterPosition)
+                viewsCountPublishSubject.onNext(data[adapterPosition])
+                flipView() //TODO bad blink during flip animation - invoked by notifyItemChanged (fix IT)
+            }
+
+            tvCardAnswer.movementMethod = ScrollingMovementMethod()
+            RxView.clicks(bFlipCardAnswerSide).subscribe {
+                flipView()
             }
 
             RxView.clicks(ibEditCard).subscribe {
-                //ibEditCardPublishSubject.onNext(data[adapterPosition])
-                ibEditCardClickListener()
-                //TODO start QuestionsPreviewActivity with 2 intExtras -> indicating to populate courseId with one item (questionID)
-                //and after accepting (so it must be set also to not accept before populating) we check again is it questionPA with one item and moves back to our PracticeActivity
+                with(view.context) {
+                    startActivity(Intent(this, QuestionsCardsPreviewActivity::class.java) //TODO add some animation for moving ot another activity (read more)
+                            .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+                            .putExtra(ConstantValues.COURSE_ITEM_ID_KEY, data[adapterPosition].id!!))
+                }
             }
             RxView.clicks(ibMarkCardAsDone).subscribe {
+                data[adapterPosition].isLearned = true
                 ibMarkAsDonePublishSubject.onNext(data[adapterPosition])
                 ibMarkAsDoneClickListener()
             }
         }
 
-        fun bind(item: QuestionDo) {
-            if (item.id!! != flippedItemId) {
-                ShowLogs.log(TAG, "bind item :)")
-                tvCardQuestionOrAnswer.run {
-                    text = item.question
-                    textSize = 22f
-                }
-                setCardsViewsVisibility(false)
-                setCardToQuestion()
-            } else {
-                tvCardQuestionOrAnswer.run {
-                    text = item.answer
-                    textSize = 18f
-                }
-                setCardsViewsVisibility(true)
-                setCardToAnswer()
+        fun bind(item: QuestionDo) { //TODO after deleting one item (some other item is flipped) fix it maybe by if else inside bind() as if flipped flip back with duration 0
+            view.setBackgroundResource(0)
+            tvCardQuestion.run {
+                text = item.question
             }
+            tvCardAnswer.run {
+                text = item.answer
+            }
+            tvAnswerReadCount.text = item.viewsCount.toString()
         }
 
-        private fun bFlipClickListener() {
-            if (isCurrentCardQuestion()) {
-                val obAnimator = getFlipToAnswerObjectAnimator(view)
-                tvCardQuestionOrAnswer.run {
-                    text = data[adapterPosition].answer
-                    textSize = 18f
-                }
-                setCardsViewsVisibility(true)
-                setCardToAnswer()
-                obAnimator.start()
-                flippedItemId = data[adapterPosition].id!!
-            } else {
-                flippedItemId = -1
-                val obAnimator = getFlipToQuestionObjectAnimator(view)
-                tvCardQuestionOrAnswer.run {
-                    text = data[adapterPosition].question
-                    textSize = 22f
-                }
-                setCardsViewsVisibility(false)
-                setCardToQuestion()
-                obAnimator.start()
-            }
-        }
-
-        private fun isCurrentCardQuestion() = flippedItemId != data[adapterPosition].id
-
-        private fun ibEditCardClickListener() {
-
+        private fun flipView() {
+            flipViewPracticeCard.flipDuration = 1000
+            flipViewPracticeCard.flipTheView()
         }
 
         private fun ibMarkAsDoneClickListener() {
-
-        }
-
-        private fun setCardToQuestion() {
-            view.setBackgroundResource(R.drawable.practice_card_question_bg)
-            bFlipCard.setBackgroundResource(R.drawable.practice_card_question_b_flip)
-            ivQuestionCardSign.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_pc_question_sign))
-        }
-
-        private fun setCardToAnswer() {
-            view.setBackgroundResource(R.drawable.practice_card_answer_bg)
-            bFlipCard.setBackgroundResource(R.drawable.practice_card_answer_b_flip)
-            ivQuestionCardSign.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.icon_pc_answer_sign))
-        }
-
-        private fun notifyCardFlippedToQuestion(itemPosition: Int) {
-            notifyItemChanged(itemPosition)
-        }
-
-        private fun notifyCardFlippedToAnswer(itemPosition: Int) {
-            notifyItemChanged(itemPosition)
-        }
-
-        //TODO flip animation sucks - probably the best way is to animate between 2 views not one and changing it is properties on the run
-        private fun getFlipToAnswerObjectAnimator(targetView: View) =
-                ObjectAnimator.ofFloat(targetView, "rotationY", 180f, 360f)
-                        .setDuration(1000)
-
-
-        private fun getFlipToQuestionObjectAnimator(targetView: View) =
-                ObjectAnimator.ofFloat(targetView, "rotationY", 180f, 360f)
-                        .setDuration(1000)
-
-
-        private fun setCardsViewsVisibility(isVisible: Boolean) {
-            if (isVisible) {
-                ibMarkCardAsDone.visibility = View.VISIBLE
-                ibEditCard.visibility = View.VISIBLE
-                tvAnswerReadCount.visibility = View.VISIBLE
-                ivAnswerReadCountIcon.visibility = View.VISIBLE
-            } else {
-
-                ibMarkCardAsDone.visibility = View.GONE
-                ibEditCard.visibility = View.GONE
-                tvAnswerReadCount.visibility = View.GONE
-                ivAnswerReadCountIcon.visibility = View.GONE
-
-            }
-
-
+            data.removeAt(adapterPosition)
+            view.setBackgroundResource(R.color.question_card_preview_accept_animation_color) //TODO choose better color for learnedDone (or some animation firework)
+            notifyItemRemoved(adapterPosition)
+            notifyItemRangeChanged(0, data.size)
         }
     }
 }

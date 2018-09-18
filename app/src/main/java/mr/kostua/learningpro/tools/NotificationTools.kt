@@ -53,7 +53,7 @@ class NotificationTools @Inject constructor(private val context: Context) {
                 .addAction(R.drawable.ic_arrow_continue, context.getString(R.string.courseSavedNotificationActionContinue),
                         PendingIntent.getBroadcast(context, 0,
                                 Intent(ConstantValues.ACTION_CONTINUE_COURSE_CREATION)
-                                        .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId)
+                                        .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
                                         .setClass(context, MainReceiver::class.java),
                                 0))
                 .setAutoCancel(true).build())

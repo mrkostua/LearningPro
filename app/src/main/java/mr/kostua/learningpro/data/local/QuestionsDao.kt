@@ -20,6 +20,9 @@ interface QuestionsDao {
     @Query("SELECT * FROM questions WHERE courseId = :courseId AND isAccepted = 0")
     fun getAllNotAcceptedQuestionsFromCourse(courseId: Int): Single<List<QuestionDo>>
 
+    @Query("SELECT * FROM questions WHERE id = :questionId")
+    fun getQuestionFromCourse(questionId: Int): Single<List<QuestionDo>>
+
     @Query("SELECT * FROM questions WHERE courseId = :courseId")
     fun getAllQuestionsFromCourse(courseId: Int): Single<List<QuestionDo>>
 

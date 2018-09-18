@@ -60,5 +60,6 @@ dependencies {
     //RecycleView animation
     implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
 
-
+    //FlipCard animation
+    implementation 'com.wajahatkarim3.EasyFlipView:EasyFlipView:2.1.0'
 }

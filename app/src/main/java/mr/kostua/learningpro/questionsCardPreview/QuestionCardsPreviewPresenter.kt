@@ -26,7 +26,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     private val disposables = CompositeDisposable()
 
     override fun populateNotAcceptedQuestions(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.populateNotAcceptedQuestion(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(CourseDBUsingHelper.populateNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
                 view.initializeRecycleView(list as ArrayList)
             }
@@ -36,6 +36,18 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
             }
 
         }, courseId))
+    }
+
+    override fun populateQuestionToEdit(courseItemId: Int) {
+        disposables.add(CourseDBUsingHelper.populateQuestionToEdit(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+            override fun onSuccess(list: List<QuestionDo>) {
+                view.initializeRecycleView(list as ArrayList)
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "populateQuestionToEdit onError : ${e.message}")
+            }
+        }, courseItemId))
     }
 
     override fun acceptQuestion(questionDo: QuestionDo) {

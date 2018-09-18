@@ -23,7 +23,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     private val disposables = CompositeDisposable()
 
     override fun populateAllCards(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.populateNotLearnedQuestion(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(CourseDBUsingHelper.populateNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
                 view.initializeRecycleView(questions as ArrayList)
             }
@@ -39,33 +39,34 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         disposables.add(CourseDBUsingHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
                 if (updatedItems == 1) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-
+                    ShowLogs.log(TAG, "updateQuestion item updated successfully ")
+                    view.showToast("Card was learned successfully, congratulations!")
+                    //TODO here in view maybe make some animation as firework
                 } else {
+                    ShowLogs.log(TAG, "updateQuestion no item updated")
 
                 }
             }
 
             override fun onError(e: Throwable) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                ShowLogs.log(TAG, "updateQuestion error : ${e.message}")
             }
         }, questionDo))
     }
 
-    override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
-        disposables.add(CourseDBUsingHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
+    override fun updateViewCountOfCard(questionDo: QuestionDo) {
+        disposables.add(CourseDBUsingHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
-                if (updatedItems == 1) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-
-                } else {
-
+                if (updatedItems != 1) {
+                    ShowLogs.log(TAG, "updateViewCountOfCard no item updated")
                 }
             }
 
             override fun onError(e: Throwable) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                ShowLogs.log(TAG, "updateViewCountOfCard error : ${e.message}")
+
             }
+
         }, questionDo))
     }
 

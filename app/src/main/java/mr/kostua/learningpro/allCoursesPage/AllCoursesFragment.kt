@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
@@ -45,7 +44,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
             with(it) {
                 if (!this.reviewed) {
                     startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
-                            .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, this.id!!))
+                            .putExtra(ConstantValues.COURSE_ID_KEY, this.id!!))
                 } else {
                     startActivity(Intent(fragmentContext, PracticeCardsActivity::class.java)
                             .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, this.id!!))

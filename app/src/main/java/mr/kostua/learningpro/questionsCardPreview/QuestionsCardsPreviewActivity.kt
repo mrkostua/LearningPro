@@ -28,6 +28,8 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     private lateinit var questionsRecycleViewAdapter: QuestionCardsPreviewRecycleViewAdapter
     private val questionCardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
+    private var editCourseItemId = -1
+    private fun isStartedToEditOneItem() = editCourseItemId != -1
 
 
     @SuppressLint("MissingSuperCall")
@@ -44,9 +46,15 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     }
 
     private fun initializeViews() {
-        courseId = intent.getIntExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, -1)
+        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
+        editCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_KEY, -1)
         presenter.takeView(this)
-        presenter.populateNotAcceptedQuestions(courseId)
+        if (isStartedToEditOneItem()) {
+            presenter.populateQuestionToEdit(editCourseItemId)
+        } else {
+            presenter.populateNotAcceptedQuestions(courseId)
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -54,7 +62,6 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
         questionCardsCompositeDisposables.addAll(
                 questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe({
-                    ShowLogs.log(this.javaClass.simpleName, "how accepted QUESTION : ${it.id} and : ${it.question}")
                     presenter.acceptQuestion(it)
                     if (isLastQuestionCard(data.size)) {
                         questionsPreviewFinished()
@@ -93,13 +100,17 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         }
     }
 
-    private fun isLastQuestionCard(dataSize: Int) = dataSize == 1 //TODO find more elegant solution??
+    private fun isLastQuestionCard(dataSize: Int) = dataSize == 1
 
     private fun questionsPreviewFinished() {
-        presenter.setCourseReviewedTrue(courseId)
         startActivity(Intent(this, PracticeCardsActivity::class.java)
-                .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, courseId))
-
+                .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, courseId).apply {
+                    if (isStartedToEditOneItem()) {
+                        putExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, editCourseItemId)
+                    } else {
+                        presenter.setCourseReviewedTrue(courseId)
+                    }
+                })
     }
 
 

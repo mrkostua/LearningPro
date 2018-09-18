@@ -11,7 +11,7 @@ class MainReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ConstantValues.ACTION_CONTINUE_COURSE_CREATION -> {
-                val courseId = intent.getIntExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, -1)
+                val courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
                 if (courseId != -1) {
                     startQuestionsCardPreviewActivity(context, courseId)
                 }
@@ -23,7 +23,7 @@ class MainReceiver : BroadcastReceiver() {
 
     private fun startQuestionsCardPreviewActivity(context: Context, courseId: Int) {
         context.startActivity(Intent(context, QuestionsCardsPreviewActivity::class.java)
-                .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId))
+                .putExtra(ConstantValues.COURSE_ID_KEY, courseId))
     }
 
 }
