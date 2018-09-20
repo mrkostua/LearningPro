@@ -62,4 +62,7 @@ dependencies {
 
     //FlipCard animation
     implementation 'com.wajahatkarim3.EasyFlipView:EasyFlipView:2.1.0'
+
+    //firework animation
+    compile 'com.plattysoft.leonids:LeonidsLib:1.3.2'
 }

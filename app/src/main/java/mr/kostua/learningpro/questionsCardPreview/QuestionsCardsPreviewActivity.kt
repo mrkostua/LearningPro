@@ -28,8 +28,8 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     private lateinit var questionsRecycleViewAdapter: QuestionCardsPreviewRecycleViewAdapter
     private val questionCardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
-    private var editCourseItemId = -1
-    private fun isStartedToEditOneItem() = editCourseItemId != -1
+    private var questionToEditId = -1
+    private fun isStartedToEditOneItem() = questionToEditId != -1
 
 
     @SuppressLint("MissingSuperCall")
@@ -47,10 +47,10 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun initializeViews() {
         courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-        editCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_KEY, -1)
+        questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
         presenter.takeView(this)
         if (isStartedToEditOneItem()) {
-            presenter.populateQuestionToEdit(editCourseItemId)
+            presenter.populateQuestionToEdit(questionToEditId)
         } else {
             presenter.populateNotAcceptedQuestions(courseId)
         }
@@ -104,9 +104,9 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun questionsPreviewFinished() {
         startActivity(Intent(this, PracticeCardsActivity::class.java)
-                .putExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, courseId).apply {
+                .putExtra(ConstantValues.COURSE_ID_KEY, courseId).apply {
                     if (isStartedToEditOneItem()) {
-                        putExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, editCourseItemId)
+                        putExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, questionToEditId)
                     } else {
                         presenter.setCourseReviewedTrue(courseId)
                     }

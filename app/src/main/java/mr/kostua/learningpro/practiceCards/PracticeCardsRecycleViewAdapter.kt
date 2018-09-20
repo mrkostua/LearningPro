@@ -2,7 +2,6 @@ package mr.kostua.learningpro.practiceCards
 
 import android.content.Intent
 import android.support.constraint.ConstraintLayout
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
@@ -19,6 +18,7 @@ import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 import mr.kostua.learningpro.tools.ConstantValues
+import mr.kostua.learningpro.tools.ShowLogs
 
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
@@ -53,37 +53,58 @@ class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, p
         private val bFlipCardAnswerSide: Button = clAnswerItem.findViewById(R.id.bFlipCardAnswerSide)
 
         private val flipViewPracticeCard: EasyFlipView = view.findViewById(R.id.flipViewPracticeCard)
+        private var flippedItemId = -1
 
         init {
             tvCardQuestion.movementMethod = ScrollingMovementMethod()
             RxView.clicks(bFlipCardQuestionSide).subscribe {
-                ++data[adapterPosition].viewsCount
-                notifyItemChanged(adapterPosition)
-                viewsCountPublishSubject.onNext(data[adapterPosition])
-                flipView() //TODO bad blink during flip animation - invoked by notifyItemChanged (fix IT)
+                flipView(1000)
+                flippedItemId = data[adapterPosition].id!!
+                /* ++data[adapterPosition].viewsCount
+                 notifyItemChanged(adapterPosition)
+                 viewsCountPublishSubject.onNext(data[adapterPosition])*/
+                /**
+                 * //TODO bad blink during flip animation - invoked by notifyItemChanged (fix IT)
+                 * Answer
+                 * I think the answer will be to create Handler and after pushing flipView - sent message with delay(depends on the amount of text calculate it by size of text)
+                 * or delay can depend also if user scroll to end of the textView.
+                 * and send past adapterPosition to Handler, if current adapterPosition same -> do the update with some animation
+                 *
+                 * also add some security against multiple clicking on the button flip
+                 */
             }
 
             tvCardAnswer.movementMethod = ScrollingMovementMethod()
             RxView.clicks(bFlipCardAnswerSide).subscribe {
-                flipView()
+                flippedItemId = -1
+                flipView(1000)
             }
 
             RxView.clicks(ibEditCard).subscribe {
                 with(view.context) {
-                    startActivity(Intent(this, QuestionsCardsPreviewActivity::class.java) //TODO add some animation for moving ot another activity (read more)
+                    startActivity(Intent(this, QuestionsCardsPreviewActivity::class.java)
                             .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
-                            .putExtra(ConstantValues.COURSE_ITEM_ID_KEY, data[adapterPosition].id!!))
+                            .putExtra(ConstantValues.QUESTION_ID_KEY, data[adapterPosition].id!!))
                 }
             }
             RxView.clicks(ibMarkCardAsDone).subscribe {
                 data[adapterPosition].isLearned = true
+                flippedItemId = -1
                 ibMarkAsDonePublishSubject.onNext(data[adapterPosition])
                 ibMarkAsDoneClickListener()
             }
         }
 
-        fun bind(item: QuestionDo) { //TODO after deleting one item (some other item is flipped) fix it maybe by if else inside bind() as if flipped flip back with duration 0
+        fun bind(item: QuestionDo) {
             view.setBackgroundResource(0)
+            when {
+                flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE && item.id != flippedItemId -> {
+                    flipView(0)
+                }
+                flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.FRONT_SIDE && item.id == flippedItemId -> {
+                    flipView(0)
+                }
+            }
             tvCardQuestion.run {
                 text = item.question
             }
@@ -93,14 +114,18 @@ class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, p
             tvAnswerReadCount.text = item.viewsCount.toString()
         }
 
-        private fun flipView() {
-            flipViewPracticeCard.flipDuration = 1000
+        private fun flipView(duration: Int) {
+            flipViewPracticeCard.flipDuration = duration
             flipViewPracticeCard.flipTheView()
         }
 
         private fun ibMarkAsDoneClickListener() {
             data.removeAt(adapterPosition)
-            view.setBackgroundResource(R.color.question_card_preview_accept_animation_color) //TODO choose better color for learnedDone (or some animation firework)
+            view.setBackgroundResource(R.color.question_card_preview_accept_animation_color)
+            /**
+             * //TODO choose better color for learnedDone (or some animation firework)
+             * try using Leonardis to make firework animation with your own drawable as particles
+             */
             notifyItemRemoved(adapterPosition)
             notifyItemRangeChanged(0, data.size)
         }

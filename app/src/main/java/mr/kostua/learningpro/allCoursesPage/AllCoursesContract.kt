@@ -12,13 +12,15 @@ interface AllCoursesContract {
     interface View : BaseView {
         fun initializeRecycleView(data: List<CourseDo>)
         fun setPBVisibility(visible: Boolean)
-        fun updateCourseList(courses: List<CourseDo>)
+        fun updateCourseList()
         fun isCourseListInitialized(): Boolean
         fun showFailedPopulationDialog()
+        fun startPracticeCardsActivity(courseId : Int)
     }
 
     interface Presenter : BasePresenter<View> {
         fun populateCourses()
+        fun startLearningCourseAgain(courseId : Int)
         fun disposeAll()
 
     }

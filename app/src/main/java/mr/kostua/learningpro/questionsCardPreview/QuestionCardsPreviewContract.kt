@@ -15,7 +15,7 @@ interface QuestionCardsPreviewContract {
 
     interface Presenter : BasePresenter<View> {
         fun populateNotAcceptedQuestions(courseId: Int)
-        fun populateQuestionToEdit(courseItemId: Int)
+        fun populateQuestionToEdit(questionToEditId: Int)
         fun acceptQuestion(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
         fun deleteQuestion(questionDo: QuestionDo, courseId: Int)

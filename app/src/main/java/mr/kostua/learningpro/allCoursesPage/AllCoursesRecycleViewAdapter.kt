@@ -14,11 +14,13 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
+import mr.kostua.learningpro.tools.ShowLogs
 
 /**
  * @author Kostiantyn Prysiazhnyi on 8/10/2018.
  */
 class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerView.Adapter<AllCoursesRecycleViewAdapter.ViewHolder>() {
+    private val TAG = this.javaClass.simpleName
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.course_row_item, parent, false))
     }
@@ -55,6 +57,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         }
 
         fun bind(item: CourseDo) {
+            ShowLogs.log(TAG,"bind() courseName : ${item.title} - data.doneQuestionsAmount : ${item.doneQuestionsAmount} ")
             with(item) {
                 ivNotReviewedAlert.run {
                     if (item.reviewed) {

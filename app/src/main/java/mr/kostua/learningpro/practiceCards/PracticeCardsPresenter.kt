@@ -22,17 +22,54 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
 
     private val disposables = CompositeDisposable()
 
-    override fun populateAllCards(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.populateNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+    override fun populateNotLearnedCards(courseId: Int) {
+        disposables.add(CourseDBUsingHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
-                view.initializeRecycleView(questions as ArrayList)
+                if (questions.isNotEmpty()) {
+                    view.initializeRecycleView(questions as ArrayList)
+                } else {
+                    view.showToast("All cards from this course are learned.")
+                    view.goBack()
+                }
             }
 
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "populateNotAcceptedQuestions onError : ${e.message}")
+            override fun onError(e: Throwable) { //TODO read how to handle errors in RxJava (best ways)
+                ShowLogs.log(TAG, "getNotAcceptedQuestions onError : ${e.message}")
             }
 
         }, courseId))
+    }
+
+    override fun populateAllCards(courseId: Int) {
+        disposables.add(CourseDBUsingHelper.getQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+            override fun onSuccess(list: List<QuestionDo>) {
+                view.initializeRecycleView(list as ArrayList)
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "populateAllCards onError : ${e.message}")
+            }
+
+        }, courseId))
+    }
+
+    override fun updateDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int) {
+        disposables.add(CourseDBUsingHelper.setCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(t: Int) {
+                if (t == 1) {
+                    ShowLogs.log(TAG, "updateDoneQuestionsAmount updated successfully")
+                } else {
+                    ShowLogs.log(TAG, "updateDoneQuestionsAmount no item updated")
+
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "updateDoneQuestionsAmount onError : ${e.message}")
+
+            }
+
+        }, courseId, doneQuestionsAmount))
     }
 
     override fun updateQuestion(questionDo: QuestionDo) {
@@ -41,10 +78,8 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
                 if (updatedItems == 1) {
                     ShowLogs.log(TAG, "updateQuestion item updated successfully ")
                     view.showToast("Card was learned successfully, congratulations!")
-                    //TODO here in view maybe make some animation as firework
                 } else {
                     ShowLogs.log(TAG, "updateQuestion no item updated")
-
                 }
             }
 
@@ -53,6 +88,22 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
             }
         }, questionDo))
     }
+
+/*    override fun initializeDoneQuestionsAmount(courseId: Int) {
+        disposables.add(CourseDBUsingHelper.getCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(doneQuestionsAmount: Int) {
+                if (doneQuestionsAmount != -1) {
+                    view.setDoneQuestionsAmount(doneQuestionsAmount)
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "initializeDoneQuestionsAmount error : ${e.message}")
+            }
+
+        }, courseId))
+
+    }*/
 
     override fun updateViewCountOfCard(questionDo: QuestionDo) {
         disposables.add(CourseDBUsingHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {

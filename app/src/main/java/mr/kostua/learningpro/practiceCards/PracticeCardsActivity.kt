@@ -13,9 +13,11 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.main.BaseDaggerActivity
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
+import mr.kostua.learningpro.tools.ShowLogs
 import javax.inject.Inject
 
 class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
+    private val TAG = this.javaClass.simpleName
     @Inject
     public lateinit var notificationTools: NotificationTools
     @Inject
@@ -26,6 +28,8 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private var courseId = -1
     private var editedCourseItemId = -1
     private fun isStartedAfterEditing() = editedCourseItemId != -1
+    private var isDoneQuestionAmountUpdated = false
+    private var doneQuestionsAmount = 0
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +43,26 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         cardsCompositeDisposables.clear()
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (!isDoneQuestionAmountUpdated && courseId != -1 && doneQuestionsAmount != 0) {
+            ShowLogs.log(TAG, "onPause() doneQuestionsAmount is ${doneQuestionsAmount}")
+            presenter.updateDoneQuestionsAmount(courseId, doneQuestionsAmount)
+            doneQuestionsAmount = 0
+        }
+    }
+
     private fun initializeViews() {
-        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_TO_PRACTICE_KEY, -1)
+        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
         editedCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1)
+        val isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
         presenter.takeView(this)
-        presenter.populateAllCards(courseId)
+        if (isShowAllCards) {
+            presenter.populateAllCards(courseId)
+        } else {
+            presenter.populateNotLearnedCards(courseId)
+
+        }
     }
 
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
@@ -51,17 +70,24 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         cardsCompositeDisposables.addAll(
                 cardsRecycleViewAdapter.getIBMarkAsDoneObservable().subscribe({
                     presenter.updateQuestion(it)
+                    doneQuestionsAmount++
+                    if (isLastQuestionCard(data.size)) {
+                        presenter.updateDoneQuestionsAmount(courseId, doneQuestionsAmount)
+
+                        isDoneQuestionAmountUpdated = true
+                        doneQuestionsAmount = 0
+                        finish() //TODO some animation  some additional extra firework animation
+                    }
                 }, {
                     showToast("please try to \"mark as done\" this card again")
                     //TODO make some dialog in the future like send a report about bug
-
                 }),
                 cardsRecycleViewAdapter.getViewsCountPublishSubject().subscribe({
                     presenter.updateViewCountOfCard(it)
                 }, {
 
                 }))
-        pbPracticeCards.visibility = View.GONE
+        setPBVisibility(false)
         rvPracticeCards.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(this@PracticeCardsActivity, LinearLayoutManager.HORIZONTAL, false)
@@ -83,7 +109,17 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         }
     }
 
+    private fun isLastQuestionCard(dataSize: Int) = dataSize == 1
+
+    private fun setPBVisibility(isVisible: Boolean) {
+        pbPracticeCards.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
     override fun showToast(text: String) {
         notificationTools.showToastMessage(text)
+    }
+
+    override fun goBack() {
+        finish()
     }
 }

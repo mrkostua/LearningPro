@@ -35,12 +35,18 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
 
-    fun getQuestionFromCourseInList(courseId: Int) = db.questionsDao().getQuestionFromCourse(courseId)
+    fun getQuestion(questionId: Int) = db.questionsDao().getQuestionFromCourse(questionId)
 
     fun getCourseWithNotLearnedQuestions(courseId: Int) = db.questionsDao().getAllNotLearnedQuestionsFromCourse(courseId)
 
     fun updateQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().updateQuestion(question) }
 
     fun deleteQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
+
+    fun setCourseQuestionsToNotLearned(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().setAllQuestionsToNotLearnedInCourse(courseId) }
+
+    fun setCourseDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int): Single<Int> = Single.fromCallable { db.coursesDao().updateCourseDoneQuestionsAmount(courseId, doneQuestionsAmount) }
+
+    fun getCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().getCourseDoneQuestionsAmount(courseId) }
 
 }

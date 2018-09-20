@@ -10,34 +10,33 @@ import mr.kostua.learningpro.data.local.QuestionDo
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
 object CourseDBUsingHelper {
-    fun populateQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
-                          courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
+    fun getQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
+                     courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
             db.getCourseQuestions(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
 
-    fun populateNotLearnedQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
-                                    courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
+    fun getNotLearnedQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
+                               courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
             db.getCourseWithNotLearnedQuestions(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
 
-    fun populateNotAcceptedQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
-                                     courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
+    fun getNotAcceptedQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
+                                courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
             db.getCourseWithNotAcceptedQuestions(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
 
-    fun populateQuestionToEdit(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
-                                     courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
-            db.getQuestionFromCourseInList(courseId)
+    fun getQuestionBuId(db: DBHelper, observer: DisposableSingleObserver<QuestionDo>,
+                        questionId: Int): DisposableSingleObserver<QuestionDo> =
+            db.getQuestion(questionId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
-
 
 
     fun updateQuestion(db: DBHelper, observer: DisposableSingleObserver<Int>,
@@ -50,6 +49,25 @@ object CourseDBUsingHelper {
     fun deleteQuestion(db: DBHelper, observer: DisposableSingleObserver<Int>,
                        questionDo: QuestionDo): DisposableSingleObserver<Int> =
             db.deleteQuestion(questionDo)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+
+    fun setCourseQuestionsToNotLearned(db: DBHelper, observer: DisposableSingleObserver<Int>,
+                                       courseId: Int): DisposableSingleObserver<Int> =
+            db.setCourseQuestionsToNotLearned(courseId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+
+    fun setCourseDoneQuestionsAmount(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int,
+                                     doneQuestionsAmount: Int): DisposableSingleObserver<Int> =
+            db.setCourseDoneQuestionsAmount(courseId, doneQuestionsAmount)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+    fun getCourseDoneQuestionsAmount(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int): DisposableSingleObserver<Int> =
+            db.getCourseDoneQuestionsAmount(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)

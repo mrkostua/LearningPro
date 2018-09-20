@@ -1,11 +1,15 @@
 package mr.kostua.learningpro.allCoursesPage
 
+import android.support.v7.view.menu.ShowableListMenu
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.DisposableSubscriber
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.CourseDo
+import mr.kostua.learningpro.tools.CourseDBUsingHelper
+import mr.kostua.learningpro.tools.ShowLogs
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -30,9 +34,11 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
                     override fun onComplete() {}
 
                     override fun onNext(coursesList: List<CourseDo>) {
+                        ShowLogs.log(TAG,"populateCourses")
                         view.setPBVisibility(false)
                         if (view.isCourseListInitialized()) {
-                            view.updateCourseList(addNewListToMainCourses(coursesList))
+                            addNewListToMainCourses(coursesList)
+                            view.updateCourseList()
                         } else {
                             view.initializeRecycleView(addNewListToMainCourses(coursesList))
                         }
@@ -44,6 +50,25 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
                     }
 
                 }))
+    }
+
+    override fun startLearningCourseAgain(courseId: Int) {
+        view.setPBVisibility(true)
+        disposables.add(CourseDBUsingHelper.setCourseQuestionsToNotLearned(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItemsAmount: Int) {
+                if (updatedItemsAmount > 0) {
+                    view.startPracticeCardsActivity(courseId)
+                }
+                view.setPBVisibility(false)
+
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "startLearningCourseAgain error : ${e.message}")
+            }
+
+        }, courseId))
+        //TODO update all questions cards isLearned to false and in onSuccess( start Practice Activity)
     }
 
     override fun disposeAll() {

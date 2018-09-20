@@ -26,28 +26,28 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     private val disposables = CompositeDisposable()
 
     override fun populateNotAcceptedQuestions(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.populateNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(CourseDBUsingHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
                 view.initializeRecycleView(list as ArrayList)
             }
 
             override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "populateNotAcceptedQuestions onError : ${e.message}")
+                ShowLogs.log(TAG, "getNotAcceptedQuestions onError : ${e.message}")
             }
 
         }, courseId))
     }
 
-    override fun populateQuestionToEdit(courseItemId: Int) {
-        disposables.add(CourseDBUsingHelper.populateQuestionToEdit(db, object : DisposableSingleObserver<List<QuestionDo>>() {
-            override fun onSuccess(list: List<QuestionDo>) {
-                view.initializeRecycleView(list as ArrayList)
+    override fun populateQuestionToEdit(questionToEditId: Int) {
+        disposables.add(CourseDBUsingHelper.getQuestionBuId(db, object : DisposableSingleObserver<QuestionDo>() {
+            override fun onSuccess(itemToEdit: QuestionDo) {
+                view.initializeRecycleView(arrayListOf(itemToEdit))
             }
 
             override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "populateQuestionToEdit onError : ${e.message}")
+                ShowLogs.log(TAG, "getQuestionBuId onError : ${e.message}")
             }
-        }, courseItemId))
+        }, questionToEditId))
     }
 
     override fun acceptQuestion(questionDo: QuestionDo) {

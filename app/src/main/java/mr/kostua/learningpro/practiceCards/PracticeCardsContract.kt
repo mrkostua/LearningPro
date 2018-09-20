@@ -11,12 +11,15 @@ interface PracticeCardsContract {
     interface View : BaseView {
         fun initializeRecycleView(data: ArrayList<QuestionDo>)
         fun showToast(text: String)
+        fun goBack()
     }
 
     interface Presenter : BasePresenter<View> {
-        fun populateAllCards(courseId : Int)
+        fun populateNotLearnedCards(courseId: Int)
+        fun populateAllCards(courseId: Int)
         fun updateViewCountOfCard(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
+        fun updateDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int)
         fun disposeAll()
     }
 

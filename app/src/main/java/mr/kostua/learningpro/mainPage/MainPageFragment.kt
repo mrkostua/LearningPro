@@ -76,6 +76,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 startActivityToChooseFile()
             }
             R.id.bOpenCurrentCourse -> {
+                //TODO save last open course id value in SP and open it here if exists if not show some inf T
             }
             R.id.bManageReminders -> {
             }
