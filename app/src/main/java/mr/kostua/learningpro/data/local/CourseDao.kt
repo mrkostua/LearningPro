@@ -28,4 +28,7 @@ interface CourseDao {
     @Query("SELECT doneQuestionsAmount FROM courses WHERE id = :courseId")
     fun getCourseDoneQuestionsAmount(courseId: Int): Int
 
+    @Query("SELECT * FROM courses WHERE id = :courseId")
+    fun getCourse(courseId: Int): CourseDo
+
 }

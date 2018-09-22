@@ -47,6 +47,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     override fun initializeRecycleView(data: List<CourseDo>) {
         coursesRecycleViewAdapter = AllCoursesRecycleViewAdapter(data)
         courseItemClickListenerCDisposable.add(coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
+            presenter.saveLastOpenedCourseId(it.id!!)
             if (it.reviewed) {
                 ShowLogs.log(TAG, "initializeRecycleView : ${it.questionsAmount} vs ${it.doneQuestionsAmount}")
                 if (it.questionsAmount == it.doneQuestionsAmount) {
@@ -59,7 +60,6 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
                         .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!))
             }
-
         })
         rvAllCourses.run {
             visibility = View.VISIBLE
@@ -105,7 +105,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     }
 
     private fun createCourseFinishedDialog(courseId: Int) {
-        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog, clFragmentAllCourses, false)
+        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog, clFragmentAllCourses, false) //TODO for style of custom dialog the border of the view is to bug set it be a (1dp)
         val dialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
         with(customDialogView) {
@@ -131,6 +131,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 dialog.dismiss()
             }
         }
+        dialog.show()
     }
 
     private

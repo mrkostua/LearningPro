@@ -128,6 +128,6 @@ class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, p
              */
             notifyItemRemoved(adapterPosition)
             notifyItemRangeChanged(0, data.size)
-        }
+        } 
     }
 }

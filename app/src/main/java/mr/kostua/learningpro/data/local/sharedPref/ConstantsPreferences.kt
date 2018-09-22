@@ -19,10 +19,15 @@ enum class ConstantsPreferences {
     CREATING_COURSE_URI() {
         override fun getDefaultStringValue() = emptyCreatingCourseData
         override fun getKeyValue() = "CREATING_COURSE_URL_KEY"
+    },
+    LAST_OPENED_COURSE_ID() {
+        override fun getKeyValue() = "LAST_OPENED_COURSE_ID_KEY"
+        override fun getDefaultStringValue() = String()
     };
 
     abstract fun getKeyValue(): String
     abstract fun getDefaultStringValue(): String
 
     val emptyCreatingCourseData = ""
+    val defaultLastOpenedCourseId = -1
 }

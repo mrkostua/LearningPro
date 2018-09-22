@@ -16,6 +16,8 @@ import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.injections.scopes.FragmentScope
 import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivity
+import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 import mr.kostua.learningpro.tools.*
 import javax.inject.Inject
 
@@ -76,11 +78,25 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 startActivityToChooseFile()
             }
             R.id.bOpenCurrentCourse -> {
-                //TODO save last open course id value in SP and open it here if exists if not show some inf T
+                presenter.startLastOpenedCourse()
             }
             R.id.bManageReminders -> {
             }
         }
+    }
+
+    override fun startLastOpenedCourse(course: CourseDo) {
+        if (course.reviewed) {
+            startActivity(Intent(fragmentContext, PracticeCardsActivity::class.java)
+                    .putExtra(ConstantValues.COURSE_ID_KEY, course.id!!))
+        } else {
+            startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                    .putExtra(ConstantValues.COURSE_ID_KEY, course.id!!))
+        }
+    }
+
+    override fun showToast(message: String) {
+        notificationTools.showToastMessage(message)
     }
 
     override fun startNewCourseCreationService(data: Uri, courseId: Int) {

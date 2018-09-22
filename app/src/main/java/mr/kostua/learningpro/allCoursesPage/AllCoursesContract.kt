@@ -15,13 +15,14 @@ interface AllCoursesContract {
         fun updateCourseList()
         fun isCourseListInitialized(): Boolean
         fun showFailedPopulationDialog()
-        fun startPracticeCardsActivity(courseId : Int)
+        fun startPracticeCardsActivity(courseId: Int)
     }
 
     interface Presenter : BasePresenter<View> {
         fun populateCourses()
-        fun startLearningCourseAgain(courseId : Int)
+        fun startLearningCourseAgain(courseId: Int)
         fun disposeAll()
+        fun saveLastOpenedCourseId(courseId: Int)
 
     }
 }

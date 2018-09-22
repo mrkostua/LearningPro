@@ -30,5 +30,11 @@ open class SPHelper(private val sharedPreferences: SharedPreferences) {
     fun getCreatingCourseStringUri() = sharedPreferences[ConstantsPreferences.CREATING_COURSE_URI.getKeyValue(),
             ConstantsPreferences.CREATING_COURSE_URI.getDefaultStringValue()]
 
+    fun saveLastOpenedCourseId(courseId: Int) {
+        sharedPreferences[ConstantsPreferences.LAST_OPENED_COURSE_ID.getKeyValue()] = courseId
+    }
 
+    fun getLastOpenedCourseId() = sharedPreferences[ConstantsPreferences.LAST_OPENED_COURSE_ID.getKeyValue(), ConstantsPreferences.LAST_OPENED_COURSE_ID.defaultLastOpenedCourseId]
+
+    fun isLastOpenedCourseIdExists() = getLastOpenedCourseId() != ConstantsPreferences.LAST_OPENED_COURSE_ID.defaultLastOpenedCourseId
 }

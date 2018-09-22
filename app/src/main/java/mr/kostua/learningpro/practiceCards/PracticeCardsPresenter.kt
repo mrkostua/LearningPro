@@ -5,7 +5,7 @@ import io.reactivex.observers.DisposableSingleObserver
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ActivityScope
-import mr.kostua.learningpro.tools.CourseDBUsingHelper
+import mr.kostua.learningpro.tools.DBObserverHelper
 import mr.kostua.learningpro.tools.ShowLogs
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     private val disposables = CompositeDisposable()
 
     override fun populateNotLearnedCards(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
                 if (questions.isNotEmpty()) {
                     view.initializeRecycleView(questions as ArrayList)
@@ -41,7 +41,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     }
 
     override fun populateAllCards(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.getQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(DBObserverHelper.getQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
                 view.initializeRecycleView(list as ArrayList)
             }
@@ -54,7 +54,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     }
 
     override fun updateDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int) {
-        disposables.add(CourseDBUsingHelper.setCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
+        disposables.add(DBObserverHelper.setCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(t: Int) {
                 if (t == 1) {
                     ShowLogs.log(TAG, "updateDoneQuestionsAmount updated successfully")
@@ -73,7 +73,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     }
 
     override fun updateQuestion(questionDo: QuestionDo) {
-        disposables.add(CourseDBUsingHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
+        disposables.add(DBObserverHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
                 if (updatedItems == 1) {
                     ShowLogs.log(TAG, "updateQuestion item updated successfully ")
@@ -106,7 +106,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     }*/
 
     override fun updateViewCountOfCard(questionDo: QuestionDo) {
-        disposables.add(CourseDBUsingHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
+        disposables.add(DBObserverHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
                 if (updatedItems != 1) {
                     ShowLogs.log(TAG, "updateViewCountOfCard no item updated")

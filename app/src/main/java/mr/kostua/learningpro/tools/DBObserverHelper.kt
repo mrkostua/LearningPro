@@ -4,12 +4,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import mr.kostua.learningpro.data.DBHelper
+import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.data.local.QuestionDo
 
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-object CourseDBUsingHelper {
+object DBObserverHelper {
     fun getQuestions(db: DBHelper, observer: DisposableSingleObserver<List<QuestionDo>>,
                      courseId: Int): DisposableSingleObserver<List<QuestionDo>> =
             db.getCourseQuestions(courseId)
@@ -66,8 +67,15 @@ object CourseDBUsingHelper {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
+
     fun getCourseDoneQuestionsAmount(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int): DisposableSingleObserver<Int> =
             db.getCourseDoneQuestionsAmount(courseId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(observer)
+
+    fun getCourse(db: DBHelper, observer: DisposableSingleObserver<CourseDo>, courseId: Int): DisposableSingleObserver<CourseDo> =
+            db.getCourse(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)

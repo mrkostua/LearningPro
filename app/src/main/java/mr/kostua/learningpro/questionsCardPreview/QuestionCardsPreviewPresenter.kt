@@ -8,7 +8,7 @@ import io.reactivex.schedulers.Schedulers
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.injections.scopes.ActivityScope
-import mr.kostua.learningpro.tools.CourseDBUsingHelper
+import mr.kostua.learningpro.tools.DBObserverHelper
 import mr.kostua.learningpro.tools.ShowLogs
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     private val disposables = CompositeDisposable()
 
     override fun populateNotAcceptedQuestions(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+        disposables.add(DBObserverHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
                 view.initializeRecycleView(list as ArrayList)
             }
@@ -39,7 +39,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     }
 
     override fun populateQuestionToEdit(questionToEditId: Int) {
-        disposables.add(CourseDBUsingHelper.getQuestionBuId(db, object : DisposableSingleObserver<QuestionDo>() {
+        disposables.add(DBObserverHelper.getQuestionBuId(db, object : DisposableSingleObserver<QuestionDo>() {
             override fun onSuccess(itemToEdit: QuestionDo) {
                 view.initializeRecycleView(arrayListOf(itemToEdit))
             }
@@ -88,7 +88,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     }
 
     override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
-        disposables.add(CourseDBUsingHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
+        disposables.add(DBObserverHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
                 if (updatedItems == 1) {
                     updateQuestionsAmount(courseId)
@@ -158,7 +158,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     }
 
     private fun updateQuestionDo(questionDo: QuestionDo, observer: DisposableSingleObserver<Int>) {
-        disposables.add(CourseDBUsingHelper.updateQuestion(db, observer, questionDo))
+        disposables.add(DBObserverHelper.updateQuestion(db, observer, questionDo))
     }
 
 }

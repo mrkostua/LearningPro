@@ -14,6 +14,8 @@ interface MainPageContract {
         fun setBlockCreateButton(isBlocked: Boolean)
         fun showMessageCourseCreatedSuccessfully(courseName: String)
         fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri)
+        fun startLastOpenedCourse(course: CourseDo)
+        fun showToast(message: String)
     }
 
     interface Presenter : BasePresenter<View> {
@@ -23,6 +25,7 @@ interface MainPageContract {
         fun isNotCreatedCourseDataExists(): Boolean
         fun getSavedCourse(): CourseDo
         fun isCourseDataSavedForThisFile(fileUri: Uri): Boolean
+        fun startLastOpenedCourse()
 
     }
 
