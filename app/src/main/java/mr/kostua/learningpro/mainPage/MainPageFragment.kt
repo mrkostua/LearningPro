@@ -161,6 +161,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 clBackgroundLayout, false)
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
+        createCourseDialog.setSlideWindoAnimation()
         with(customDialogView) {
             initializeCourseDataFromSP(this, data)
 

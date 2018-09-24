@@ -43,7 +43,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         private val tvCourseQuestionsAmount: TextView = view.findViewById(R.id.tvCourseQuestionsAmount)
         private val tvDoneQuestionsAmount: TextView = view.findViewById(R.id.tvDoneQuestionsAmount)
         private val pbDoneQuestionsAmount: ProgressBar = view.findViewById(R.id.pbDoneQuestionsAmount)
-
+        private var doneQuestions = 0
         private val notReviewedAnimation = AlphaAnimation(0.0f, 1.0f).apply {
             duration = 700
             startOffset = 20
@@ -57,7 +57,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         }
 
         fun bind(item: CourseDo) {
-            ShowLogs.log(TAG,"bind() courseName : ${item.title} - data.doneQuestionsAmount : ${item.doneQuestionsAmount} ")
+            ShowLogs.log(TAG, "bind() courseName : ${item.title} - data.doneQuestionsAmount : ${item.doneQuestionsAmount} ")
             with(item) {
                 ivNotReviewedAlert.run {
                     if (item.reviewed) {
@@ -78,8 +78,9 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
                     text = questionsAmount.toString()
                 }
                 tvDoneQuestionsAmount.run {
-                    text = if (doneQuestionsAmount == 0 || questionsAmount == 0) "0 %"
-                    else "${(doneQuestionsAmount * 100) / questionsAmount} %"
+                    doneQuestions = if (doneQuestionsAmount == 0 || questionsAmount == 0) 0
+                    else (doneQuestionsAmount * 100) / questionsAmount
+                    text = if (doneQuestions > 100) "100%" else "$doneQuestions%"
                 }
                 pbDoneQuestionsAmount.run {
                     max = questionsAmount

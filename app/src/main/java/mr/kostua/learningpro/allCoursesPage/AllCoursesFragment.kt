@@ -105,12 +105,16 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
     }
 
     private fun createCourseFinishedDialog(courseId: Int) {
-        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog, clFragmentAllCourses, false) //TODO for style of custom dialog the border of the view is to bug set it be a (1dp)
+        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog, clFragmentAllCourses, false)
         val dialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
-                .setView(customDialogView).create()
+                .setView(customDialogView)
+                .create()
+        dialog.setSlideWindoAnimation()
+
+        var checkedRadioButtonId = -1
         with(customDialogView) {
-            rbFinishedCoursePracticeAgain.setOnClickListener { onRadioButtonClickListener(it) }
-            rbFinishedCourseShowAllCards.setOnClickListener { onRadioButtonClickListener(it) }
+            rbFinishedCoursePracticeAgain.setOnClickListener { checkedRadioButtonId = it.id }
+            rbFinishedCourseShowAllCards.setOnClickListener { checkedRadioButtonId = it.id }
             bNoCardsDialogDo.setOnClickListener {
                 when (checkedRadioButtonId) {
                     rbFinishedCoursePracticeAgain.id -> {
@@ -126,24 +130,15 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                                 "choose action and press \"Do\"")
                     }
                 }
+                dialog.dismiss()
+                checkedRadioButtonId = -1
             }
             bNoCardsDialogBack.setOnClickListener {
                 dialog.dismiss()
+                checkedRadioButtonId = -1
             }
         }
         dialog.show()
-    }
-
-    private
-    var checkedRadioButtonId = -1
-
-    private fun onRadioButtonClickListener(view: View) {
-        if (view is RadioButton) {
-            when (view) {
-                rbFinishedCoursePracticeAgain -> checkedRadioButtonId = view.id
-                rbFinishedCourseShowAllCards -> checkedRadioButtonId = view.id
-            }
-        }
     }
 
     override fun startPracticeCardsActivity(courseId: Int) {

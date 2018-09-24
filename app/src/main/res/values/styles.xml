@@ -32,7 +32,11 @@
         <item name="android:textColorSecondary">@color/secondaryColor</item>
         <item name="android:windowTitleStyle">@style/alertDialogTitleStyle</item>
         <item name="colorAccent">@color/primaryTextColor</item>
+    </style>
 
+    <style name="CustomAlertDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
     <style name="alertDialogTitleStyle" parent="Theme.AppCompat.Light.Dialog.Alert">

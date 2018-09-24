@@ -53,19 +53,19 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         }, courseId))
     }
 
-    override fun updateDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int) {
-        disposables.add(DBObserverHelper.setCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
+    override fun increaseCourseDoneQuestionsAmountBy(courseId: Int, doneQuestionsAmount: Int) {
+        disposables.add(DBObserverHelper.increaseCourseDoneQuestionsAmountBy(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(t: Int) {
                 if (t == 1) {
-                    ShowLogs.log(TAG, "updateDoneQuestionsAmount updated successfully")
+                    ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy updated successfully")
                 } else {
-                    ShowLogs.log(TAG, "updateDoneQuestionsAmount no item updated")
+                    ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy no item updated")
 
                 }
             }
 
             override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "updateDoneQuestionsAmount onError : ${e.message}")
+                ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy onError : ${e.message}")
 
             }
 

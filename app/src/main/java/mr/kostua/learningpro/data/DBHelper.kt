@@ -33,7 +33,7 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun getCourseQuestions(courseId: Int) = db.questionsDao().getAllQuestionsFromCourse(courseId)
 
-    fun getCourse(courseId: Int) : Single<CourseDo> = Single.fromCallable { db.coursesDao().getCourse(courseId) }
+    fun getCourse(courseId: Int): Single<CourseDo> = Single.fromCallable { db.coursesDao().getCourse(courseId) }
 
     fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
 
@@ -47,7 +47,9 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun setCourseQuestionsToNotLearned(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().setAllQuestionsToNotLearnedInCourse(courseId) }
 
-    fun setCourseDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int): Single<Int> = Single.fromCallable { db.coursesDao().updateCourseDoneQuestionsAmount(courseId, doneQuestionsAmount) }
+    fun increaseDoneQuestionsAmountBy(courseId: Int, increaseValue: Int): Single<Int> = Single.fromCallable { db.coursesDao().increaseDoneQuestionsAmountBy(courseId, increaseValue) }
+
+    fun setCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().updateDoneQuestionsAmount(courseId) }
 
     fun getCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().getCourseDoneQuestionsAmount(courseId) }
 

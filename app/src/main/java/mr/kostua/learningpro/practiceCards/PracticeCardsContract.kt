@@ -19,7 +19,7 @@ interface PracticeCardsContract {
         fun populateAllCards(courseId: Int)
         fun updateViewCountOfCard(questionDo: QuestionDo)
         fun updateQuestion(questionDo: QuestionDo)
-        fun updateDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int)
+        fun increaseCourseDoneQuestionsAmountBy(courseId: Int, doneQuestionsAmount: Int)
         fun disposeAll()
     }
 

@@ -56,13 +56,29 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
         disposables.add(DBObserverHelper.setCourseQuestionsToNotLearned(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItemsAmount: Int) {
                 if (updatedItemsAmount > 0) {
-                    view.startPracticeCardsActivity(courseId)
+                    disposables.add(DBObserverHelper.setCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
+                        override fun onSuccess(updateItems: Int) {
+                            if (updateItems == 1) {
+                                view.startPracticeCardsActivity(courseId)
+                            }
+                            view.setPBVisibility(false)
+
+                        }
+
+                        override fun onError(e: Throwable) {
+                            ShowLogs.log(TAG, "startLearningCourseAgain() setCourseDoneQuestionsAmount error : ${e.message}")
+                            view.setPBVisibility(false)
+                        }
+
+                    }, courseId))
+                } else {
+                    view.setPBVisibility(false)
                 }
-                view.setPBVisibility(false)
             }
 
             override fun onError(e: Throwable) {
                 ShowLogs.log(TAG, "startLearningCourseAgain error : ${e.message}")
+                view.setPBVisibility(false)
             }
         }, courseId))
     }

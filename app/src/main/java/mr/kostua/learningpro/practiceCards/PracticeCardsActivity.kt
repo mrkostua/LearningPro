@@ -13,7 +13,6 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.main.BaseDaggerActivity
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
-import mr.kostua.learningpro.tools.ShowLogs
 import javax.inject.Inject
 
 class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
@@ -28,9 +27,8 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private var courseId = -1
     private var editedCourseItemId = -1
     private fun isStartedAfterEditing() = editedCourseItemId != -1
-    private var isDoneQuestionAmountUpdated = false
     private var doneQuestionsAmount = 0
-
+    private var isShowAllCards = false
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, R.layout.activity_practice_cards)
@@ -45,9 +43,14 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
 
     override fun onPause() {
         super.onPause()
-        if (!isDoneQuestionAmountUpdated && courseId != -1 && doneQuestionsAmount != 0) {
-            ShowLogs.log(TAG, "onPause() doneQuestionsAmount is ${doneQuestionsAmount}")
-            presenter.updateDoneQuestionsAmount(courseId, doneQuestionsAmount)
+        if (courseId != -1 && doneQuestionsAmount != 0) {
+            setDoneQuestionsAmount(courseId)
+        }
+    }
+
+    private fun setDoneQuestionsAmount(courseId: Int) {
+        if (!isShowAllCards) {
+            presenter.increaseCourseDoneQuestionsAmountBy(courseId, doneQuestionsAmount)
             doneQuestionsAmount = 0
         }
     }
@@ -55,7 +58,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private fun initializeViews() {
         courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
         editedCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1)
-        val isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
+        isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
         presenter.takeView(this)
         if (isShowAllCards) {
             presenter.populateAllCards(courseId)
@@ -72,10 +75,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
                     presenter.updateQuestion(it)
                     doneQuestionsAmount++
                     if (isLastQuestionCard(data.size)) {
-                        presenter.updateDoneQuestionsAmount(courseId, doneQuestionsAmount)
-
-                        isDoneQuestionAmountUpdated = true
-                        doneQuestionsAmount = 0
+                        setDoneQuestionsAmount(courseId)
                         finish() //TODO some animation  some additional extra firework animation
                     }
                 }, {

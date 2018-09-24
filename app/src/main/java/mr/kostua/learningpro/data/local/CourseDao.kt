@@ -22,8 +22,11 @@ interface CourseDao {
     @Query("UPDATE courses SET reviewed = 1 WHERE id = :courseId")
     fun updateCourseIsReviewedState(courseId: Int): Int
 
-    @Query("UPDATE courses SET doneQuestionsAmount =doneQuestionsAmount + :doneQuestionsAmount WHERE id = :courseId")
-    fun updateCourseDoneQuestionsAmount(courseId: Int, doneQuestionsAmount: Int): Int
+    @Query("UPDATE courses SET doneQuestionsAmount =doneQuestionsAmount + :increaseValue WHERE id = :courseId")
+    fun increaseDoneQuestionsAmountBy(courseId: Int, increaseValue: Int): Int
+
+    @Query("UPDATE courses SET doneQuestionsAmount = 0 WHERE id = :courseId")
+    fun updateDoneQuestionsAmount(courseId: Int): Int
 
     @Query("SELECT doneQuestionsAmount FROM courses WHERE id = :courseId")
     fun getCourseDoneQuestionsAmount(courseId: Int): Int

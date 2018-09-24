@@ -1,14 +1,12 @@
 package mr.kostua.learningpro.tools
 
 import android.os.Build
-import android.support.annotation.RequiresApi
+import android.support.v7.app.AlertDialog
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
-import android.view.View
-import android.view.ViewAnimationUtils
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import mr.kostua.learningpro.R
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/20/2018.
@@ -32,3 +30,8 @@ fun EditText.showSoftInputOnFocusAllAPI(isShown: Boolean) {
         }
     }
 }
+
+fun AlertDialog.setSlideWindoAnimation(){
+    this.window.attributes.windowAnimations = R.style.CustomAlertDialogAnimation
+}
+
