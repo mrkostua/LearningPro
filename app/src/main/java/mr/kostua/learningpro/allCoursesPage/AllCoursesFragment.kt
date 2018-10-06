@@ -8,10 +8,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter
-import kotlinx.android.synthetic.main.custom_view_no_cards_dialog.*
 import kotlinx.android.synthetic.main.custom_view_no_cards_dialog.view.*
 import kotlinx.android.synthetic.main.fragment_all_courses.*
 import mr.kostua.learningpro.R
@@ -39,6 +37,11 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
         return inflater.inflate(R.layout.fragment_all_courses, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        ShowLogs.log(TAG, "onResume")
+    }
+
     override fun initializeViews() {
         presenter.takeView(this)
         presenter.populateCourses()
@@ -48,18 +51,20 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
         coursesRecycleViewAdapter = AllCoursesRecycleViewAdapter(data)
         courseItemClickListenerCDisposable.add(coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
             presenter.saveLastOpenedCourseId(it.id!!)
-            if (it.reviewed) {
-                ShowLogs.log(TAG, "initializeRecycleView : ${it.questionsAmount} vs ${it.doneQuestionsAmount}")
-                if (it.questionsAmount == it.doneQuestionsAmount) {
-                    createCourseFinishedDialog(it.id!!)
+            rvAllCourses.postDelayed({
+                if (it.reviewed) {
+                    if (it.questionsAmount == it.doneQuestionsAmount) {
+                        createCourseFinishedDialog(it.id!!)
+                    } else {
+                        startActivity(getStartPracticeActivityIntent()
+                                .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!))
+                    }
                 } else {
-                    startActivity(getStartPracticeActivityIntent()
-                            .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!))
+                    startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                            .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!)
+                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY))
                 }
-            } else {
-                startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
-                        .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!))
-            }
+            }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
         })
         rvAllCourses.run {
             visibility = View.VISIBLE
@@ -109,7 +114,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
         val dialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView)
                 .create()
-        dialog.setSlideWindoAnimation()
+        dialog.setSlideWindowAnimation()
 
         var checkedRadioButtonId = -1
         with(customDialogView) {
@@ -118,24 +123,29 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
             bNoCardsDialogDo.setOnClickListener {
                 when (checkedRadioButtonId) {
                     rbFinishedCoursePracticeAgain.id -> {
-                        presenter.startLearningCourseAgain(courseId)
+                        it.postDelayed({
+                            presenter.startLearningCourseAgain(courseId) //TODO not working properly
+                            dialog.dismiss()
+                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
                     }
                     rbFinishedCourseShowAllCards.id -> {
-                        startActivity(getStartPracticeActivityIntent()
-                                .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
-                                .putExtra(ConstantValues.SHOW_ALL_CARDS_KEY, true))
+                        it.postDelayed({
+                            startActivity(getStartPracticeActivityIntent()
+                                    .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+                                    .putExtra(ConstantValues.SHOW_ALL_CARDS_KEY, true))
+                            dialog.dismiss()
+                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
                     }
                     else -> {
                         notificationTools.showToastMessage("No actions chosen, please " +
                                 "choose action and press \"Do\"")
                     }
                 }
-                dialog.dismiss()
-                checkedRadioButtonId = -1
             }
             bNoCardsDialogBack.setOnClickListener {
-                dialog.dismiss()
-                checkedRadioButtonId = -1
+                it.postDelayed({
+                    dialog.dismiss()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
         }
         dialog.show()

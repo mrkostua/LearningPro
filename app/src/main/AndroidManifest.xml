@@ -41,7 +41,6 @@
 
         <activity
             android:name=".questionsCardPreview.QuestionsCardsPreviewActivity"
-            android:noHistory="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity

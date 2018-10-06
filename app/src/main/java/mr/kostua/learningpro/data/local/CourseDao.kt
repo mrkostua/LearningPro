@@ -34,4 +34,7 @@ interface CourseDao {
     @Query("SELECT * FROM courses WHERE id = :courseId")
     fun getCourse(courseId: Int): CourseDo
 
+    @Query("UPDATE courses SET questionsAmount = questionsAmount - :decreaseValue WHERE id = :courseId")
+    fun decreaseQuestionsAmountBy(courseId: Int, decreaseValue: Int): Int
+
 }

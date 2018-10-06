@@ -21,6 +21,7 @@ interface QuestionCardsPreviewContract {
         fun deleteQuestion(questionDo: QuestionDo, courseId: Int)
         fun setCourseReviewedTrue(courseId: Int)
         fun disposeAll()
+        fun setQuestionAmount(courseId: Int, decreaseBy: Int)
     }
 
 }

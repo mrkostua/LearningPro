@@ -94,7 +94,7 @@ class NotificationTools @Inject constructor(private val context: Context) {
                 .setPositiveButton(activity.getString(R.string.customDialogPositiveButtonText), buttonsClickListener)
                 .setNegativeButton(activity.getString(R.string.customDialogNegativeButtonText), buttonsClickListener)
                 .create()
-        dialog.setSlideWindoAnimation()
+        dialog.setSlideWindowAnimation()
         dialog.show()
     }
 

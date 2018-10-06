@@ -1,10 +1,12 @@
 package mr.kostua.learningpro.practiceCards
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
+import com.plattysoft.leonids.ParticleSystem
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_practice_cards.*
@@ -13,6 +15,8 @@ import mr.kostua.learningpro.data.local.QuestionDo
 import mr.kostua.learningpro.main.BaseDaggerActivity
 import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.NotificationTools
+import mr.kostua.learningpro.tools.ShowLogs
+import mr.kostua.learningpro.tools.showFireWorkAnimation
 import javax.inject.Inject
 
 class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
@@ -25,14 +29,40 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private lateinit var cardsRecycleViewAdapter: PracticeCardsRecycleViewAdapter
     private val cardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
-    private var editedCourseItemId = -1
-    private fun isStartedAfterEditing() = editedCourseItemId != -1
     private var doneQuestionsAmount = 0
     private var isShowAllCards = false
+
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, R.layout.activity_practice_cards)
+        ShowLogs.log(TAG, "onCreate()")
         initializeViews()
+    }
+
+    override fun onNewIntent(intent: Intent) {//calls when started with FLAG_ACTIVITY_REORDER_TO_FRONT (no onCreate called)
+        super.onNewIntent(intent)
+        ShowLogs.log(TAG, "onNewIntent with : courseId$courseId, isShowAllCards$isShowAllCards")
+        intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
+            if (it != -1) {
+                scrollToPostion(it)
+            }
+        }
+        intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
+            if (it != -1) {
+                cardsRecycleViewAdapter.data.forEachIndexed { index, questionDo ->
+                    if (questionDo.id == it) {
+                        rvPracticeCards.adapter.notifyItemRemoved(index)
+                        rvPracticeCards.adapter.notifyItemRangeChanged(index, rvPracticeCards.adapter.itemCount)
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ShowLogs.log(TAG, "onResume with : courseId$courseId, isShowAllCards$isShowAllCards")
+
     }
 
     override fun onDestroy() {
@@ -43,21 +73,21 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
 
     override fun onPause() {
         super.onPause()
+        setDoneQuestionsAmount()
+
+    }
+
+    private fun setDoneQuestionsAmount() {
         if (courseId != -1 && doneQuestionsAmount != 0) {
-            setDoneQuestionsAmount(courseId)
+            if (!isShowAllCards) {
+                presenter.increaseCourseDoneQuestionsAmountBy(courseId, doneQuestionsAmount)
+                doneQuestionsAmount = 0
+            }
         }
     }
 
-    private fun setDoneQuestionsAmount(courseId: Int) {
-        if (!isShowAllCards) {
-            presenter.increaseCourseDoneQuestionsAmountBy(courseId, doneQuestionsAmount)
-            doneQuestionsAmount = 0
-        }
-    }
-
-    private fun initializeViews() {
+    private fun initializeViews(intent: Intent = getIntent()) {
         courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-        editedCourseItemId = intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1)
         isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
         presenter.takeView(this)
         if (isShowAllCards) {
@@ -75,12 +105,16 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
                     presenter.updateQuestion(it)
                     doneQuestionsAmount++
                     if (isLastQuestionCard(data.size)) {
-                        setDoneQuestionsAmount(courseId)
-                        finish() //TODO some animation  some additional extra firework animation
+                        showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
+                        rvPracticeCards.postDelayed({
+                            setDoneQuestionsAmount()
+                            finish()
+                        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + 300L)
+                    } else {
+                        showFireWorkAnimation(rvPracticeCards, ConstantValues.CARD_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 50)
                     }
                 }, {
                     showToast("please try to \"mark as done\" this card again")
-                    //TODO make some dialog in the future like send a report about bug
                 }),
                 cardsRecycleViewAdapter.getViewsCountPublishSubject().subscribe({
                     presenter.updateViewCountOfCard(it)
@@ -98,14 +132,14 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
             }
             adapter = cardsRecycleViewAdapter
             PagerSnapHelper().attachToRecyclerView(this)
-            if (isStartedAfterEditing()) {
-                data.forEachIndexed { index, questionDo ->
-                    if (questionDo.id == editedCourseItemId) {
-                        rvPracticeCards.layoutManager.scrollToPosition(index)
-                    }
-                }
-            }
+        }
+    }
 
+    private fun scrollToPostion(cardId: Int) {
+        cardsRecycleViewAdapter.data.forEachIndexed { index, questionDo ->
+            if (questionDo.id == cardId) {
+                rvPracticeCards.layoutManager.scrollToPosition(index)
+            }
         }
     }
 

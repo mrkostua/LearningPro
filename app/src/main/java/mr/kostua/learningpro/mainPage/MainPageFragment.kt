@@ -75,10 +75,14 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     override fun onClick(v: View) {
         when (v.id) {
             R.id.bCreateNewCourse -> {
-                startActivityToChooseFile()
+                bCreateNewCourse.postDelayed({
+                    startActivityToChooseFile()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
             R.id.bOpenCurrentCourse -> {
-                presenter.startLastOpenedCourse()
+                bOpenCurrentCourse.postDelayed({
+                    presenter.startLastOpenedCourse()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
             R.id.bManageReminders -> {
             }
@@ -161,7 +165,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 clBackgroundLayout, false)
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
-        createCourseDialog.setSlideWindoAnimation()
+        createCourseDialog.setSlideWindowAnimation()
         with(customDialogView) {
             initializeCourseDataFromSP(this, data)
 
@@ -172,8 +176,11 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 startActivityToChooseFile()
             }
             bNewCourseBack.setOnClickListener {
-                createCourseDialog.dismiss()
-                saveCourseInSP(this, data)
+                bNewCourseBack.postDelayed({
+                    saveCourseInSP(this, data)
+                    createCourseDialog.dismiss()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
+
             }
             bNewCourseCreate.setOnClickListener {
                 when {
@@ -182,11 +189,12 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                     tvNewCourseDialogFileName.text == resources.getString(R.string.create_course_dialog_default_file_name) ->
                         notificationTools.showToastMessage("Please choose the file with questions before continuing")
                     else -> {
-                        presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
-                                description = etNewCourseDialogDescription.text.toString()))
-
                         setBlockCreateButton(true)
-                        createCourseDialog.dismiss()
+                        bNewCourseCreate.postDelayed({
+                            presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                                    description = etNewCourseDialogDescription.text.toString()))
+                            createCourseDialog.dismiss()
+                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
                     }
                 }
             }

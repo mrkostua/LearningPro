@@ -87,6 +87,20 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
         })
     }
 
+    override fun setQuestionAmount(courseId: Int, decreaseBy: Int) {
+        disposables.add(DBObserverHelper.decreaseCourseQuestionsAmountBy(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItems: Int) {
+                //TODO in future do some error handling (like in AllCoursesList (after restarting app) do some check of db (as calculating all questions with given courseID and comparing to course questionAmount)
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "setQuestionAmount no item deleted ")
+            }
+
+        }, courseId, decreaseBy))
+
+    }
+
     override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
         disposables.add(DBObserverHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
@@ -95,7 +109,6 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                 } else {
                     ShowLogs.log(TAG, "deleteQuestion no item deleted ")
                     view.showToast("please try again to delete this question")
-                    //TODO make some dialog in the future like send a report about bug
                 }
             }
 

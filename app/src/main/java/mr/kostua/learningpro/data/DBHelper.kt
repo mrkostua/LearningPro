@@ -49,6 +49,8 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun increaseDoneQuestionsAmountBy(courseId: Int, increaseValue: Int): Single<Int> = Single.fromCallable { db.coursesDao().increaseDoneQuestionsAmountBy(courseId, increaseValue) }
 
+    fun decreaseQuestionsAmount(courseId: Int, decreaseValue: Int): Single<Int> = Single.fromCallable { db.coursesDao().decreaseQuestionsAmountBy(courseId, decreaseValue) }
+
     fun setCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().updateDoneQuestionsAmount(courseId) }
 
     fun getCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().getCourseDoneQuestionsAmount(courseId) }
