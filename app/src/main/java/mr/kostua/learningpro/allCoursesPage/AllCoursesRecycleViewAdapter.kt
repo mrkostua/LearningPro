@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.allCoursesPage
 
+import android.annotation.SuppressLint
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -35,7 +36,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         holder.bind(data[position])
     }
 
-
+    @SuppressLint("CheckResult")
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val ivNotReviewedAlert: ImageView = view.findViewById(R.id.ivNotReviewedAlert)
         private val tvCourseTitle: TextView = view.findViewById(R.id.tvCourseTitle)
@@ -57,7 +58,7 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
         }
 
         fun bind(item: CourseDo) {
-            ShowLogs.log(TAG, "bind() courseName : ${item.title} - data.doneQuestionsAmount : ${item.doneQuestionsAmount} ")
+            ShowLogs.log(TAG, "bind() courseName : ${item.title} - questionsAmount ${item.questionsAmount} - doneQuestionsAmount : ${item.doneQuestionsAmount}")
             with(item) {
                 ivNotReviewedAlert.run {
                     if (item.reviewed) {

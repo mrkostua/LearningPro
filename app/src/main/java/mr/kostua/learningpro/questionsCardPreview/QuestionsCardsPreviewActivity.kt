@@ -54,9 +54,10 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun setQuestionsAmount() {
         if (courseId != -1 && deletedQuestionsAmount > 0) {
-            presenter.setQuestionAmount(courseId, deletedQuestionsAmount)
+            ShowLogs.log(TAG, "setQuestionsAmount : deleteQuestionsAmount $deletedQuestionsAmount")
+            presenter.decreaseQuestionsAmountBy(courseId, deletedQuestionsAmount)
+            deletedQuestionsAmount = 0
         }
-
     }
 
     override fun onDestroy() {

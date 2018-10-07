@@ -33,12 +33,13 @@ class AllCoursesPresenter @Inject constructor(private val db: DBHelper) : AllCou
                     override fun onComplete() {}
 
                     override fun onNext(coursesList: List<CourseDo>) {
-                        ShowLogs.log(TAG, "populateCourses")
                         view.setPBVisibility(false)
                         if (view.isCourseListInitialized()) {
+                            ShowLogs.log(TAG, "populateCourses onNext isCourseListInitialized true")
                             addNewListToMainCourses(coursesList)
                             view.updateCourseList()
                         } else {
+                            ShowLogs.log(TAG, "populateCourses onNext isCourseListInitialized false")
                             view.initializeRecycleView(addNewListToMainCourses(coursesList))
                         }
                     }
