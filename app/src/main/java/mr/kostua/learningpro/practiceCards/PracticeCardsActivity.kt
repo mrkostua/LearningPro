@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
-import com.plattysoft.leonids.ParticleSystem
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_practice_cards.*
@@ -21,6 +20,7 @@ import javax.inject.Inject
 
 class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private val TAG = this.javaClass.simpleName
+    private val DELETE_ITEM_ANIMATION_TIME = 500L
     @Inject
     public lateinit var notificationTools: NotificationTools
     @Inject
@@ -39,29 +39,51 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         initializeViews()
     }
 
-    override fun onNewIntent(intent: Intent) {//calls when started with FLAG_ACTIVITY_REORDER_TO_FRONT (no onCreate called)
+    /**
+     * calls when started with FLAG_ACTIVITY_REORDER_TO_FRONT (no onCreate called)
+     */
+    override fun onNewIntent(intent: Intent) {
+        ShowLogs.log(TAG, "onNewIntent")
         super.onNewIntent(intent)
-        ShowLogs.log(TAG, "onNewIntent with : courseId$courseId, isShowAllCards$isShowAllCards")
         intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
             if (it != -1) {
-                scrollToPostion(it)
+                scrollToPosition(it)
             }
         }
-        intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
+        intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1).let {
             if (it != -1) {
-                cardsRecycleViewAdapter.data.forEachIndexed { index, questionDo ->
-                    if (questionDo.id == it) {
-                        rvPracticeCards.adapter.notifyItemRemoved(index)
-                        rvPracticeCards.adapter.notifyItemRangeChanged(index, rvPracticeCards.adapter.itemCount)
+                for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
+                    ShowLogs.log(TAG, "onNewIntent data $index ${value.id}")
+                    if (value.id == it) {
+                        ShowLogs.log(TAG, "onNewIntent notifyItemRemoved $index")
+                        if (cardsRecycleViewAdapter.data.size == 1) {
+                            lastCardDeleted(index)
+                            return
+                        }
+                        cardsRecycleViewAdapter.data.removeAt(index)
+                        cardsRecycleViewAdapter.notifyDataSetChanged()
+                        break
                     }
                 }
+
             }
         }
     }
 
+    private fun lastCardDeleted(deletedItemPosition: Int) {
+        showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
+        rvPracticeCards.postDelayed({
+            cardsRecycleViewAdapter.notifyItemRemoved(deletedItemPosition)
+            rvPracticeCards.postDelayed({
+                finish()
+            }, DELETE_ITEM_ANIMATION_TIME)
+        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS)
+
+    }
+
     override fun onResume() {
         super.onResume()
-        ShowLogs.log(TAG, "onResume with : courseId$courseId, isShowAllCards$isShowAllCards")
+        ShowLogs.log(TAG, "onResume with : courseId$courseId")
 
     }
 
@@ -109,7 +131,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
                         rvPracticeCards.postDelayed({
                             setDoneQuestionsAmount()
                             finish()
-                        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + 300L)
+                        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + DELETE_ITEM_ANIMATION_TIME)
                     } else {
                         showFireWorkAnimation(rvPracticeCards, ConstantValues.CARD_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 50)
                     }
@@ -135,10 +157,12 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         }
     }
 
-    private fun scrollToPostion(cardId: Int) {
+    private fun scrollToPosition(cardId: Int) {
         cardsRecycleViewAdapter.data.forEachIndexed { index, questionDo ->
             if (questionDo.id == cardId) {
                 rvPracticeCards.layoutManager.scrollToPosition(index)
+                ShowLogs.log(TAG, "onNewIntent scrollToPosition($index)")
+
             }
         }
     }

@@ -100,7 +100,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
                     presenter.deleteQuestion(it, courseId)
                     deletedQuestionsAmount++
                     if (isLastQuestionCard(data.size)) {
-                        allCardsReviewedContinue()
+                        allCardsReviewedContinue(isDeleted = true)
                     }
                 }, {
                     showToast("please try to save this question card again")

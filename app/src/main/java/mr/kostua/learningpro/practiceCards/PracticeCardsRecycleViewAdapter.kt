@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-class PracticeCardsRecycleViewAdapter(public val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
+class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() { //TODO fix backStack and animation!
     private val TAG = this.javaClass.simpleName
     private val ibMarkAsDonePublishSubject = PublishSubject.create<QuestionDo>()
     fun getIBMarkAsDoneObservable(): Observable<QuestionDo> = ibMarkAsDonePublishSubject.hide()
@@ -49,8 +49,7 @@ class PracticeCardsRecycleViewAdapter(public val data: ArrayList<QuestionDo>, pr
     }
 
     @SuppressLint("CheckResult")
-    inner class ViewHolder(private val view: View) :
-            RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val clQuestionSide: ConstraintLayout = view.findViewById(R.id.iQuestionSideCard)
         private val tvCardQuestion: TextView = clQuestionSide.findViewById(R.id.tvCardQuestion)
         private val bFlipCardQuestionSide: Button = clQuestionSide.findViewById(R.id.bFlipCardQuestionSide)
@@ -115,6 +114,7 @@ class PracticeCardsRecycleViewAdapter(public val data: ArrayList<QuestionDo>, pr
         }
 
         fun bind(item: QuestionDo) {
+            ShowLogs.log(TAG, "bind item ${item.id} adapterPos $adapterPosition")
             clAnswerSide.setBackgroundResource(R.drawable.practice_card_answer_bg)
             when {
                 flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE && item.id != flippedItemId -> {
@@ -164,7 +164,6 @@ class PracticeCardsRecycleViewAdapter(public val data: ArrayList<QuestionDo>, pr
 
     private fun isLastQuestionCard(dataSize: Int) = dataSize == 1
 
-
     private class PracticeCardsHandler(viewHolder: ViewHolder) : Handler() {
         private val wrViewHolder: WeakReference<ViewHolder> = WeakReference(viewHolder)
         override fun handleMessage(msg: Message?) {
@@ -181,5 +180,8 @@ class PracticeCardsRecycleViewAdapter(public val data: ArrayList<QuestionDo>, pr
 
             }
         }
+    }
+    fun nitifyLastItemDeleted(){
+
     }
 }

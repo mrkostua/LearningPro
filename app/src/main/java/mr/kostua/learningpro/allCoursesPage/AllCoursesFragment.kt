@@ -124,7 +124,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 when (checkedRadioButtonId) {
                     rbFinishedCoursePracticeAgain.id -> {
                         it.postDelayed({
-                            presenter.startLearningCourseAgain(courseId) //TODO not working properly
+                            presenter.startLearningCourseAgain(courseId)
                             dialog.dismiss()
                         }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
                     }
