@@ -45,27 +45,29 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     override fun onNewIntent(intent: Intent) {
         ShowLogs.log(TAG, "onNewIntent")
         super.onNewIntent(intent)
-        intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
-            if (it != -1) {
-                scrollToPosition(it)
-            }
-        }
-        intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1).let {
-            if (it != -1) {
-                for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
-                    ShowLogs.log(TAG, "onNewIntent data $index ${value.id}")
-                    if (value.id == it) {
-                        ShowLogs.log(TAG, "onNewIntent notifyItemRemoved $index")
-                        if (cardsRecycleViewAdapter.data.size == 1) {
-                            lastCardDeleted(index)
-                            return
-                        }
-                        cardsRecycleViewAdapter.data.removeAt(index)
-                        cardsRecycleViewAdapter.notifyDataSetChanged()
-                        break
-                    }
+        if (this::cardsRecycleViewAdapter.isInitialized) {
+            intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
+                if (it != -1) {
+                    scrollToPosition(it)
                 }
+            }
+            intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1).let {
+                if (it != -1) {
+                    for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
+                        ShowLogs.log(TAG, "onNewIntent data $index ${value.id}")
+                        if (value.id == it) {
+                            ShowLogs.log(TAG, "onNewIntent notifyItemRemoved $index")
+                            if (cardsRecycleViewAdapter.data.size == 1) {
+                                lastCardDeleted(index)
+                                return
+                            }
+                            cardsRecycleViewAdapter.data.removeAt(index)
+                            cardsRecycleViewAdapter.notifyDataSetChanged()
+                            break
+                        }
+                    }
 
+                }
             }
         }
     }
@@ -84,7 +86,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     override fun onResume() {
         super.onResume()
         ShowLogs.log(TAG, "onResume with : courseId$courseId")
-
+        //TODO here after onStop() we coming back and e.g. some card is still flipped and the user continue to study it (but the viewCounts are not changing at all) he is gonna be confused (not logic behaviour)
     }
 
     override fun onDestroy() {
@@ -96,7 +98,13 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     override fun onPause() {
         super.onPause()
         setDoneQuestionsAmount()
+    }
 
+    override fun onStop() {
+        super.onStop()
+        if (this::cardsRecycleViewAdapter.isInitialized) {
+            cardsRecycleViewAdapter.disableAllHandlerMessages()
+        }
     }
 
     private fun setDoneQuestionsAmount() {

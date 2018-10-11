@@ -27,15 +27,20 @@ import java.lang.ref.WeakReference
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() { //TODO fix backStack and animation!
+class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
     private val TAG = this.javaClass.simpleName
     private val ibMarkAsDonePublishSubject = PublishSubject.create<QuestionDo>()
     fun getIBMarkAsDoneObservable(): Observable<QuestionDo> = ibMarkAsDonePublishSubject.hide()
     private val viewsCountPublishSubject = PublishSubject.create<QuestionDo>()
     fun getViewsCountPublishSubject(): Observable<QuestionDo> = viewsCountPublishSubject.hide()
+    private lateinit var handler: PracticeCardsHandler
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.practice_card_row_item, parent, false))
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.practice_card_row_item, parent, false)).run {
+                handler = PracticeCardsHandler(this)
+                this
+            }
 
     override fun getItemCount() = data.size
 
@@ -43,9 +48,9 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
         holder.bind(data[position])
     }
 
-    override fun onViewDetachedFromWindow(holder: ViewHolder) {
-        super.onViewDetachedFromWindow(holder)
-        holder.disableAllHandlerMessages()
+    fun disableAllHandlerMessages() {
+        handler.removeMessages(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY)
+        ShowLogs.log(TAG, "disableAllHandlerMessages() ")
     }
 
     @SuppressLint("CheckResult")
@@ -64,14 +69,6 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
         private val flipViewPracticeCard: EasyFlipView = view.findViewById(R.id.flipViewPracticeCard)
         private var flippedItemId = -1
 
-        private val handler = PracticeCardsHandler(this)
-        val updateViewCountsKey = 0
-        fun disableAllHandlerMessages() {
-            handler.removeMessages(updateViewCountsKey) //TODO think about this
-            ShowLogs.log(TAG, "disableAllHandlerMessages() ")
-
-        }
-
         fun updateViewCounts(adapterPositionToUpdate: Int) {
             ShowLogs.log(TAG, "updateViewCounts() ")
             ++data[adapterPositionToUpdate].viewsCount
@@ -84,7 +81,6 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             val result = oldAdapterPosition == adapterPosition && flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE
             ShowLogs.log(TAG, "checkIfAnswerIsStillOpened : is : $oldAdapterPosition and result is :$result")
             return result
-
         }
 
         init {
@@ -92,7 +88,7 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             RxView.clicks(bFlipCardQuestionSide).subscribe {
                 flipView(1000)
                 flippedItemId = data[adapterPosition].id!!
-                handler.sendMessageDelayed(handler.obtainMessage(updateViewCountsKey, adapterPosition), ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)    //TODO test this solution Test it with logs
+                handler.sendMessageDelayed(handler.obtainMessage(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY, adapterPosition), ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)    //TODO test this solution Test it with logs
                 ShowLogs.log(TAG, "FlipCardSide : delay message send  : cardId :${data[adapterPosition].id!!}")
             }
 
@@ -170,7 +166,7 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             val viewHolder = wrViewHolder.get()
             if (viewHolder != null) {
                 when (msg?.what) {
-                    viewHolder.updateViewCountsKey -> {
+                    PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY -> {
                         if (msg.obj is Int && viewHolder.checkIfAnswerIsStillOpened(msg.obj as Int)) {
                             viewHolder.updateViewCounts(msg.obj as Int)
                             ShowLogs.log(this.javaClass.simpleName, "handleMessage :updateViewCounts() started : ")
@@ -181,7 +177,8 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             }
         }
     }
-    fun nitifyLastItemDeleted(){
 
+    companion object {
+        const val HANDLER_VIEW_COUNTS_KEY = 0
     }
 }
