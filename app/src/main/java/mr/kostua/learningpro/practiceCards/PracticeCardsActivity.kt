@@ -20,7 +20,6 @@ import javax.inject.Inject
 
 class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     private val TAG = this.javaClass.simpleName
-    private val DELETE_ITEM_ANIMATION_TIME = 500L
     @Inject
     public lateinit var notificationTools: NotificationTools
     @Inject
@@ -45,10 +44,21 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     override fun onNewIntent(intent: Intent) {
         ShowLogs.log(TAG, "onNewIntent")
         super.onNewIntent(intent)
+
+        intent.getBooleanExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, false).let {
+            if (it && courseId != -1) {
+                presenter.updateCardsData(courseId)
+            }
+        }
         if (this::cardsRecycleViewAdapter.isInitialized) {
             intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
                 if (it != -1) {
                     scrollToPosition(it)
+                    for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
+                        if (value.id == it) {
+                            cardsRecycleViewAdapter.sendDelayMessageViewCounts(index, ConstantValues.UPDATE_VIEW_COUNTS_SHORT_TIMER_MS)
+                        }
+                    }
                 }
             }
             intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1).let {
@@ -66,7 +76,6 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
                             break
                         }
                     }
-
                 }
             }
         }
@@ -86,7 +95,6 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     override fun onResume() {
         super.onResume()
         ShowLogs.log(TAG, "onResume with : courseId$courseId")
-        //TODO here after onStop() we coming back and e.g. some card is still flipped and the user continue to study it (but the viewCounts are not changing at all) he is gonna be confused (not logic behaviour)
     }
 
     override fun onDestroy() {
@@ -102,9 +110,8 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
 
     override fun onStop() {
         super.onStop()
-        if (this::cardsRecycleViewAdapter.isInitialized) {
-            cardsRecycleViewAdapter.disableAllHandlerMessages()
-        }
+        ShowLogs.log(TAG, "onStop")
+        disableCardViewCountsUpdater()
     }
 
     private fun setDoneQuestionsAmount() {
@@ -125,6 +132,14 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         } else {
             presenter.populateNotLearnedCards(courseId)
 
+        }
+    }
+
+    override fun updateAdapterCardsData(data: ArrayList<QuestionDo>) {
+        if (this::cardsRecycleViewAdapter.isInitialized) {
+            cardsRecycleViewAdapter.data.clear()
+            cardsRecycleViewAdapter.data.addAll(data)
+            cardsRecycleViewAdapter.notifyDataSetChanged()
         }
     }
 
@@ -185,7 +200,25 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         notificationTools.showToastMessage(text)
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        disableCardViewCountsUpdater()
+    }
+
     override fun goBack() {
+        ShowLogs.log(TAG, "goBack")
+        disableCardViewCountsUpdater()
         finish()
+    }
+
+    private fun disableCardViewCountsUpdater() {
+        if (this::cardsRecycleViewAdapter.isInitialized) {
+            cardsRecycleViewAdapter.disableAllHandlerMessages()
+            ShowLogs.log(TAG, "disableCardViewCountsUpdater() cardsRecycleViewAdapter initialized = true")
+        }
+    }
+
+    companion object {
+        private const val DELETE_ITEM_ANIMATION_TIME = 500L
     }
 }

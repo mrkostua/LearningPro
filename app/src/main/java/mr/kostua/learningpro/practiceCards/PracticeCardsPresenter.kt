@@ -12,7 +12,7 @@ import javax.inject.Inject
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-@ActivityScope
+@ActivityScope //TODO lifeDATA is much better!!! with ViewModel and Binding it is much MUCH better!
 class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : PracticeCardsContract.Presenter {
     private val TAG = this.javaClass.simpleName
     override lateinit var view: PracticeCardsContract.View
@@ -35,6 +35,24 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
 
             override fun onError(e: Throwable) { //TODO read how to handle errors in RxJava (best ways)
                 ShowLogs.log(TAG, "getNotAcceptedQuestions onError : ${e.message}")
+            }
+
+        }, courseId))
+    }
+
+    override fun updateCardsData(courseId: Int) {
+        disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+            override fun onSuccess(questions: List<QuestionDo>) {
+                if (questions.isNotEmpty()) {
+                    view.updateAdapterCardsData(questions as ArrayList)
+                } else {
+                    view.showToast("All cards from this course are learned.")
+                    view.goBack()
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "updateCardsData onError : ${e.message}")
             }
 
         }, courseId))

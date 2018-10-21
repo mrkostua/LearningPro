@@ -30,6 +30,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     private val questionCardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
     private var questionToEditId = -1
+    private lateinit var practiceCardsIntent: Intent
     private fun isStartedToEditOneItem() = questionToEditId != -1
     private var deletedQuestionsAmount = 0
 
@@ -68,6 +69,8 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun initializeViews() {
         courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
+        practiceCardsIntent = Intent(this, PracticeCardsActivity::class.java)
+        practiceCardsIntent.putExtra(ConstantValues.COURSE_ID_KEY, courseId)
         questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
         presenter.takeView(this)
         if (isStartedToEditOneItem()) {
@@ -93,6 +96,9 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
                 }),
                 questionsRecycleViewAdapter.getButtonSaveObservable().subscribe({
                     presenter.updateQuestion(it)
+                    if (data.size == 1 && isStartedToEditOneItem()) {
+                        practiceCardsIntent.putExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, true)
+                    }
                 }, {
                     showToast("please try to save this question card again")
                 }),
@@ -120,7 +126,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         }
     }
 
-    private fun allCardsReviewedContinue(isDeleted: Boolean = false) {
+    private fun allCardsReviewedContinue(isDeleted: Boolean = false) { //TODO maybe delete this postDelayed animation (read about performance is it harmful??)
         rvQuestionsPreview.postDelayed({
             setQuestionsAmount()
             questionsPreviewFinished(isDeleted)
@@ -132,19 +138,18 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
     private fun isLastQuestionCard(dataSize: Int) = dataSize == 0
 
     private fun questionsPreviewFinished(isDeleted: Boolean = false) {
-        startActivity(Intent(this, PracticeCardsActivity::class.java)
-                .putExtra(ConstantValues.COURSE_ID_KEY, courseId).apply {
-                    if (isStartedToEditOneItem()) {
-                        if (isDeleted) {
-                            putExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, questionToEditId)
-                        } else {
-                            putExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, questionToEditId)
-                        }
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    } else {
-                        presenter.setCourseReviewedTrue(courseId)
-                    }
-                })
+        startActivity(practiceCardsIntent.apply {
+            if (isStartedToEditOneItem()) {
+                if (isDeleted) {
+                    putExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, questionToEditId)
+                } else {
+                    putExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, questionToEditId)
+                }
+                addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            } else {
+                presenter.setCourseReviewedTrue(courseId)
+            }
+        })
     }
 
 

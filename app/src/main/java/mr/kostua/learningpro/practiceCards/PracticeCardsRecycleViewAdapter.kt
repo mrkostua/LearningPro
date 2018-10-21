@@ -49,8 +49,15 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
     }
 
     fun disableAllHandlerMessages() {
-        handler.removeMessages(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY)
-        ShowLogs.log(TAG, "disableAllHandlerMessages() ")
+        if (handler.hasMessages(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY)) {
+            handler.removeMessages(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY)
+            ShowLogs.log(TAG, "disableAllHandlerMessages() hasMessages true")
+        }
+    }
+
+    fun sendDelayMessageViewCounts(cardPosition: Int, timeMs: Long) {
+        ShowLogs.log(TAG,"sendDelayMessageViewCounts")
+        handler.sendMessageDelayed(handler.obtainMessage(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY, cardPosition), timeMs)
     }
 
     @SuppressLint("CheckResult")
@@ -70,16 +77,15 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
         private var flippedItemId = -1
 
         fun updateViewCounts(adapterPositionToUpdate: Int) {
-            ShowLogs.log(TAG, "updateViewCounts() ")
             ++data[adapterPositionToUpdate].viewsCount
-            ShowLogs.log(TAG, "updateViewCounts() ${data[adapterPositionToUpdate].viewsCount}")
+            ShowLogs.log(TAG, "updateViewCounts() viewCounts : ${data[adapterPositionToUpdate].viewsCount}")
             notifyItemChanged(adapterPositionToUpdate)
             viewsCountPublishSubject.onNext(data[adapterPositionToUpdate])
         }
 
         fun checkIfAnswerIsStillOpened(oldAdapterPosition: Int): Boolean {
             val result = oldAdapterPosition == adapterPosition && flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE
-            ShowLogs.log(TAG, "checkIfAnswerIsStillOpened : is : $oldAdapterPosition and result is :$result")
+            ShowLogs.log(TAG, "checkIfAnswerIsStillOpened : is : oldAdapter : $oldAdapterPosition adaPost $adapterPosition and flipState is :${flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE} and result is :$result ")
             return result
         }
 
@@ -88,12 +94,15 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             RxView.clicks(bFlipCardQuestionSide).subscribe {
                 flipView(1000)
                 flippedItemId = data[adapterPosition].id!!
-                handler.sendMessageDelayed(handler.obtainMessage(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY, adapterPosition), ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)    //TODO test this solution Test it with logs
-                ShowLogs.log(TAG, "FlipCardSide : delay message send  : cardId :${data[adapterPosition].id!!}")
+                disableAllHandlerMessages()
+                sendDelayMessageViewCounts(adapterPosition, ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)
+                ShowLogs.log(TAG, "bFlipCardQuestionSide : delay message send  : cardId :${data[adapterPosition].id!!} adapterPosition is :$adapterPosition")
             }
 
             tvCardAnswer.movementMethod = ScrollingMovementMethod()
             RxView.clicks(bFlipCardAnswerSide).subscribe {
+                disableAllHandlerMessages()
+                ShowLogs.log(TAG, "bFlipCardAnswerSide")
                 flippedItemId = -1
                 flipView(1000)
             }
@@ -169,7 +178,9 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
                     PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY -> {
                         if (msg.obj is Int && viewHolder.checkIfAnswerIsStillOpened(msg.obj as Int)) {
                             viewHolder.updateViewCounts(msg.obj as Int)
-                            ShowLogs.log(this.javaClass.simpleName, "handleMessage :updateViewCounts() started : ")
+                            ShowLogs.log(this.javaClass.simpleName, "handleMessage :handleMessage() TRUE ")
+                        } else {
+                            ShowLogs.log(this.javaClass.simpleName, "handleMessage :handleMessage() FALSE : ")
                         }
                     }
                 }
