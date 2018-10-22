@@ -142,5 +142,4 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         }
 
     }
-
 }

@@ -69,7 +69,7 @@ object DBObserverHelper {
                     .subscribeWith(observer)
 
     fun decreaseCourseQuestionsAmountBy(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int,
-                                            decreaseBy: Int): DisposableSingleObserver<Int> =
+                                        decreaseBy: Int): DisposableSingleObserver<Int> =
             db.decreaseQuestionsAmount(courseId, decreaseBy)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -77,13 +77,6 @@ object DBObserverHelper {
 
     fun setCourseDoneQuestionsAmount(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int): DisposableSingleObserver<Int> =
             db.setCourseDoneQuestionsAmount(courseId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeWith(observer)
-
-
-    fun getCourseDoneQuestionsAmount(db: DBHelper, observer: DisposableSingleObserver<Int>, courseId: Int): DisposableSingleObserver<Int> =
-            db.getCourseDoneQuestionsAmount(courseId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeWith(observer)
