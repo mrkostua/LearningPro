@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_questions_card_preview.*
 import mr.kostua.learningpro.R
@@ -21,44 +22,40 @@ import javax.inject.Inject
 @ActivityScope
 class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreviewContract.View {
     private val TAG = this.javaClass.simpleName
+    private val questionCardsCompositeDisposables = CompositeDisposable()
     @Inject
     public lateinit var notificationTools: NotificationTools
     @Inject
     public lateinit var presenter: QuestionCardsPreviewContract.Presenter
 
     private lateinit var questionsRecycleViewAdapter: QuestionCardsPreviewRecycleViewAdapter
-    private val questionCardsCompositeDisposables = CompositeDisposable()
+    private lateinit var practiceCardsIntent: Intent
     private var courseId = -1
     private var questionToEditId = -1
-    private lateinit var practiceCardsIntent: Intent
-    private fun isStartedToEditOneItem() = questionToEditId != -1
     private var deletedQuestionsAmount = 0
-
+    private fun isStartedToEditOneItem() = questionToEditId != -1
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, R.layout.activity_questions_card_preview)
-        notificationTools.cancelNotification(ConstantValues.SAVED_COURSE_NOTIFICATION_ID)
+        if (intent.getBooleanExtra(ConstantValues.COURSE_STARTED_FROM_SERVICE, false)) {
+            notificationTools.cancelNotification(ConstantValues.SAVED_COURSE_NOTIFICATION_ID)
+        }
         initializeViews()
     }
 
     private fun initializeViews() {
         presenter.takeView(this)
-        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-        practiceCardsIntent = Intent(this, PracticeCardsActivity::class.java).apply {
-            putExtra(ConstantValues.COURSE_ID_KEY, courseId)
-        }
-        questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
         if (isStartedToEditOneItem()) {
             presenter.populateQuestionToEdit(questionToEditId)
         } else {
             presenter.populateNotAcceptedQuestions(courseId)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        ShowLogs.log(TAG, "onResume with : courseId$courseId, questionToEditId$questionToEditId")
+        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
+        practiceCardsIntent = Intent(this, PracticeCardsActivity::class.java).apply {
+            putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+        }
+        questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
     }
 
     override fun onPause() {
@@ -72,36 +69,31 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         questionCardsCompositeDisposables.clear()
     }
 
+    override fun acceptQuestion(question: QuestionDo) {
+        if (isLastQuestionCard(presenter.getDataSize())) {
+            allCardsReviewedContinue()
+        }
+    }
+
+    override fun saveQuestion(question: QuestionDo) {
+        if (presenter.getDataSize() == 1 && isStartedToEditOneItem()) { //TODO refactoring data.size ==1 ???
+            practiceCardsIntent.putExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, true)
+        }
+    }
+
+    override fun deleteQuestion(question: QuestionDo) {
+        deletedQuestionsAmount++
+        if (isLastQuestionCard(presenter.getDataSize())) {
+            allCardsReviewedContinue(isDeleted = true)
+        }
+    }
     @SuppressLint("SetTextI18n")
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
-        questionCardsCompositeDisposables.addAll(
-                questionsRecycleViewAdapter.getButtonAcceptObservable().subscribe({ onNext ->
-                    presenter.acceptQuestion(onNext)
-                    if (isLastQuestionCard(data.size)) {
-                        allCardsReviewedContinue()
-                    }
-                }, {
-                    showToast("please try to accept this question card again")
-                    ShowLogs.log(TAG, "initializeRecycleView() acceptObservable error : ${it.message}")
-                }),
-                questionsRecycleViewAdapter.getButtonSaveObservable().subscribe({ onNext ->
-                    presenter.updateQuestion(onNext)
-                    if (data.size == 1 && isStartedToEditOneItem()) {
-                        practiceCardsIntent.putExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, true)
-                    }
-                }, {
-                    showToast("please try to save this question card again")
-                }),
-                questionsRecycleViewAdapter.getButtonDeleteObservable().subscribe({ onNext ->
-                    presenter.deleteQuestion(onNext, courseId)
-                    deletedQuestionsAmount++
-                    if (isLastQuestionCard(data.size)) {
-                        allCardsReviewedContinue(isDeleted = true)
-                    }
-                }, {
-                    showToast("please try to save this question card again")
-                }))
+        presenter.subscribeToButtonAcceptClick(questionsRecycleViewAdapter.getButtonAcceptObservable())
+        presenter.subscribeToButtonSaveClick(questionsRecycleViewAdapter.getButtonSaveObservable())
+        presenter.subscribeToButtonDeleteClick(questionsRecycleViewAdapter.getButtonDeleteObservable())
+
         rvQuestionsPreview.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(this@QuestionsCardsPreviewActivity,
@@ -137,14 +129,14 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
 
     private fun questionsPreviewFinished(isDeleted: Boolean = false) {
         if (isStartedToEditOneItem()) {
-            setIntentStartedToEdit(isDeleted)
+            setPracticeCardsIntent(isDeleted)
         } else {
             presenter.setCourseReviewedTrue(courseId)
         }
         startActivity(practiceCardsIntent)
     }
 
-    private fun setIntentStartedToEdit(isDeleted: Boolean) {
+    private fun setPracticeCardsIntent(isDeleted: Boolean) {
         practiceCardsIntent.apply {
             if (isDeleted) {
                 putExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, questionToEditId)
@@ -154,7 +146,7 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
             addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         }
     }
-    
+
     override fun showToast(text: String) {
         notificationTools.showToastMessage(text)
     }

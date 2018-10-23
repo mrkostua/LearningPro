@@ -27,7 +27,6 @@ class NotificationTools @Inject constructor(private val context: Context) {
         }
     }
 
-    //TODO some new updates about displaying icons on notif, read and make them visible (old and new APIs)
     fun createNewCourseNotification(courseTitle: String): NotificationCompat.Builder = NotificationCompat.Builder(context, ConstantValues.NOTIFICATION_CHANNEL_ID)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)

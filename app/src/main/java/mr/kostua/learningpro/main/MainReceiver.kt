@@ -7,7 +7,6 @@ import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 import mr.kostua.learningpro.tools.ConstantValues
 
 class MainReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ConstantValues.ACTION_CONTINUE_COURSE_CREATION -> {
@@ -16,14 +15,14 @@ class MainReceiver : BroadcastReceiver() {
                     startQuestionsCardPreviewActivity(context, courseId)
                 }
             }
-
         }
-
     }
 
     private fun startQuestionsCardPreviewActivity(context: Context, courseId: Int) {
-        context.startActivity(Intent(context, QuestionsCardsPreviewActivity::class.java)
-                .putExtra(ConstantValues.COURSE_ID_KEY, courseId))
-    }
+        context.startActivity(Intent(context, QuestionsCardsPreviewActivity::class.java).apply {
+            putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+            putExtra(ConstantValues.COURSE_STARTED_FROM_SERVICE, true)
+        })
 
+    }
 }

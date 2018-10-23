@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.questionsCardPreview
 
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -23,11 +24,14 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     override fun takeView(view: QuestionCardsPreviewContract.View) {
         this.view = view
     }
+    private lateinit var data : ArrayList<QuestionDo>
 
+    override fun getDataSize() = data.size
     override fun populateNotAcceptedQuestions(courseId: Int) {
         disposables.add(DBObserverHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
-                view.initializeRecycleView(list as ArrayList)
+                data = list as ArrayList
+                view.initializeRecycleView(data)
             }
 
             override fun onError(e: Throwable) {
@@ -87,8 +91,7 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
         disposables.add(DBObserverHelper.decreaseCourseQuestionsAmountBy(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
                 ShowLogs.log(TAG, "decreaseQuestionsAmountBy onSuccess updatedItems :$updatedItems")
-                //TODO in future do some error handling (like in AllCoursesList (after restarting app) do some check of db (as calculating all questions with given courseID and comparing to course questionAmount)
-                //TODO OR just send some bug report to developer (info will be logged) READ about logging bugs on production
+                //TODO in future (like in AllCoursesList (after restarting app) do some check of db (as calculating all questions with given courseID and comparing to course questionAmount)
             }
 
             override fun onError(e: Throwable) {
@@ -127,6 +130,34 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                         ShowLogs.log(TAG, "deleteQuestion2 error ${e.message} ")
                     }
                 }))
+    }
+
+    override fun subscribeToButtonAcceptClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            acceptQuestion(onNext)
+            view.acceptQuestion(onNext)
+        }, {
+            view.showToast("please try to accept this question card again")
+            ShowLogs.log(TAG, "initializeRecycleView() acceptObservable error : ${it.message}")
+        }))
+    }
+
+    override fun subscribeToButtonDeleteClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            deleteQuestion(onNext, onNext.courseId)
+            view.deleteQuestion(onNext)
+        }, {
+            view.showToast("please try to save this question card again")
+        }))
+    }
+
+    override fun subscribeToButtonSaveClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            updateQuestion(onNext)
+            view.saveQuestion(onNext)
+        }, {
+            view.showToast("please try to save this question card again")
+        }))
     }
 
     override fun disposeAll() {
