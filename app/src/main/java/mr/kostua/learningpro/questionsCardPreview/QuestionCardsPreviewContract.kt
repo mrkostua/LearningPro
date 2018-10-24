@@ -13,24 +13,21 @@ interface QuestionCardsPreviewContract {
     interface View : BaseView {
         fun initializeRecycleView(data: ArrayList<QuestionDo>)
         fun showToast(text: String)
-        fun acceptQuestion(question : QuestionDo)
-        fun deleteQuestion(question: QuestionDo)
-        fun saveQuestion (question: QuestionDo)
+        fun acceptQuestion(question: QuestionDo, isLastCard: Boolean)
+        fun deleteQuestion(question: QuestionDo, isLastCard: Boolean)
+        fun saveQuestion(question: QuestionDo, isLastEditedCard: Boolean)
     }
 
     interface Presenter : BasePresenter<View> {
         fun populateNotAcceptedQuestions(courseId: Int)
         fun populateQuestionToEdit(questionToEditId: Int)
-        fun acceptQuestion(questionDo: QuestionDo)
-        fun updateQuestion(questionDo: QuestionDo)
-        fun deleteQuestion(questionDo: QuestionDo, courseId: Int)
         fun setCourseReviewedTrue(courseId: Int)
         fun disposeAll()
-        fun getDataSize() : Int
         fun decreaseQuestionsAmountBy(courseId: Int, decreaseBy: Int)
         fun subscribeToButtonAcceptClick(observable: Observable<QuestionDo>)
         fun subscribeToButtonDeleteClick(observable: Observable<QuestionDo>)
         fun subscribeToButtonSaveClick(observable: Observable<QuestionDo>)
+
     }
 
 }

@@ -20,13 +20,18 @@ import javax.inject.Inject
 class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper) : QuestionCardsPreviewContract.Presenter {
     private val TAG = this.javaClass.simpleName
     private val disposables = CompositeDisposable()
+    override fun disposeAll() {
+        disposables.clear()
+    }
     override lateinit var view: QuestionCardsPreviewContract.View
     override fun takeView(view: QuestionCardsPreviewContract.View) {
         this.view = view
     }
-    private lateinit var data : ArrayList<QuestionDo>
 
-    override fun getDataSize() = data.size
+    private lateinit var data: ArrayList<QuestionDo>
+    private fun isLastCard() = data.size == 0
+    private fun isLastEditedCard() = data.size == 1
+
     override fun populateNotAcceptedQuestions(courseId: Int) {
         disposables.add(DBObserverHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
@@ -37,7 +42,6 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
             override fun onError(e: Throwable) {
                 ShowLogs.log(TAG, "getNotAcceptedQuestions onError : ${e.message}")
             }
-
         }, courseId))
     }
 
@@ -53,38 +57,32 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
         }, questionToEditId))
     }
 
-    override fun acceptQuestion(questionDo: QuestionDo) {
-        updateQuestionDo(questionDo, object : DisposableSingleObserver<Int>() {
-            override fun onSuccess(updatedItems: Int) {
-                if (updatedItems == 1) {
-                    ShowLogs.log(TAG, "acceptQuestion item accepted successfully ")
-                    view.showToast("accepted successfully")
-                } else {
-                    ShowLogs.log(TAG, "acceptQuestion no item accepted ")
-                }
-            }
-
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "acceptQuestion error ${e.message} ")
-            }
-        })
+    override fun subscribeToButtonAcceptClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            acceptQuestion(onNext)
+            view.acceptQuestion(onNext, isLastCard())
+        }, {
+            view.showToast("please try to accept this question card again")
+            ShowLogs.log(TAG, "initializeRecycleView() acceptObservable error : ${it.message}")
+        }))
     }
 
-    override fun updateQuestion(questionDo: QuestionDo) {
-        updateQuestionDo(questionDo, object : DisposableSingleObserver<Int>() {
-            override fun onSuccess(updatedItems: Int) {
-                if (updatedItems == 1) {
-                    ShowLogs.log(TAG, "updateQuestion item updated successfully ")
-                    view.showToast("updated successfully")
-                } else {
-                    ShowLogs.log(TAG, "updateQuestion no item updated ")
-                }
-            }
+    override fun subscribeToButtonDeleteClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            deleteQuestion(onNext)
+            view.deleteQuestion(onNext, isLastCard())
+        }, {
+            view.showToast("please try to save this question card again")
+        }))
+    }
 
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "updateQuestion error ${e.message} ")
-            }
-        })
+    override fun subscribeToButtonSaveClick(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({ onNext ->
+            updateQuestion(onNext)
+            view.saveQuestion(onNext, isLastEditedCard())
+        }, {
+            view.showToast("please try to save this question card again")
+        }))
     }
 
     override fun decreaseQuestionsAmountBy(courseId: Int, decreaseBy: Int) {
@@ -99,20 +97,6 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
             }
         }, courseId, decreaseBy))
 
-    }
-
-    override fun deleteQuestion(questionDo: QuestionDo, courseId: Int) {
-        disposables.add(DBObserverHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
-            override fun onSuccess(updatedItems: Int) {
-                if (updatedItems != 1) {
-                    ShowLogs.log(TAG, "deleteQuestion no item deleted ")
-                }
-            }
-
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "deleteQuestion error ${e.message} ")
-            }
-        }, questionDo))
     }
 
     override fun setCourseReviewedTrue(courseId: Int) {
@@ -132,36 +116,52 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
                 }))
     }
 
-    override fun subscribeToButtonAcceptClick(observable: Observable<QuestionDo>) {
-        disposables.add(observable.subscribe({ onNext ->
-            acceptQuestion(onNext)
-            view.acceptQuestion(onNext)
-        }, {
-            view.showToast("please try to accept this question card again")
-            ShowLogs.log(TAG, "initializeRecycleView() acceptObservable error : ${it.message}")
-        }))
+    private fun acceptQuestion(questionDo: QuestionDo) {
+        updateQuestionDo(questionDo, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItems: Int) {
+                if (updatedItems == 1) {
+                    ShowLogs.log(TAG, "acceptQuestion item accepted successfully ")
+                    view.showToast("accepted successfully")
+                } else {
+                    ShowLogs.log(TAG, "acceptQuestion no item accepted ")
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "acceptQuestion error ${e.message} ")
+            }
+        })
     }
 
-    override fun subscribeToButtonDeleteClick(observable: Observable<QuestionDo>) {
-        disposables.add(observable.subscribe({ onNext ->
-            deleteQuestion(onNext, onNext.courseId)
-            view.deleteQuestion(onNext)
-        }, {
-            view.showToast("please try to save this question card again")
-        }))
+    private fun updateQuestion(questionDo: QuestionDo) {
+        updateQuestionDo(questionDo, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItems: Int) {
+                if (updatedItems == 1) {
+                    ShowLogs.log(TAG, "updateQuestion item updated successfully ")
+                    view.showToast("updated successfully")
+                } else {
+                    ShowLogs.log(TAG, "updateQuestion no item updated ")
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "updateQuestion error ${e.message} ")
+            }
+        })
     }
 
-    override fun subscribeToButtonSaveClick(observable: Observable<QuestionDo>) {
-        disposables.add(observable.subscribe({ onNext ->
-            updateQuestion(onNext)
-            view.saveQuestion(onNext)
-        }, {
-            view.showToast("please try to save this question card again")
-        }))
-    }
+    private fun deleteQuestion(questionDo: QuestionDo) {
+        disposables.add(DBObserverHelper.deleteQuestion(db, object : DisposableSingleObserver<Int>() {
+            override fun onSuccess(updatedItems: Int) {
+                if (updatedItems != 1) {
+                    ShowLogs.log(TAG, "deleteQuestion no item deleted ")
+                }
+            }
 
-    override fun disposeAll() {
-        disposables.clear()
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "deleteQuestion error ${e.message} ")
+            }
+        }, questionDo))
     }
 
     private fun updateQuestionDo(questionDo: QuestionDo, observer: DisposableSingleObserver<Int>) {

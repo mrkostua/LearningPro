@@ -7,7 +7,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_questions_card_preview.*
 import mr.kostua.learningpro.R
@@ -41,6 +40,12 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         if (intent.getBooleanExtra(ConstantValues.COURSE_STARTED_FROM_SERVICE, false)) {
             notificationTools.cancelNotification(ConstantValues.SAVED_COURSE_NOTIFICATION_ID)
         }
+        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
+        practiceCardsIntent = Intent(this, PracticeCardsActivity::class.java).apply {
+            putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+        }
+        questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
+
         initializeViews()
     }
 
@@ -51,11 +56,6 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         } else {
             presenter.populateNotAcceptedQuestions(courseId)
         }
-        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-        practiceCardsIntent = Intent(this, PracticeCardsActivity::class.java).apply {
-            putExtra(ConstantValues.COURSE_ID_KEY, courseId)
-        }
-        questionToEditId = intent.getIntExtra(ConstantValues.QUESTION_ID_KEY, -1)
     }
 
     override fun onPause() {
@@ -69,24 +69,6 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         questionCardsCompositeDisposables.clear()
     }
 
-    override fun acceptQuestion(question: QuestionDo) {
-        if (isLastQuestionCard(presenter.getDataSize())) {
-            allCardsReviewedContinue()
-        }
-    }
-
-    override fun saveQuestion(question: QuestionDo) {
-        if (presenter.getDataSize() == 1 && isStartedToEditOneItem()) { //TODO refactoring data.size ==1 ???
-            practiceCardsIntent.putExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, true)
-        }
-    }
-
-    override fun deleteQuestion(question: QuestionDo) {
-        deletedQuestionsAmount++
-        if (isLastQuestionCard(presenter.getDataSize())) {
-            allCardsReviewedContinue(isDeleted = true)
-        }
-    }
     @SuppressLint("SetTextI18n")
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         questionsRecycleViewAdapter = QuestionCardsPreviewRecycleViewAdapter(data, this)
@@ -109,6 +91,25 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
         pbQuestionsPreview.visibility = View.GONE
     }
 
+    override fun acceptQuestion(question: QuestionDo, isLastCard: Boolean) {
+        if (isLastCard) {
+            allCardsReviewedContinue()
+        }
+    }
+
+    override fun saveQuestion(question: QuestionDo, isLastEditedCard: Boolean) {
+        if (isLastEditedCard && isStartedToEditOneItem()) {
+            practiceCardsIntent.putExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, true)
+        }
+    }
+
+    override fun deleteQuestion(question: QuestionDo, isLastCard: Boolean) {
+        deletedQuestionsAmount++
+        if (isLastCard) {
+            allCardsReviewedContinue(isDeleted = true)
+        }
+    }
+
     //TODO maybe delete this postDelayed animation (read about performance is it harmful??)
     private fun allCardsReviewedContinue(isDeleted: Boolean = false) {
         rvQuestionsPreview.postDelayed({
@@ -124,8 +125,6 @@ class QuestionsCardsPreviewActivity : BaseDaggerActivity(), QuestionCardsPreview
             deletedQuestionsAmount = 0
         }
     }
-
-    private fun isLastQuestionCard(dataSize: Int) = dataSize == 0
 
     private fun questionsPreviewFinished(isDeleted: Boolean = false) {
         if (isStartedToEditOneItem()) {
