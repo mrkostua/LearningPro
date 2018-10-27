@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.practiceCards
 
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import mr.kostua.learningpro.data.DBHelper
@@ -12,7 +13,7 @@ import javax.inject.Inject
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-@ActivityScope
+@ActivityScope //TODO try to do this class ISSUE #25
 class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : PracticeCardsContract.Presenter {
     private val TAG = this.javaClass.simpleName
     override lateinit var view: PracticeCardsContract.View
@@ -21,6 +22,51 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     }
 
     private val disposables = CompositeDisposable()
+    private val data = ArrayList<QuestionDo>()
+    private fun isLastCard() = data.size == 1
+
+    override fun getCardPositionInList(cardId: Int): Int {
+        data.forEachIndexed { index, questionDo ->
+            if (questionDo.id == cardId) {
+                return index
+            }
+        }
+        return -1
+    }
+
+    override fun handleItemDeletedIntent(deletedCardId: Int) {
+        getCardPositionInList(deletedCardId).let {
+            if (it != -1) {
+                if (isLastCard()) {
+                    view.lastCardDeleted(it)
+                } else {
+                    data.removeAt(it)
+                    view.notifyDataSetChangedAdapter()
+                }
+            }
+        }
+    }
+
+    override fun handleItemEditedIntent(courseId: Int) {
+        updateCardsData(courseId)
+    }
+
+    override fun subscribeToMarkAsDoneButton(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({
+            updateQuestion(it)
+            view.markAsDone(isLastCard())
+        }, {
+            view.showToast("please try to \"mark as done\" this card again")
+        }))
+    }
+
+    override fun subscribeToViewCounts(observable: Observable<QuestionDo>) {
+        disposables.add(observable.subscribe({
+            updateViewCountOfCard(it)
+        }, {
+            ShowLogs.log(TAG, "subscribeToViewCounts error : ${it.message}")
+        }))
+    }
 
     override fun populateNotLearnedCards(courseId: Int) {
         disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
@@ -40,34 +86,17 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         }, courseId))
     }
 
-    override fun updateCardsData(courseId: Int) {
-        disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
-            override fun onSuccess(questions: List<QuestionDo>) {
-                if (questions.isNotEmpty()) {
-                    view.updateAdapterCardsData(questions as ArrayList)
-                } else {
-                    view.showToast("All cards from this course are learned.")
-                    view.goBack()
-                }
-            }
-
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "updateCardsData onError : ${e.message}")
-            }
-
-        }, courseId))
-    }
-
     override fun populateAllCards(courseId: Int) {
         disposables.add(DBObserverHelper.getQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
-                view.initializeRecycleView(list as ArrayList)
+                data.clear()
+                data.addAll(list)
+                view.initializeRecycleView(data)
             }
 
             override fun onError(e: Throwable) {
                 ShowLogs.log(TAG, "populateAllCards onError : ${e.message}")
             }
-
         }, courseId))
     }
 
@@ -78,7 +107,6 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
                     ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy updated successfully")
                 } else {
                     ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy no item updated")
-
                 }
             }
 
@@ -86,7 +114,6 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
                 ShowLogs.log(TAG, "increaseCourseDoneQuestionsAmountBy onError : ${e.message}")
 
             }
-
         }, courseId, doneQuestionsAmount))
     }
 
@@ -107,22 +134,6 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         }, questionDo))
     }
 
-/*    override fun initializeDoneQuestionsAmount(courseId: Int) {
-        disposables.add(CourseDBUsingHelper.getCourseDoneQuestionsAmount(db, object : DisposableSingleObserver<Int>() {
-            override fun onSuccess(doneQuestionsAmount: Int) {
-                if (doneQuestionsAmount != -1) {
-                    view.setDoneQuestionsAmount(doneQuestionsAmount)
-                }
-            }
-
-            override fun onError(e: Throwable) {
-                ShowLogs.log(TAG, "initializeDoneQuestionsAmount error : ${e.message}")
-            }
-
-        }, courseId))
-
-    }*/
-
     override fun updateViewCountOfCard(questionDo: QuestionDo) {
         disposables.add(DBObserverHelper.updateQuestion(db, object : DisposableSingleObserver<Int>() {
             override fun onSuccess(updatedItems: Int) {
@@ -133,13 +144,30 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
 
             override fun onError(e: Throwable) {
                 ShowLogs.log(TAG, "updateViewCountOfCard error : ${e.message}")
-
             }
-
         }, questionDo))
     }
 
     override fun disposeAll() {
         disposables.clear()
+    }
+
+    private fun updateCardsData(courseId: Int) {
+        disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
+            override fun onSuccess(questions: List<QuestionDo>) {
+                if (questions.isNotEmpty()) {
+                    data.clear()
+                    data.addAll(questions)
+                    view.notifyDataSetChangedAdapter()
+                } else {
+                    view.showToast("All cards from this course are learned.")
+                    view.goBack()
+                }
+            }
+
+            override fun onError(e: Throwable) {
+                ShowLogs.log(TAG, "updateCardsData onError : ${e.message}")
+            }
+        }, courseId))
     }
 }

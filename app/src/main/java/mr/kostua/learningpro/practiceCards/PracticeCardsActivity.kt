@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.PagerSnapHelper
 import android.view.View
-import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator
 import kotlinx.android.synthetic.main.activity_practice_cards.*
 import mr.kostua.learningpro.R
@@ -26,7 +25,6 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     public lateinit var presenter: PracticeCardsContract.Presenter
 
     private lateinit var cardsRecycleViewAdapter: PracticeCardsRecycleViewAdapter
-    private val cardsCompositeDisposables = CompositeDisposable()
     private var courseId = -1
     private var doneQuestionsAmount = 0
     private var isShowAllCards = false
@@ -42,65 +40,22 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
      * calls when started with FLAG_ACTIVITY_REORDER_TO_FRONT (no onCreate called)
      */
     override fun onNewIntent(intent: Intent) {
-        ShowLogs.log(TAG, "onNewIntent")
         super.onNewIntent(intent)
-
-        intent.getBooleanExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, false).let {
-            if (it && courseId != -1) {
-                presenter.updateCardsData(courseId)
+        with(intent.getBooleanExtra(ConstantValues.COURSE_ITEM_EDITED_KEY, false)) {
+            if (this && courseId != -1) {
+                presenter.handleItemEditedIntent(courseId)
             }
         }
-        if (this::cardsRecycleViewAdapter.isInitialized) {
-            intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1).let {
-                if (it != -1) {
-                    scrollToPosition(it)
-                    for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
-                        if (value.id == it) {
-                            cardsRecycleViewAdapter.sendDelayMessageViewCounts(index, ConstantValues.UPDATE_VIEW_COUNTS_SHORT_TIMER_MS)
-                        }
-                    }
-                }
-            }
-            intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1).let {
-                if (it != -1) {
-                    for ((index, value) in cardsRecycleViewAdapter.data.withIndex()) {
-                        ShowLogs.log(TAG, "onNewIntent data $index ${value.id}")
-                        if (value.id == it) {
-                            ShowLogs.log(TAG, "onNewIntent notifyItemRemoved $index")
-                            if (cardsRecycleViewAdapter.data.size == 1) {
-                                lastCardDeleted(index)
-                                return
-                            }
-                            cardsRecycleViewAdapter.data.removeAt(index)
-                            cardsRecycleViewAdapter.notifyDataSetChanged()
-                            break
-                        }
-                    }
-                }
+        with(intent.getIntExtra(ConstantValues.COURSE_ITEM_ID_TO_FOCUS_KEY, -1)) {
+            if (this != -1) {
+                focusOnCardWithId(this)
             }
         }
-    }
-
-    private fun lastCardDeleted(deletedItemPosition: Int) {
-        showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
-        rvPracticeCards.postDelayed({
-            cardsRecycleViewAdapter.notifyItemRemoved(deletedItemPosition)
-            rvPracticeCards.postDelayed({
-                finish()
-            }, DELETE_ITEM_ANIMATION_TIME)
-        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS)
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        ShowLogs.log(TAG, "onResume with : courseId$courseId")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.disposeAll()
-        cardsCompositeDisposables.clear()
+        with(intent.getIntExtra(ConstantValues.COURSE_ITEM_DELETED_ID_KEY, -1)) {
+            if (this != -1) {
+                presenter.handleItemDeletedIntent(this)
+            }
+        }
     }
 
     override fun onPause() {
@@ -114,58 +69,42 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         disableCardViewCountsUpdater()
     }
 
-    private fun setDoneQuestionsAmount() {
-        if (courseId != -1 && doneQuestionsAmount != 0) {
-            if (!isShowAllCards) {
-                presenter.increaseCourseDoneQuestionsAmountBy(courseId, doneQuestionsAmount)
-                doneQuestionsAmount = 0
-            }
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.disposeAll()
     }
 
-    private fun initializeViews(intent: Intent = getIntent()) {
-        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-        isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
-        presenter.takeView(this)
-        if (isShowAllCards) {
-            presenter.populateAllCards(courseId)
+    override fun lastCardDeleted(deletedItemPosition: Int) {
+        showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
+        rvPracticeCards.postDelayed({
+            cardsRecycleViewAdapter.notifyItemRemoved(deletedItemPosition)
+            rvPracticeCards.postDelayed({
+                finish()
+            }, DELETE_ITEM_ANIMATION_TIME)
+        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS)
+    }
+
+    override fun notifyDataSetChangedAdapter() {
+        rvPracticeCards.adapter.notifyDataSetChanged()
+    }
+
+    override fun markAsDone(isLastCard: Boolean) {
+        doneQuestionsAmount++
+        if (isLastCard) {
+            showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
+            rvPracticeCards.postDelayed({
+                setDoneQuestionsAmount()
+                finish()
+            }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + PracticeCardsActivity.DELETE_ITEM_ANIMATION_TIME)
         } else {
-            presenter.populateNotLearnedCards(courseId)
-
-        }
-    }
-
-    override fun updateAdapterCardsData(data: ArrayList<QuestionDo>) {
-        if (this::cardsRecycleViewAdapter.isInitialized) {
-            cardsRecycleViewAdapter.data.clear()
-            cardsRecycleViewAdapter.data.addAll(data)
-            cardsRecycleViewAdapter.notifyDataSetChanged()
+            showFireWorkAnimation(rvPracticeCards, ConstantValues.CARD_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 50)
         }
     }
 
     override fun initializeRecycleView(data: ArrayList<QuestionDo>) {
         cardsRecycleViewAdapter = PracticeCardsRecycleViewAdapter(data, courseId)
-        cardsCompositeDisposables.addAll(
-                cardsRecycleViewAdapter.getIBMarkAsDoneObservable().subscribe({
-                    presenter.updateQuestion(it)
-                    doneQuestionsAmount++
-                    if (isLastQuestionCard(data.size)) {
-                        showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
-                        rvPracticeCards.postDelayed({
-                            setDoneQuestionsAmount()
-                            finish()
-                        }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + DELETE_ITEM_ANIMATION_TIME)
-                    } else {
-                        showFireWorkAnimation(rvPracticeCards, ConstantValues.CARD_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 50)
-                    }
-                }, {
-                    showToast("please try to \"mark as done\" this card again")
-                }),
-                cardsRecycleViewAdapter.getViewsCountPublishSubject().subscribe({
-                    presenter.updateViewCountOfCard(it)
-                }, {
-
-                }))
+        presenter.subscribeToMarkAsDoneButton(cardsRecycleViewAdapter.getIBMarkAsDoneObservable())
+        presenter.subscribeToMarkAsDoneButton(cardsRecycleViewAdapter.getViewsCountPublishSubject())
         setPBVisibility(false)
         rvPracticeCards.run {
             visibility = View.VISIBLE
@@ -178,22 +117,6 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
             adapter = cardsRecycleViewAdapter
             PagerSnapHelper().attachToRecyclerView(this)
         }
-    }
-
-    private fun scrollToPosition(cardId: Int) {
-        cardsRecycleViewAdapter.data.forEachIndexed { index, questionDo ->
-            if (questionDo.id == cardId) {
-                rvPracticeCards.layoutManager.scrollToPosition(index)
-                ShowLogs.log(TAG, "onNewIntent scrollToPosition($index)")
-
-            }
-        }
-    }
-
-    private fun isLastQuestionCard(dataSize: Int) = dataSize == 1
-
-    private fun setPBVisibility(isVisible: Boolean) {
-        pbPracticeCards.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     override fun showToast(text: String) {
@@ -211,11 +134,49 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         finish()
     }
 
+    private fun focusOnCardWithId(cardId: Int) {
+        presenter.getCardPositionInList(cardId).run {
+            if (this != -1) {
+                scrollToPosition(this)
+                cardsRecycleViewAdapter.sendDelayMessageViewCounts(this, ConstantValues.UPDATE_VIEW_COUNTS_SHORT_TIMER_MS)
+            }
+        }
+    }
+
     private fun disableCardViewCountsUpdater() {
         if (this::cardsRecycleViewAdapter.isInitialized) {
             cardsRecycleViewAdapter.disableAllHandlerMessages()
             ShowLogs.log(TAG, "disableCardViewCountsUpdater() cardsRecycleViewAdapter initialized = true")
         }
+    }
+
+    private fun initializeViews(intent: Intent = getIntent()) {
+        courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
+        isShowAllCards = intent.getBooleanExtra(ConstantValues.SHOW_ALL_CARDS_KEY, false)
+        presenter.takeView(this)
+        if (isShowAllCards) {
+            presenter.populateAllCards(courseId)
+        } else {
+            presenter.populateNotLearnedCards(courseId)
+        }
+    }
+
+    private fun setDoneQuestionsAmount() {
+        if (courseId != -1 && doneQuestionsAmount != 0) {
+            if (!isShowAllCards) {
+                presenter.increaseCourseDoneQuestionsAmountBy(courseId, doneQuestionsAmount)
+                doneQuestionsAmount = 0
+            }
+        }
+    }
+
+    private fun scrollToPosition(position: Int) {
+        rvPracticeCards.layoutManager.scrollToPosition(position)
+        ShowLogs.log(TAG, "onNewIntent scrollToPosition($position)")
+    }
+
+    private fun setPBVisibility(isVisible: Boolean) {
+        pbPracticeCards.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     companion object {

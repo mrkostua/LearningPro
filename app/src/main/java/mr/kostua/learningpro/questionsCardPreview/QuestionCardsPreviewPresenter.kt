@@ -23,19 +23,21 @@ class QuestionCardsPreviewPresenter @Inject constructor(private val db: DBHelper
     override fun disposeAll() {
         disposables.clear()
     }
+
     override lateinit var view: QuestionCardsPreviewContract.View
     override fun takeView(view: QuestionCardsPreviewContract.View) {
         this.view = view
     }
 
-    private lateinit var data: ArrayList<QuestionDo>
+    private val data = ArrayList<QuestionDo>()
     private fun isLastCard() = data.size == 0
     private fun isLastEditedCard() = data.size == 1
 
     override fun populateNotAcceptedQuestions(courseId: Int) {
         disposables.add(DBObserverHelper.getNotAcceptedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
-                data = list as ArrayList
+                data.clear()
+                data.addAll(list)
                 view.initializeRecycleView(data)
             }
 

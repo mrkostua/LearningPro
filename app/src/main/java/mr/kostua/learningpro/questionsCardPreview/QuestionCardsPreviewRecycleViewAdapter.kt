@@ -42,7 +42,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         holder.bind(data[position])
     }
 
-    @SuppressLint("CheckResult") //TODO refactoring
+    @SuppressLint("CheckResult")
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val etQuestionPreview: EditText = view.findViewById(R.id.etQuestionPreview)
         private val etAnswerPreview: EditText = view.findViewById(R.id.etAnswerPreview)

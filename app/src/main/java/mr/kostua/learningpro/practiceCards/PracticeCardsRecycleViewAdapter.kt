@@ -27,14 +27,14 @@ import java.lang.ref.WeakReference
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
+class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, private val courseId: Int) : RecyclerView.Adapter<PracticeCardsRecycleViewAdapter.ViewHolder>() {
     private val TAG = this.javaClass.simpleName
     private val ibMarkAsDonePublishSubject = PublishSubject.create<QuestionDo>()
-    fun getIBMarkAsDoneObservable(): Observable<QuestionDo> = ibMarkAsDonePublishSubject.hide()
     private val viewsCountPublishSubject = PublishSubject.create<QuestionDo>()
-    fun getViewsCountPublishSubject(): Observable<QuestionDo> = viewsCountPublishSubject.hide()
     private lateinit var handler: PracticeCardsHandler
 
+    fun getViewsCountPublishSubject(): Observable<QuestionDo> = viewsCountPublishSubject.hide()
+    fun getIBMarkAsDoneObservable(): Observable<QuestionDo> = ibMarkAsDonePublishSubject.hide()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.practice_card_row_item, parent, false)).run {
@@ -56,7 +56,7 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
     }
 
     fun sendDelayMessageViewCounts(cardPosition: Int, timeMs: Long) {
-        ShowLogs.log(TAG,"sendDelayMessageViewCounts")
+        ShowLogs.log(TAG, "sendDelayMessageViewCounts")
         handler.sendMessageDelayed(handler.obtainMessage(PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY, cardPosition), timeMs)
     }
 
@@ -76,46 +76,14 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
         private val flipViewPracticeCard: EasyFlipView = view.findViewById(R.id.flipViewPracticeCard)
         private var flippedItemId = -1
 
-        fun updateViewCounts(adapterPositionToUpdate: Int) {
-            ++data[adapterPositionToUpdate].viewsCount
-            ShowLogs.log(TAG, "updateViewCounts() viewCounts : ${data[adapterPositionToUpdate].viewsCount}")
-            notifyItemChanged(adapterPositionToUpdate)
-            viewsCountPublishSubject.onNext(data[adapterPositionToUpdate])
-        }
-
-        fun checkIfAnswerIsStillOpened(oldAdapterPosition: Int): Boolean {
-            val result = oldAdapterPosition == adapterPosition && flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE
-            ShowLogs.log(TAG, "checkIfAnswerIsStillOpened : is : oldAdapter : $oldAdapterPosition adaPost $adapterPosition and flipState is :${flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE} and result is :$result ")
-            return result
-        }
-
         init {
             tvCardQuestion.movementMethod = ScrollingMovementMethod()
-            RxView.clicks(bFlipCardQuestionSide).subscribe {
-                flipView(1000)
-                flippedItemId = data[adapterPosition].id!!
-                disableAllHandlerMessages()
-                sendDelayMessageViewCounts(adapterPosition, ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)
-                ShowLogs.log(TAG, "bFlipCardQuestionSide : delay message send  : cardId :${data[adapterPosition].id!!} adapterPosition is :$adapterPosition")
-            }
-
             tvCardAnswer.movementMethod = ScrollingMovementMethod()
-            RxView.clicks(bFlipCardAnswerSide).subscribe {
-                disableAllHandlerMessages()
-                ShowLogs.log(TAG, "bFlipCardAnswerSide")
-                flippedItemId = -1
-                flipView(1000)
-            }
 
-            RxView.clicks(ibEditCard).subscribe {
-                ibEditClickListener()
-            }
-            RxView.clicks(ibMarkCardAsDone).subscribe {
-                data[adapterPosition].isLearned = true
-                flippedItemId = -1
-                ibMarkAsDonePublishSubject.onNext(data[adapterPosition])
-                ibMarkAsDoneClickListener(clAnswerSide)
-            }
+            setFlipCardQuestionSideClickListener()
+            setFlipCardAnswerSideClickListener()
+            setEditCardClickListener()
+            setMarkCardAsDoneClickListener()
         }
 
         fun bind(item: QuestionDo) {
@@ -138,12 +106,59 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             tvAnswerReadCount.text = item.viewsCount.toString()
         }
 
+        fun updateViewCounts(adapterPositionToUpdate: Int) {
+            ++data[adapterPositionToUpdate].viewsCount
+            ShowLogs.log(TAG, "updateViewCounts() viewCounts : ${data[adapterPositionToUpdate].viewsCount}")
+            notifyItemChanged(adapterPositionToUpdate)
+            viewsCountPublishSubject.onNext(data[adapterPositionToUpdate])
+        }
+
+        fun checkIfAnswerIsStillOpened(oldAdapterPosition: Int): Boolean {
+            val result = oldAdapterPosition == adapterPosition && flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE
+            ShowLogs.log(TAG, "checkIfAnswerIsStillOpened : is : oldAdapter : $oldAdapterPosition adaPost $adapterPosition and flipState is :${flipViewPracticeCard.currentFlipState == EasyFlipView.FlipState.BACK_SIDE} and result is :$result ")
+            return result
+        }
+
+        private fun setFlipCardQuestionSideClickListener() {
+            RxView.clicks(bFlipCardQuestionSide).subscribe {
+                flipView(1000)
+                flippedItemId = data[adapterPosition].id!!
+                disableAllHandlerMessages()
+                sendDelayMessageViewCounts(adapterPosition, ConstantValues.UPDATE_VIEW_COUNTS_TIMER_MS)
+                ShowLogs.log(TAG, "bFlipCardQuestionSide : delay message send  : cardId :${data[adapterPosition].id!!} adapterPosition is :$adapterPosition")
+            }
+        }
+
+        private fun setFlipCardAnswerSideClickListener() {
+            RxView.clicks(bFlipCardAnswerSide).subscribe {
+                disableAllHandlerMessages()
+                ShowLogs.log(TAG, "bFlipCardAnswerSide")
+                flippedItemId = -1
+                flipView(1000)
+            }
+        }
+
+        private fun setEditCardClickListener() {
+            RxView.clicks(ibEditCard).subscribe {
+                edit()
+            }
+        }
+
+        private fun setMarkCardAsDoneClickListener() {
+            RxView.clicks(ibMarkCardAsDone).subscribe {
+                data[adapterPosition].isLearned = true
+                flippedItemId = -1
+                ibMarkAsDonePublishSubject.onNext(data[adapterPosition])
+                markAsDone(clAnswerSide)
+            }
+        }
+
         private fun flipView(duration: Int) {
             flipViewPracticeCard.flipDuration = duration
             flipViewPracticeCard.flipTheView()
         }
 
-        private fun ibEditClickListener() {
+        private fun edit() {
             with(view.context) {
                 ibEditCard.postDelayed({
                     startActivity(Intent(this, QuestionsCardsPreviewActivity::class.java)
@@ -154,7 +169,7 @@ class PracticeCardsRecycleViewAdapter(val data: ArrayList<QuestionDo>, private v
             }
         }
 
-        private fun ibMarkAsDoneClickListener(currentSideLayout: View) {
+        private fun markAsDone(currentSideLayout: View) {
             ibMarkCardAsDone.postDelayed({
                 data.removeAt(adapterPosition)
                 currentSideLayout.setBackgroundResource(R.color.question_card_preview_accept_animation_color)
