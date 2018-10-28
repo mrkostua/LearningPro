@@ -26,15 +26,28 @@ class DBHelper @Inject constructor(private val db: LocalDB, sp: SharedPreference
 
     fun updateCourseIsReviewedState(courseId: Int) = db.coursesDao().updateCourseIsReviewedState(courseId) == 1
 
+    fun getCourseQuestions(courseId: Int) = db.questionsDao().getAllQuestionsFromCourse(courseId)
 
-    fun countQuestionsAmountInCourse(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().countQuestionsAmountInCourse(courseId) }
-
-    fun getCourseWithQuestions(courseId: Int) = db.courseWithQuestionsDao().getCourseWithQuestions(courseId)
+    fun getCourse(courseId: Int): Single<CourseDo> = Single.fromCallable { db.coursesDao().getCourse(courseId) }
 
     fun getCourseWithNotAcceptedQuestions(courseId: Int) = db.questionsDao().getAllNotAcceptedQuestionsFromCourse(courseId)
+
+    fun getQuestion(questionId: Int) = db.questionsDao().getQuestionFromCourse(questionId)
+
+    fun getCourseWithNotLearnedQuestions(courseId: Int) = db.questionsDao().getAllNotLearnedQuestionsFromCourse(courseId)
 
     fun updateQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().updateQuestion(question) }
 
     fun deleteQuestion(question: QuestionDo): Single<Int> = Single.fromCallable { db.questionsDao().deleteQuestion(question) }
+
+    fun setCourseQuestionsToNotLearned(courseId: Int): Single<Int> = Single.fromCallable { db.questionsDao().setAllQuestionsToNotLearnedInCourse(courseId) }
+
+    fun increaseDoneQuestionsAmountBy(courseId: Int, increaseValue: Int): Single<Int> = Single.fromCallable { db.coursesDao().increaseDoneQuestionsAmountBy(courseId, increaseValue) }
+
+    fun decreaseQuestionsAmount(courseId: Int, decreaseValue: Int): Single<Int> = Single.fromCallable { db.coursesDao().decreaseQuestionsAmountBy(courseId, decreaseValue) }
+
+    fun setCourseDoneQuestionsToZero(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().setCourseDoneQuestionsToZero(courseId) }
+
+    fun getCourseDoneQuestionsAmount(courseId: Int): Single<Int> = Single.fromCallable { db.coursesDao().getCourseDoneQuestionsAmount(courseId) }
 
 }

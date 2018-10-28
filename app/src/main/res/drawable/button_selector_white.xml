@@ -9,7 +9,7 @@
     </item>
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/main_buttons_color" />
+            <solid android:color="@color/preview_button_delete_clicked_color" />
             <corners android:radius="10dp" />
             <stroke android:width="1dp" android:color="@color/bStroke_color" />
         </shape>

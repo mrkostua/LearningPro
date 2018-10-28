@@ -1,14 +1,15 @@
 package mr.kostua.learningpro.tools
 
+import android.app.Activity
 import android.os.Build
-import android.support.annotation.RequiresApi
+import android.support.v7.app.AlertDialog
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
 import android.view.View
-import android.view.ViewAnimationUtils
-import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import com.plattysoft.leonids.ParticleSystem
+import mr.kostua.learningpro.R
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/20/2018.
@@ -32,3 +33,14 @@ fun EditText.showSoftInputOnFocusAllAPI(isShown: Boolean) {
         }
     }
 }
+
+fun AlertDialog.setSlideWindowAnimation() {
+    this.window.attributes.windowAnimations = R.style.CustomAlertDialogAnimation
+}
+
+fun Activity.showFireWorkAnimation(viewEmitter: View, timeToLive: Long, numParticles: Int) {
+    ParticleSystem(this, numParticles, R.drawable.yellow_star_icon, timeToLive)
+            .setSpeedRange(0.2f, 0.5f)
+            .oneShot(viewEmitter, numParticles)
+}
+

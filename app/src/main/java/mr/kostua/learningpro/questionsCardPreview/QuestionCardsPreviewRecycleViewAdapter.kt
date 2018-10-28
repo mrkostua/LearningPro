@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.questionsCardPreview
 
+import android.animation.Animator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
@@ -16,13 +17,13 @@ import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.QuestionDo
+import mr.kostua.learningpro.tools.ConstantValues
 import mr.kostua.learningpro.tools.showSoftInputOnFocusAllAPI
 
 /**
  * @author Kostiantyn Prysiazhnyi on 8/10/2018.
  */
 class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<QuestionDo>, private val context: Context) : RecyclerView.Adapter<QuestionCardsPreviewRecycleViewAdapter.ViewHolder>() {
-    private val TAG = this.javaClass.simpleName
     private val bAcceptPublishSubject = PublishSubject.create<QuestionDo>()
     fun getButtonAcceptObservable(): Observable<QuestionDo> = bAcceptPublishSubject.hide()
 
@@ -32,10 +33,8 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
     private val bDeletePublishSubject = PublishSubject.create<QuestionDo>()
     fun getButtonDeleteObservable(): Observable<QuestionDo> = bDeletePublishSubject.hide()
 
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.question_preview_row_item, parent, false))
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.question_preview_row_item, parent, false))
 
     override fun getItemCount() = data.size
 
@@ -43,31 +42,45 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         holder.bind(data[position])
     }
 
-
+    @SuppressLint("CheckResult")
     inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val etQuestionPreview: EditText = view.findViewById(R.id.etQuestionPreview)
         private val etAnswerPreview: EditText = view.findViewById(R.id.etAnswerPreview)
         private val tvCurrentQuestionNumber: TextView = view.findViewById(R.id.tvCurrentQuestionNumber)
         private val bAcceptOrSave: Button = view.findViewById(R.id.bAcceptOrSave)
         private val bEditOrDelete: Button = view.findViewById(R.id.bEditOrDelete)
+        private var editableItemId = -1
+        private fun isCurrentCardAvailable() = data.getOrNull(adapterPosition) != null
 
         init {
+            initializeAcceptSaveClickListeners()
+            initializeEditDeleteClickListeners()
+        }
+
+        private fun initializeAcceptSaveClickListeners() {
             RxView.clicks(bAcceptOrSave).subscribe {
-                if (bAcceptOrSave.text == context.getString(R.string.questionPreviewAcceptButton)) {
-                    bAcceptPublishSubject.onNext(data[adapterPosition])
-                    bAccept()
-                } else {
-                    bSavePublishSubject.onNext(data[adapterPosition])
-                    bSave()
+                if (isCurrentCardAvailable()) {
+                    if (bAcceptOrSave.text == context.getString(R.string.questionPreviewAcceptButton)) {
+                        data[adapterPosition].isAccepted = true
+                        bAccept(data[adapterPosition])
+                    } else {
+                        editableItemId = -1
+                        bSave()
+                        bSavePublishSubject.onNext(data[adapterPosition])
+                    }
                 }
             }
+        }
 
+        private fun initializeEditDeleteClickListeners() {
             RxView.clicks(bEditOrDelete).subscribe {
-                if (bEditOrDelete.text == context.getString(R.string.questionPreviewEditButton)) {
-                    bEdit()
-                } else {
-                    bDeletePublishSubject.onNext(data[adapterPosition])
-                    bDelete()
+                if (isCurrentCardAvailable()) {
+                    if (bEditOrDelete.text == context.getString(R.string.questionPreviewEditButton)) {
+                        bEdit()
+                    } else {
+                        bDelete(data[adapterPosition])
+                        editableItemId = -1
+                    }
                 }
             }
         }
@@ -78,7 +91,7 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
             with(item) {
                 tvCurrentQuestionNumber.text = "${data.indexOf(this) + 1} / ${data.size}"
                 etQuestionPreview.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         makeEditTextToBeEditText(this)
                     } else {
                         makeEditTextToBeText(this)
@@ -86,16 +99,15 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                     setText(question)
                 }
                 etAnswerPreview.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         makeEditTextToBeEditText(this)
                     } else {
                         makeEditTextToBeText(this)
                     }
                     setText(answer)
                 }
-
                 bAcceptOrSave.run {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         if (text == context.getString(R.string.questionPreviewAcceptButton)) {
                             animateFromAcceptToSave()
                         }
@@ -105,9 +117,8 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
                         }
                     }
                 }
-
                 bEditOrDelete.apply {
-                    if (isAccepted) {
+                    if (editableItemId == item.id) {
                         if (text == context.getString(R.string.questionPreviewEditButton)) {
                             animateFromAcceptToSave()
                         }
@@ -121,20 +132,24 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         }
 
         private fun bSave() {
-            with(data[adapterPosition]) {
-                isAccepted = false
-                question = etQuestionPreview.text.toString()
-                answer = etAnswerPreview.text.toString()
+            bAcceptOrSave.postDelayed({
+                with(data[adapterPosition]) {
+                    question = etQuestionPreview.text.toString()
+                    answer = etAnswerPreview.text.toString()
+                }
                 performCircularRevealAnimation(true)
                 notifyItemChanged(adapterPosition)
-            }
+            }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
         }
 
-        private fun bAccept() {
-            data.removeAt(adapterPosition)
-            view.setBackgroundResource(R.color.question_card_preview_accept_animation_color)
-            notifyItemRemoved(adapterPosition)
-            notifyItemRangeChanged(0, data.size)
+        private fun bAccept(cardToDelete: QuestionDo) {
+            bAcceptOrSave.postDelayed({
+                data.removeAt(adapterPosition)
+                bAcceptPublishSubject.onNext(cardToDelete)
+                view.setBackgroundResource(R.color.question_card_preview_accept_animation_color)
+                notifyItemRemoved(adapterPosition)
+                notifyItemRangeChanged(0, data.size)
+            }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
         }
 
         private fun bEdit() {
@@ -144,26 +159,27 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
             }
         }
 
-        private fun bDelete() {
-            data.removeAt(adapterPosition)
-            view.setBackgroundResource(R.color.question_card_preview_delete_animation_color)
-            notifyItemRemoved(adapterPosition)
-            notifyItemRangeChanged(0, data.size)
+        private fun bDelete(cardToDelete: QuestionDo) {
+            bEditOrDelete.postDelayed({
+                data.removeAt(adapterPosition)
+                bDeletePublishSubject.onNext(cardToDelete)
+                view.setBackgroundResource(R.color.question_card_preview_delete_animation_color)
+                notifyItemRemoved(adapterPosition)
+                notifyItemRangeChanged(0, data.size)
+            }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
         }
 
+        private lateinit var animationBAccept: Animator
+        private lateinit var animationBEdit: Animator
         private fun performCircularRevealAnimation(isToAccept: Boolean) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                val animationBAccept = getButtonAnimator(bAcceptOrSave,
-                        Math.hypot((bAcceptOrSave.width / 2).toDouble(), (bAcceptOrSave.height / 2).toDouble()).toFloat())
-                animationBAccept.duration = 450
-                val animationBEdit = getButtonAnimator(bEditOrDelete,
-                        Math.hypot((bEditOrDelete.width / 2).toDouble(), (bEditOrDelete.height / 2).toDouble()).toFloat())
-                animationBEdit.duration = 450
+                animationBAccept = getButtonAnimator(bAcceptOrSave).apply { duration = 450 }
+                animationBEdit = getButtonAnimator(bEditOrDelete).apply { duration = 450 }
+
                 if (isToAccept) {
                     animateFromSaveToAccept()
                 } else {
                     animateFromAcceptToSave()
-
                 }
                 animationBAccept.start()
                 animationBEdit.start()
@@ -177,20 +193,23 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
         }
 
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        private fun getButtonAnimator(button: Button, buttonRadius: Float) = ViewAnimationUtils.createCircularReveal(button,
-                button.width / 2, button.height / 2, 0f, buttonRadius)
+        private fun getButtonAnimator(button: Button) = ViewAnimationUtils.createCircularReveal(button,
+                button.width / 2, button.height / 2, 0f, getButtonRadius(button))
 
+        private fun getButtonRadius(button: Button): Float = Math.hypot((button.width / 2).toDouble(), (button.height / 2).toDouble()).toFloat()
 
         private fun setItemToEditable(itemId: Int) {
+            var itemToEdit: QuestionDo = data[0]
             data.forEach {
-                if (it.id == itemId && !it.isAccepted) {
-                    it.isAccepted = true
-                    notifyItemChanged(data.indexOf(it))
-                } else if (it.isAccepted) {
-                    it.isAccepted = false
+                if (it.id == itemId) {
+                    itemToEdit = it
+                } else if (it.id == editableItemId) {
+                    editableItemId = -1
                     notifyItemChanged(data.indexOf(it))
                 }
             }
+            editableItemId = itemToEdit.id!!
+            notifyItemChanged(data.indexOf(itemToEdit))
         }
 
         private fun makeEditTextToBeText(view: EditText) {
@@ -210,9 +229,9 @@ class QuestionCardsPreviewRecycleViewAdapter(private val data: ArrayList<Questio
 
         private fun animateFromAcceptToSave() {
             bEditOrDelete.setText(R.string.questionPreviewDeleteButton)
-            bEditOrDelete.setBackgroundResource(R.drawable.button_selector_hint_colot)
+            bEditOrDelete.setBackgroundResource(R.drawable.button_selector_white)
             bAcceptOrSave.setText(R.string.questionPreviewSaveButton)
-            bAcceptOrSave.setBackgroundResource(R.drawable.button_selector_hint_colot)
+            bAcceptOrSave.setBackgroundResource(R.drawable.button_selector_white)
 
         }
 

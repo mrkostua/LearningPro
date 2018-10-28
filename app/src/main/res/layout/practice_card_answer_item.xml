@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/practice_card_answer_bg"
+    android:paddingLeft="4dp"
+    android:paddingTop="12dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/ivDoneCardSign"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:contentDescription="question sign"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_pc_answer_sign" />
+
+    <TextView
+        android:id="@+id/tvCardAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/shape_round_corners"
+        android:gravity="center"
+        android:scrollbars="vertical"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/barrier"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivDoneCardSign" />
+
+    <Button
+        android:id="@+id/bFlipCardAnswerSide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/practice_card_answer_b_flip"
+        android:text="Flip"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivAnswerReadCountIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="read times"
+        android:tooltipText="read times"
+        app:layout_constraintBottom_toTopOf="@+id/tvAnswerReadCount"
+        app:layout_constraintEnd_toEndOf="@+id/tvAnswerReadCount"
+        app:layout_constraintStart_toStartOf="@+id/tvAnswerReadCount"
+        app:srcCompat="@drawable/book_open_page_variant" />
+
+    <TextView
+        android:id="@+id/tvAnswerReadCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/tvCardAnswer"
+        app:layout_constraintStart_toStartOf="@+id/tvCardAnswer" />
+
+    <ImageButton
+        android:id="@+id/ibEditCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/button_selector"
+        android:contentDescription="edit card"
+        android:paddingStart="8dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:tooltipText="edit card"
+        app:layout_constraintBottom_toBottomOf="@+id/ibMarkCardAsDone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/bFlipCardAnswerSide"
+        app:srcCompat="@drawable/icon_edit_practice_card" />
+
+    <ImageButton
+        android:id="@+id/ibMarkCardAsDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/button_selector"
+        android:contentDescription="mark as done"
+        android:paddingStart="10dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="6dp"
+        android:tooltipText="mark card as done"
+        app:layout_constraintBottom_toTopOf="@+id/bFlipCardAnswerSide"
+        app:layout_constraintEnd_toStartOf="@+id/bFlipCardAnswerSide"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/icon_brain" />
+
+    <android.support.constraint.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="ibEditCard,ibMarkCardAsDone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</android.support.constraint.ConstraintLayout>

@@ -7,6 +7,7 @@ import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 import mr.kostua.learningpro.data.DBHelper
 import mr.kostua.learningpro.data.local.CourseDo
+import mr.kostua.learningpro.tools.DBObserverHelper
 import javax.inject.Inject
 
 /**
@@ -65,5 +66,24 @@ class MainPagePresenter @Inject constructor(private val db: DBHelper) : MainPage
         val fileStringUri = db.getCreatingCourseStringUri()
         val savedUri = if (fileStringUri.isNotEmpty()) Uri.parse(fileStringUri) else null
         return savedUri != null && savedUri == fileUri
+    }
+
+    override fun startLastOpenedCourse() {
+        if (db.isLastOpenedCourseIdExists()) {
+            disposables.add(DBObserverHelper.getCourse(db, object : DisposableSingleObserver<CourseDo>() {
+                override fun onSuccess(course: CourseDo) {
+                    view.startLastOpenedCourse(course)
+                }
+
+                override fun onError(e: Throwable) {
+                    //test it is mean there is no course id like this exists yes?
+                    view.showToast("no saved course found :(")
+                }
+
+            }, db.getLastOpenedCourseId()))
+        } else {
+            view.showToast("no saved course found :(")
+        }
+
     }
 }

@@ -60,12 +60,12 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         val otherText = StringBuffer()
         var questionsAmount = 0
         val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
-        ShowLogs.log(TAG,"lineCounts is $linesCount")
+        ShowLogs.log(TAG, "lineCounts is $linesCount")
         BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
                 "UTF-8")).useLines {
             it.forEachIndexed { index, line ->
                 if (index % 10 == 0 || linesCount == index) {
-                    ShowLogs.log(TAG,"update notification : $index")
+                    ShowLogs.log(TAG, "update notification : $index")
 
                     notificationTools.updateNewCourseNotificationProgress(createCourseNotification, linesCount, index)
                 }
@@ -142,5 +142,4 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         }
 
     }
-
 }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.wajahatkarim3.easyflipview.EasyFlipView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/flipViewPracticeCard"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:flipDuration="400"
+    app:flipEnabled="true"
+    app:flipType="horizontal"
+    app:flipOnTouch="false">
+    <!--Back-->
+    <include
+        android:id="@+id/iAnswerSideCard"
+        layout="@layout/practice_card_answer_item" />
+
+    <!--Front-->
+    <include
+        android:id="@+id/iQuestionSideCard"
+        layout="@layout/practice_card_question_item" />
+
+</com.wajahatkarim3.easyflipview.EasyFlipView>

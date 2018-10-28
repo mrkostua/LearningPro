@@ -9,4 +9,4 @@ import android.arch.persistence.room.PrimaryKey
  */
 @Entity(tableName = "questions", foreignKeys = [ForeignKey(entity = CourseDo::class, parentColumns = ["id"], childColumns = ["courseId"], onDelete = ForeignKey.CASCADE)])
 data class QuestionDo(@PrimaryKey(autoGenerate = true) var id: Int? = null, var question: String,
-                      var answer: String, var isAccepted: Boolean = false, var courseId: Int)
+                      var answer: String, var isAccepted: Boolean = false, var courseId: Int, var viewsCount: Int = 0, var isLearned: Boolean = false)

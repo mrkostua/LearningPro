@@ -20,7 +20,22 @@ interface QuestionsDao {
     @Query("SELECT * FROM questions WHERE courseId = :courseId AND isAccepted = 0")
     fun getAllNotAcceptedQuestionsFromCourse(courseId: Int): Single<List<QuestionDo>>
 
+    @Query("SELECT * FROM questions WHERE id = :questionId")
+    fun getQuestionFromCourse(questionId: Int): Single<QuestionDo>
+
+    @Query("SELECT * FROM questions WHERE courseId = :courseId")
+    fun getAllQuestionsFromCourse(courseId: Int): Single<List<QuestionDo>>
+
+    @Query("SELECT * FROM questions WHERE courseId = :courseId AND isLearned = 0")
+    fun getAllNotLearnedQuestionsFromCourse(courseId: Int): Single<List<QuestionDo>>
+
     @Query("SELECT COUNT(id) FROM questions WHERE courseId = :courseId")
-    fun countQuestionsAmountInCourse(courseId: Int) : Int
+    fun countQuestionsAmountInCourse(courseId: Int): Int
+
+    @Query("UPDATE questions SET isLearned = 0 WHERE courseId = :courseId")
+    fun setAllQuestionsToNotLearnedInCourse(courseId: Int): Int
+
+
+
 
 }

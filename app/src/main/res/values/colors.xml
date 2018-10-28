@@ -20,6 +20,8 @@
     <color name="main_buttons_blocked_color">#77009688</color>
 
     <color name="main_buttons_color">#77ef6c00</color>
+    <color name="preview_button_delete_clicked_color">#ffffff</color>
+    <color name="preview_button_save_clicked_color">#ffffff</color>
     <color name="question_card_preview_accept_animation_color">#9652b143</color>
     <color name="question_card_preview_delete_animation_color">#96a74029</color>
     <color name="tabTextColor">#ffffff</color>
@@ -28,4 +30,9 @@
 
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+
+    <color name="practice_card_question_bg_color">#77ef9b00</color>
+    <color name="practice_card_answer_bg_color">#7759a700</color>
+
+    <color name="empty_color">@null</color>
 </resources>

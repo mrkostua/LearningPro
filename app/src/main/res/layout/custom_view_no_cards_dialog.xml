@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/create_course_dialog_background"
+    android:paddingBottom="8dp"
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:id="@+id/tvNewCourseDialogMainTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="Course finished"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <RadioGroup
+        android:id="@+id/rgNoCardsDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvNewCourseDialogMainTitle">
+
+        <RadioButton
+            android:id="@+id/rbFinishedCourseShowAllCards"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Show all cards"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+        <RadioButton
+            android:id="@+id/rbFinishedCoursePracticeAgain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Start this course again"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+    </RadioGroup>
+
+    <View
+        android:id="@+id/vNewCourseHorizontalLine"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rgNoCardsDialog" />
+
+    <Button
+        android:id="@+id/bNoCardsDialogDo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/button_selector"
+        android:minHeight="40dp"
+        android:text="Do"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vNewCourseHorizontalLine" />
+
+    <Button
+        android:id="@+id/bNoCardsDialogBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/button_selector"
+        android:minHeight="40dp"
+        android:text="@string/b_back"
+        app:layout_constraintEnd_toStartOf="@+id/bNoCardsDialogDo"
+        app:layout_constraintTop_toTopOf="@+id/bNoCardsDialogDo" />
+
+
+</android.support.constraint.ConstraintLayout>

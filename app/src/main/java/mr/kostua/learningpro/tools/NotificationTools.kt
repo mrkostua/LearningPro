@@ -2,6 +2,7 @@ package mr.kostua.learningpro.tools
 
 import android.app.*
 import android.content.Context
+import android.support.v7.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -26,7 +27,6 @@ class NotificationTools @Inject constructor(private val context: Context) {
         }
     }
 
-    //TODO some new updates about displaying icons on notif, read and make them visible (old and new APIs)
     fun createNewCourseNotification(courseTitle: String): NotificationCompat.Builder = NotificationCompat.Builder(context, ConstantValues.NOTIFICATION_CHANNEL_ID)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
@@ -53,7 +53,7 @@ class NotificationTools @Inject constructor(private val context: Context) {
                 .addAction(R.drawable.ic_arrow_continue, context.getString(R.string.courseSavedNotificationActionContinue),
                         PendingIntent.getBroadcast(context, 0,
                                 Intent(ConstantValues.ACTION_CONTINUE_COURSE_CREATION)
-                                        .putExtra(ConstantValues.CONTINUE_COURSE_CREATION_COURSE_ID_KEY, courseId)
+                                        .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
                                         .setClass(context, MainReceiver::class.java),
                                 0))
                 .setAutoCancel(true).build())
@@ -87,12 +87,14 @@ class NotificationTools @Inject constructor(private val context: Context) {
 
     fun showCustomAlertDialog(activity: Activity, title: String, message: String,
                               buttonsClickListener: DialogInterface.OnClickListener) {
-        AlertDialog.Builder(activity, R.style.CustomAlertDialogStyle)
+        val dialog = AlertDialog.Builder(activity, R.style.CustomAlertDialogStyle)
                 .setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(activity.getString(R.string.customDialogPositiveButtonText), buttonsClickListener)
                 .setNegativeButton(activity.getString(R.string.customDialogNegativeButtonText), buttonsClickListener)
-                .create().show()
+                .create()
+        dialog.setSlideWindowAnimation()
+        dialog.show()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

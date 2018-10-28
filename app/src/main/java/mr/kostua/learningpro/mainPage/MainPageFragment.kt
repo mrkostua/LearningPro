@@ -16,6 +16,8 @@ import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.local.CourseDo
 import mr.kostua.learningpro.injections.scopes.FragmentScope
 import mr.kostua.learningpro.mainPage.executionService.NewCourseCreationService
+import mr.kostua.learningpro.practiceCards.PracticeCardsActivity
+import mr.kostua.learningpro.questionsCardPreview.QuestionsCardsPreviewActivity
 import mr.kostua.learningpro.tools.*
 import javax.inject.Inject
 
@@ -34,11 +36,9 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.getBooleanExtra(ConstantValues.INTENT_KEY_IS_B_CREATE_BLOCKED, false)) {
                 setBlockCreateButton(false)
-
             }
             if (intent.getBooleanExtra(ConstantValues.INTENT_KEY_COURSE_CREATION_FAILED, false)) {
                 notificationTools.showToastMessage(resources.getString(R.string.failedToChooseFileMessage))
-
             }
         }
     }
@@ -73,13 +73,32 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     override fun onClick(v: View) {
         when (v.id) {
             R.id.bCreateNewCourse -> {
-                startActivityToChooseFile()
+                bCreateNewCourse.postDelayed({
+                    startActivityToChooseFile()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
             R.id.bOpenCurrentCourse -> {
+                bOpenCurrentCourse.postDelayed({
+                    presenter.startLastOpenedCourse()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
             R.id.bManageReminders -> {
             }
         }
+    }
+
+    override fun startLastOpenedCourse(course: CourseDo) {
+        if (course.reviewed) {
+            startActivity(Intent(fragmentContext, PracticeCardsActivity::class.java)
+                    .putExtra(ConstantValues.COURSE_ID_KEY, course.id!!))
+        } else {
+            startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                    .putExtra(ConstantValues.COURSE_ID_KEY, course.id!!))
+        }
+    }
+
+    override fun showToast(message: String) {
+        notificationTools.showToastMessage(message)
     }
 
     override fun startNewCourseCreationService(data: Uri, courseId: Int) {
@@ -100,6 +119,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             if (data?.data != null) {
                 showCreateCourseDialog(data.data)
@@ -108,9 +128,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
             }
         } else {
             showFailedToChooseFileMessage()
-
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun showFailedToChooseFileMessage() {
@@ -119,7 +137,6 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
 
     override fun showMessageCourseCreatedSuccessfully(courseName: String) {
         notificationTools.showToastMessage("course \"$courseName\" was created successfully")
-
     }
 
     override fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri) {
@@ -144,6 +161,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 clBackgroundLayout, false)
         val createCourseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView).create()
+        createCourseDialog.setSlideWindowAnimation()
         with(customDialogView) {
             initializeCourseDataFromSP(this, data)
 
@@ -154,8 +172,11 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                 startActivityToChooseFile()
             }
             bNewCourseBack.setOnClickListener {
-                createCourseDialog.dismiss()
-                saveCourseInSP(this, data)
+                bNewCourseBack.postDelayed({
+                    saveCourseInSP(this, data)
+                    createCourseDialog.dismiss()
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
+
             }
             bNewCourseCreate.setOnClickListener {
                 when {
@@ -164,11 +185,12 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
                     tvNewCourseDialogFileName.text == resources.getString(R.string.create_course_dialog_default_file_name) ->
                         notificationTools.showToastMessage("Please choose the file with questions before continuing")
                     else -> {
-                        presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
-                                description = etNewCourseDialogDescription.text.toString()))
-
                         setBlockCreateButton(true)
-                        createCourseDialog.dismiss()
+                        bNewCourseCreate.postDelayed({
+                            presenter.processData(data, CourseDo(title = etNewCourseDialogTitle.text.toString(),
+                                    description = etNewCourseDialogDescription.text.toString()))
+                            createCourseDialog.dismiss()
+                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
                     }
                 }
             }
