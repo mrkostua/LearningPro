@@ -36,11 +36,9 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.getBooleanExtra(ConstantValues.INTENT_KEY_IS_B_CREATE_BLOCKED, false)) {
                 setBlockCreateButton(false)
-
             }
             if (intent.getBooleanExtra(ConstantValues.INTENT_KEY_COURSE_CREATION_FAILED, false)) {
                 notificationTools.showToastMessage(resources.getString(R.string.failedToChooseFileMessage))
-
             }
         }
     }
@@ -121,6 +119,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             if (data?.data != null) {
                 showCreateCourseDialog(data.data)
@@ -129,9 +128,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
             }
         } else {
             showFailedToChooseFileMessage()
-
         }
-        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun showFailedToChooseFileMessage() {
@@ -140,7 +137,6 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
 
     override fun showMessageCourseCreatedSuccessfully(courseName: String) {
         notificationTools.showToastMessage("course \"$courseName\" was created successfully")
-
     }
 
     override fun showDialogCourseCreationFailed(courseName: String, fileUri: Uri) {

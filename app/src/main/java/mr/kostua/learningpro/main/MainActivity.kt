@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.main
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.TabLayout
@@ -20,6 +21,7 @@ import mr.kostua.learningpro.mainPage.MainPageFragment
 class MainActivity : BaseDaggerActivity() {
     private val TAG = this.javaClass.simpleName
 
+    @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState, R.layout.activity_main)
         enableHomeButton(false)

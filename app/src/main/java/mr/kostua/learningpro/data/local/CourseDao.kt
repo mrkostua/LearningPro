@@ -26,7 +26,7 @@ interface CourseDao {
     fun increaseDoneQuestionsAmountBy(courseId: Int, increaseValue: Int): Int
 
     @Query("UPDATE courses SET doneQuestionsAmount = 0 WHERE id = :courseId")
-    fun updateDoneQuestionsAmount(courseId: Int): Int
+    fun setCourseDoneQuestionsToZero(courseId: Int): Int
 
     @Query("SELECT doneQuestionsAmount FROM courses WHERE id = :courseId")
     fun getCourseDoneQuestionsAmount(courseId: Int): Int

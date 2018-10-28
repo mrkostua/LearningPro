@@ -13,7 +13,7 @@ import javax.inject.Inject
 /**
  * @author Kostiantyn Prysiazhnyi on 9/13/2018.
  */
-@ActivityScope //TODO try to do this class ISSUE #25
+@ActivityScope
 class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : PracticeCardsContract.Presenter {
     private val TAG = this.javaClass.simpleName
     override lateinit var view: PracticeCardsContract.View
@@ -72,7 +72,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
                 if (questions.isNotEmpty()) {
-                    view.initializeRecycleView(questions as ArrayList)
+                    view.initializeRecycleView(getChangedCardsData(questions))
                 } else {
                     view.showToast("All cards from this course are learned.")
                     view.goBack()
@@ -89,9 +89,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
     override fun populateAllCards(courseId: Int) {
         disposables.add(DBObserverHelper.getQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(list: List<QuestionDo>) {
-                data.clear()
-                data.addAll(list)
-                view.initializeRecycleView(data)
+                view.initializeRecycleView(getChangedCardsData(list))
             }
 
             override fun onError(e: Throwable) {
@@ -156,8 +154,7 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
         disposables.add(DBObserverHelper.getNotLearnedQuestions(db, object : DisposableSingleObserver<List<QuestionDo>>() {
             override fun onSuccess(questions: List<QuestionDo>) {
                 if (questions.isNotEmpty()) {
-                    data.clear()
-                    data.addAll(questions)
+                    getChangedCardsData(questions)
                     view.notifyDataSetChangedAdapter()
                 } else {
                     view.showToast("All cards from this course are learned.")
@@ -170,4 +167,11 @@ class PracticeCardsPresenter @Inject constructor(private val db: DBHelper) : Pra
             }
         }, courseId))
     }
+
+    private fun getChangedCardsData(list: List<QuestionDo>) =
+            data.apply {
+                clear()
+                data.addAll(list)
+                data
+            }
 }

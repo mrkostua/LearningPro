@@ -25,11 +25,12 @@ import javax.inject.Inject
  */
 @FragmentScope
 class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), AllCoursesContract.View {
-    private val TAG = this.javaClass.simpleName
-    private lateinit var coursesRecycleViewAdapter: AllCoursesRecycleViewAdapter
     @Inject
     lateinit var notificationTools: NotificationTools
 
+    private val TAG = this.javaClass.simpleName
+    private lateinit var coursesRecycleViewAdapter: AllCoursesRecycleViewAdapter
+    private lateinit var finishedCorseDialog: AlertDialog
     private val courseItemClickListenerCDisposable = CompositeDisposable()
     private fun getStartPracticeActivityIntent() = Intent(fragmentContext, PracticeCardsActivity::class.java)
 
@@ -37,9 +38,10 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
         return inflater.inflate(R.layout.fragment_all_courses, container, false)
     }
 
-    override fun onResume() {
-        super.onResume()
-        ShowLogs.log(TAG, "onResume")
+    override fun onDestroy() {
+        super.onDestroy()
+        courseItemClickListenerCDisposable.clear()
+        presenter.disposeAll()
     }
 
     override fun initializeViews() {
@@ -49,23 +51,8 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
 
     override fun initializeRecycleView(data: List<CourseDo>) {
         coursesRecycleViewAdapter = AllCoursesRecycleViewAdapter(data)
-        courseItemClickListenerCDisposable.add(coursesRecycleViewAdapter.getCourseItemObservable().subscribe {
-            presenter.saveLastOpenedCourseId(it.id!!)
-            rvAllCourses.postDelayed({
-                if (it.reviewed) {
-                    if (it.questionsAmount == it.doneQuestionsAmount) {
-                        createCourseFinishedDialog(it.id!!)
-                    } else {
-                        startActivity(getStartPracticeActivityIntent()
-                                .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!))
-                    }
-                } else {
-                    startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
-                            .putExtra(ConstantValues.COURSE_ID_KEY, it.id!!)
-                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY))
-                }
-            }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
-        })
+        presenter.subscribeCourseItemClick(coursesRecycleViewAdapter.getCourseItemObservable())
+
         rvAllCourses.run {
             visibility = View.VISIBLE
             layoutManager = LinearLayoutManager(fragmentContext)
@@ -103,52 +90,51 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
                 })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        courseItemClickListenerCDisposable.clear()
-        presenter.disposeAll()
-    }
-
-    private fun createCourseFinishedDialog(courseId: Int) {
-        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog, clFragmentAllCourses, false)
-        val dialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
+    override fun createCourseFinishedDialog(courseId: Int) {
+        val customDialogView = LayoutInflater.from(fragmentContext).inflate(R.layout.custom_view_no_cards_dialog,
+                clFragmentAllCourses, false)
+        finishedCorseDialog = AlertDialog.Builder(parentActivity, R.style.CustomAlertDialogStyle)
                 .setView(customDialogView)
                 .create()
-        dialog.setSlideWindowAnimation()
+        finishedCorseDialog.setSlideWindowAnimation()
 
-        var checkedRadioButtonId = -1
         with(customDialogView) {
-            rbFinishedCoursePracticeAgain.setOnClickListener { checkedRadioButtonId = it.id }
-            rbFinishedCourseShowAllCards.setOnClickListener { checkedRadioButtonId = it.id }
+            rbFinishedCoursePracticeAgain.setOnClickListener { presenter.dialogButtonPracticeCourseAgainClickListener() }
+            rbFinishedCourseShowAllCards.setOnClickListener { presenter.dialogButtonShowAllCardsClickListener() }
             bNoCardsDialogDo.setOnClickListener {
-                when (checkedRadioButtonId) {
-                    rbFinishedCoursePracticeAgain.id -> {
-                        it.postDelayed({
-                            presenter.startLearningCourseAgain(courseId)
-                            dialog.dismiss()
-                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
-                    }
-                    rbFinishedCourseShowAllCards.id -> {
-                        it.postDelayed({
-                            startActivity(getStartPracticeActivityIntent()
-                                    .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
-                                    .putExtra(ConstantValues.SHOW_ALL_CARDS_KEY, true))
-                            dialog.dismiss()
-                        }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
-                    }
-                    else -> {
-                        notificationTools.showToastMessage("No actions chosen, please " +
-                                "choose action and press \"Do\"")
-                    }
-                }
+                it.postDelayed({
+                    presenter.dialogButtonDo(courseId)
+                }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
             bNoCardsDialogBack.setOnClickListener {
                 it.postDelayed({
-                    dialog.dismiss()
+                    finishedCorseDialog.dismiss()
                 }, ConstantValues.BUTTON_SELECTOR_ANIMATION_TIME_MS)
             }
         }
-        dialog.show()
+        finishedCorseDialog.show()
+    }
+
+    override fun startPreviewActivity(courseId: Int) {
+        startActivity(Intent(fragmentContext, QuestionsCardsPreviewActivity::class.java)
+                .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+                .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY))
+    }
+
+    override fun showToast(message: String) {
+        notificationTools.showToastMessage(message)
+    }
+
+    override fun startActivityToShowAllCard(courseId: Int) {
+        startActivity(getStartPracticeActivityIntent()
+                .putExtra(ConstantValues.COURSE_ID_KEY, courseId)
+                .putExtra(ConstantValues.SHOW_ALL_CARDS_KEY, true))
+    }
+
+    override fun dismissFinishedCourseDialog() {
+        if (this::finishedCorseDialog.isInitialized) {
+            finishedCorseDialog.dismiss()
+        }
     }
 
     override fun startPracticeCardsActivity(courseId: Int) {

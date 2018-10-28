@@ -17,7 +17,7 @@ import mr.kostua.learningpro.tools.ShowLogs
 import mr.kostua.learningpro.tools.showFireWorkAnimation
 import javax.inject.Inject
 
-class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
+class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View { //TODO fix bugs after refactoring (previously 1-2 commits back all worked properly)
     private val TAG = this.javaClass.simpleName
     @Inject
     public lateinit var notificationTools: NotificationTools
@@ -93,6 +93,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
         if (isLastCard) {
             showFireWorkAnimation(rvPracticeCards, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS, 150)
             rvPracticeCards.postDelayed({
+                ShowLogs.log(TAG, "LAST CARD TRUE")
                 setDoneQuestionsAmount()
                 finish()
             }, ConstantValues.ALL_LEARNED_FIRE_WORK_ANIMATION_TIME_TO_LIVE_MS + PracticeCardsActivity.DELETE_ITEM_ANIMATION_TIME)

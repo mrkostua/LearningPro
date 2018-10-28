@@ -22,13 +22,13 @@ import mr.kostua.learningpro.tools.ShowLogs
  */
 class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerView.Adapter<AllCoursesRecycleViewAdapter.ViewHolder>() {
     private val TAG = this.javaClass.simpleName
+    private val coursePublishSubject = PublishSubject.create<CourseDo>()
+
+    fun getCourseItemObservable(): Observable<CourseDo> = coursePublishSubject.hide()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.course_row_item, parent, false))
     }
-
-    private val coursePublishSubject = PublishSubject.create<CourseDo>()
-    fun getCourseItemObservable(): Observable<CourseDo> = coursePublishSubject.hide()
-
 
     override fun getItemCount() = data.size
 
@@ -54,7 +54,6 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
 
         init {
             RxView.clicks(view).subscribe { coursePublishSubject.onNext(data[adapterPosition]) }
-
         }
 
         fun bind(item: CourseDo) {
@@ -89,6 +88,5 @@ class AllCoursesRecycleViewAdapter(private val data: List<CourseDo>) : RecyclerV
                 }
             }
         }
-
     }
 }

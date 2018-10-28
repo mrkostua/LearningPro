@@ -10,11 +10,13 @@ class MainReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             ConstantValues.ACTION_CONTINUE_COURSE_CREATION -> {
-                val courseId = intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)
-                if (courseId != -1) {
-                    startQuestionsCardPreviewActivity(context, courseId)
+                with(intent.getIntExtra(ConstantValues.COURSE_ID_KEY, -1)) {
+                    if (this != -1) {
+                        startQuestionsCardPreviewActivity(context, this)
+                    }
                 }
             }
+
         }
     }
 
