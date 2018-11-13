@@ -85,7 +85,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     }
 
     override fun notifyDataSetChangedAdapter() {
-        rvPracticeCards.adapter.notifyDataSetChanged()
+        rvPracticeCards.adapter?.notifyDataSetChanged()
     }
 
     override fun markAsDone(isLastCard: Boolean) {
@@ -172,7 +172,7 @@ class PracticeCardsActivity : BaseDaggerActivity(), PracticeCardsContract.View {
     }
 
     private fun scrollToPosition(position: Int) {
-        rvPracticeCards.layoutManager.scrollToPosition(position)
+        rvPracticeCards.layoutManager?.scrollToPosition(position)
         ShowLogs.log(TAG, "onNewIntent scrollToPosition($position)")
     }
 

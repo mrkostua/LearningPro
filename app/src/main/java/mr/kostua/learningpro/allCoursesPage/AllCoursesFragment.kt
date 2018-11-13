@@ -66,7 +66,7 @@ class AllCoursesFragment : FragmentInitializer<AllCoursesContract.Presenter>(), 
      * in presenter data variable was update(because here we using same variable no copy) this methods updates courses.
      */
     override fun updateCourseList() {
-        rvAllCourses.adapter.notifyDataSetChanged()
+        rvAllCourses.adapter?.notifyDataSetChanged()
     }
 
     override fun setPBVisibility(visible: Boolean) {
