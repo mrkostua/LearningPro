@@ -1,5 +1,6 @@
 package mr.kostua.learningpro.main
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ class MainReceiver : BroadcastReceiver() {
 
     private fun startQuestionsCardPreviewActivity(context: Context, courseId: Int) {
         context.startActivity(Intent(context, QuestionsCardsPreviewActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             putExtra(ConstantValues.COURSE_ID_KEY, courseId)
             putExtra(ConstantValues.COURSE_STARTED_FROM_SERVICE, true)
         })
