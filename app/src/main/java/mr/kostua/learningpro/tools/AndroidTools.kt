@@ -2,7 +2,7 @@ package mr.kostua.learningpro.tools
 
 import android.app.Activity
 import android.os.Build
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.text.SpannableString
 import android.text.style.UnderlineSpan
 import android.view.View
@@ -35,7 +35,7 @@ fun EditText.showSoftInputOnFocusAllAPI(isShown: Boolean) {
 }
 
 fun AlertDialog.setSlideWindowAnimation() {
-    this.window.attributes.windowAnimations = R.style.CustomAlertDialogAnimation
+    this.window?.attributes?.windowAnimations = R.style.CustomAlertDialogAnimation
 }
 
 fun Activity.showFireWorkAnimation(viewEmitter: View, timeToLive: Long, numParticles: Int) {

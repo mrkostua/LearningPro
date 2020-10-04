@@ -1,7 +1,7 @@
 package mr.kostua.learningpro.main
 
 import android.os.Bundle
-import android.support.v4.app.NavUtils
+import androidx.core.app.NavUtils
 import android.view.MenuItem
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.base_toolbar.*

@@ -2,14 +2,14 @@ package mr.kostua.learningpro.tools
 
 import android.app.*
 import android.content.Context
-import android.support.v7.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
-import android.support.annotation.RequiresApi
-import android.support.v4.app.NotificationCompat
-import android.support.v4.content.res.ResourcesCompat
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.content.res.ResourcesCompat
 import android.widget.Toast
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.main.MainReceiver

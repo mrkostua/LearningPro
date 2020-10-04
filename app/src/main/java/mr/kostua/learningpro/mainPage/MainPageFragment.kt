@@ -5,8 +5,8 @@ import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v7.app.AlertDialog
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.appcompat.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -122,7 +122,7 @@ class MainPageFragment @Inject constructor() : FragmentInitializer<MainPageContr
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             if (data?.data != null) {
-                showCreateCourseDialog(data.data)
+                showCreateCourseDialog(data.data!!)
             } else {
                 showFailedToChooseFileMessage()
             }

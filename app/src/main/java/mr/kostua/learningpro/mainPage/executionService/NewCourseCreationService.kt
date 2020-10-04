@@ -2,8 +2,8 @@ package mr.kostua.learningpro.mainPage.executionService
 
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.app.NotificationCompat
-import android.support.v4.content.LocalBroadcastManager
+import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import dagger.android.DaggerIntentService
 import mr.kostua.learningpro.R
 import mr.kostua.learningpro.data.DBHelper
@@ -24,8 +24,10 @@ import javax.inject.Inject
 class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewCourseCreationServiceThread") {
     private val TAG = this.javaClass.simpleName
     private lateinit var createCourseNotification: NotificationCompat.Builder
+
     @Inject
     lateinit var dbHelper: DBHelper
+
     @Inject
     lateinit var notificationTools: NotificationTools
 
@@ -59,7 +61,8 @@ class NewCourseCreationService @Inject constructor() : DaggerIntentService("NewC
         val answer = StringBuffer()
         val otherText = StringBuffer()
         var questionsAmount = 0
-        val linesCount = getLinesCount(this.contentResolver.openInputStream(data)) - 1
+        val inputStream = contentResolver.openInputStream(data)?.let { it } ?: return
+        val linesCount = getLinesCount(inputStream) - 1
         ShowLogs.log(TAG, "lineCounts is $linesCount")
         BufferedReader(InputStreamReader(this.contentResolver.openInputStream(data),
                 "UTF-8")).useLines {

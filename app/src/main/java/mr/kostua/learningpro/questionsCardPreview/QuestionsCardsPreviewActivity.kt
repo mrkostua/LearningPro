@@ -3,8 +3,8 @@ package mr.kostua.learningpro.questionsCardPreview
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.PagerSnapHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import android.view.View
 import io.reactivex.disposables.CompositeDisposable
 import jp.wasabeef.recyclerview.animators.FadeInDownAnimator

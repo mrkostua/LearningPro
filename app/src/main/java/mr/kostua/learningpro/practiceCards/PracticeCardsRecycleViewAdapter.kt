@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Handler
 import android.os.Message
-import android.support.constraint.ConstraintLayout
-import android.support.v7.widget.RecyclerView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.RecyclerView
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -186,10 +186,10 @@ class PracticeCardsRecycleViewAdapter(private val data: ArrayList<QuestionDo>, p
 
     private class PracticeCardsHandler(viewHolder: ViewHolder) : Handler() {
         private val wrViewHolder: WeakReference<ViewHolder> = WeakReference(viewHolder)
-        override fun handleMessage(msg: Message?) {
+        override fun handleMessage(msg: Message) {
             val viewHolder = wrViewHolder.get()
             if (viewHolder != null) {
-                when (msg?.what) {
+                when (msg.what) {
                     PracticeCardsRecycleViewAdapter.HANDLER_VIEW_COUNTS_KEY -> {
                         if (msg.obj is Int && viewHolder.checkIfAnswerIsStillOpened(msg.obj as Int)) {
                             viewHolder.updateViewCounts(msg.obj as Int)

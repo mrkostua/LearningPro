@@ -1,7 +1,7 @@
 package mr.kostua.learningpro.data.local
 
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Relation
+import androidx.room.Embedded
+import androidx.room.Relation
 
 /**
  * @author Kostiantyn Prysiazhnyi on 7/21/2018.
