@@ -40,6 +40,13 @@ import java.io.LineNumberReader
  * Here is a lot of if? and it's very important that user will be able to edit cards, as mistakes during converting are not inevitable.
  *
  * Maybe regular expressions or something else, how to read text?
+ *
+ * One solution is : question is 1 sentence long always and ends with a question mark.
+ * In that case we can use OpenNLP to determine this kind of sentences in file with question coordinates.
+ * And after use all of text between questions as answers.
+ * -- It's hard to find bad question here it can be added as an answer to previous question. But if all the rules are followed it must be ok.
+ *
+ *
  */
 
 fun main() {
